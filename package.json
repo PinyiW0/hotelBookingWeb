@@ -1,0 +1,36 @@
+{
+  "name": "nuxt-app",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "nuxt build",
+    "dev": "nuxt dev",
+    "generate": "nuxt generate",
+    "preview": "nuxt preview",
+    "postinstall": "nuxt prepare"
+  },
+  "dependencies": {
+    "@pinia/nuxt": "^0.7.0",
+    "@unocss/reset": "^0.64.0",
+    "@vuepic/vue-datepicker": "^10.0.0",
+    "dayjs": "^1.11.13",
+    "element-plus": "^2.8.7",
+    "nuxt": "^3.14.0",
+    "vee-validate": "^4.14.6",
+    "vue": "latest",
+    "vue-router": "latest",
+    "vue-sweetalert2": "^5.0.11"
+  },
+  "devDependencies": {
+    "@iconify-json/bi": "^1.2.1",
+    "@iconify-json/fluent": "^1.2.6",
+    "@iconify-json/material-symbols": "^1.2.6",
+    "@iconify-json/mdi": "^1.2.1",
+    "@unocss/nuxt": "^0.64.0",
+    "@unocss/preset-icons": "^0.64.0",
+    "@unocss/preset-uno": "^0.64.0",
+    "@unocss/preset-web-fonts": "^0.64.0",
+    "sass": "^1.80.6",
+    "unocss": "^0.64.0"
+  }
+}
