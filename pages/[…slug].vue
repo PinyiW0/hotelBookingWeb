@@ -6,7 +6,9 @@ useSeoMeta({
   ogTitle: "查無頁面",
   ogDescription: "404 Pages not found.",
 });
-
+definePageMeta({
+  layout: 'custom-error'
+})
 const route = useRoute() as any;
 
 </script>
@@ -14,7 +16,7 @@ const route = useRoute() as any;
 <template>
   <section class="w-full h-full p-8 box-border">
     <div
-      class="w-full h-full flex flex-col items-center justify-center gap-4 border-5 border-dashed border-gray-300 rounded-3xl">
+      class="w-full h-full flex flex-col items-center justify-center gap-4">
       <!-- <img src="/images/lazyImg/error-img.gif" alt="" /> -->
       <h1 class="font-mono">
         找不到『{{ route.params.slug.join("/") }}』頁面！

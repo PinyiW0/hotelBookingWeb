@@ -10,6 +10,7 @@
     "postinstall": "nuxt prepare"
   },
   "dependencies": {
+    "@element-plus/nuxt": "^1.1.0",
     "@pinia/nuxt": "^0.7.0",
     "@unocss/reset": "^0.64.0",
     "@vuepic/vue-datepicker": "^10.0.0",
