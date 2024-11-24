@@ -1,4 +1,3 @@
-// https://nuxt.com/docs/api/configuration/nuxt-config
 export default defineNuxtConfig({
   devtools: { enabled: false },
   app: {
@@ -20,7 +19,7 @@ export default defineNuxtConfig({
     '/assets/stylesheets/transition.css'
   ],
   imports: {
-    "dirs": ['store']
+    "dirs": ['stores']
   },
   modules: [
     '@pinia/nuxt',
