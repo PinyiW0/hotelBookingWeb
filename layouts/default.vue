@@ -2,10 +2,10 @@
 
 <template>
   <section class="w-full h-100dvh overflow-hidden">
-    <NuxtRouteAnnouncer />
-    <NuxtLayout>
+    <p>123</p>
+   
       <NuxtPage />
-    </NuxtLayout>
+    
   </section>
 </template>
 
