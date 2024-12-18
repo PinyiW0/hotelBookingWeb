@@ -33,13 +33,13 @@ const roomImg: any[] = [
   <div>
     <!-- swiper area -->
     <ClientOnly>
-      <div class="w-full">
+      <div class="w-full max-h-782px overflow-hidden">
         <Carousel class="absolute top-0 left-0 -z-1" />
         <div
           class="relative px-5 pt-10 lg:pt-0 3xl:pt-19 pb-38 flex flex-col items-center gap-10 xl:(px-20 flex-row gap-0) justify-between">
-          <CarouselTitle />
+          <CarouselTitle class=" relative z-2"/>
           <div
-            class="absolute top-1/3 xl:(top-1/8 right-1/6 px-0 pt-0) 3xl:(top-1/5 right-1/6) z-1 px-6.5 pt-5 flex flex-col gap-2">
+            class="absolute top-1/3 xl:(top-1/8 right-1/6 px-0 pt-0) 3xl:(top-1/5 right-1/6) z-2 px-6.5 pt-5 flex flex-col gap-2">
             <h2 class="text-12 xl:(text-16 leading-25) 3xl:text-20 text-white font-bold tracking-1 leading-15">高雄</h2>
             <h2 class="text-12 xl:(text-16 tracking-1) 3xl:text-20 text-white font-bold">豪華住宿之選</h2>
             <h2 class="mt-4 text-base xl:(text-6 w-full) 3xl:text-8 text-white font-600 w-90%">我們致力於為您提供無與倫比的奢華體驗與優質服務
@@ -47,10 +47,9 @@ const roomImg: any[] = [
             <HeroBtn text="立即訂房" class="mt-10 mr-9 lg:mr-0 2xl:mt-13" />
           </div>
           <div
-            class="min-w-291px min-h-420px sm:(w-320px h-430px) xl:(w-650px h-440px rounded-20) 2xl:(w-680px h-490px) 3xl:(w-924px h-678px) border-t-(px solid #F5F7F9) border-r-(px solid #F5F7F9) rounded-10 sm:rounded-15 bg-gradient-to-t from-white/30 to-white-0 backdrop-blur-20">
+            class="relative z-1 min-w-291px min-h-420px sm:(w-320px h-430px) xl:(w-650px h-440px rounded-20) 2xl:(w-680px h-490px) 3xl:(w-924px h-678px) border-t-(px solid #F5F7F9) border-r-(px solid #F5F7F9) rounded-10 sm:rounded-15 bg-gradient-to-t from-white/30 to-white-0 backdrop-blur-20">
           </div>
         </div>
-
       </div>
     </ClientOnly>
     <!-- news area -->
