@@ -1,11 +1,11 @@
 <script setup lang="ts"></script>
 
 <template>
-  <section class="w-full h-100dvh overflow-hidden">
-    <p>123</p>
+  <section class="w-full overflow-x-hidden">
+    <LayoutHeader /> 
    
       <NuxtPage />
-    
+    <LayoutFooter />
   </section>
 </template>
 

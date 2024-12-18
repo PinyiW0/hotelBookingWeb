@@ -1,0 +1,81 @@
+<script setup lang="ts">
+const bannerList: any[] = [
+  { label: 'room1', imgPath: 'Room-0.png' },
+  { label: 'room2', imgPath: 'Room-1.png' },
+  { label: 'room3', imgPath: 'Room-2.png' },
+  { label: 'room4', imgPath: 'Room-3.png' },
+];
+</script>
+
+<template>
+  <div class="w-full h-full">
+    <ClientOnly>
+      <swiper-container slides-per-view="1" :pagination="{
+          enabled: true,
+          clickable: true,
+          hideOnClick: false
+        }" loop="true" autoplay-delay="5000" 
+        effect="fade" pagination-clickable="true" class="w-full max-h-1080px">
+        <swiper-slide v-for="(slide, idx) in bannerList" :key="idx" class="relative w-full h-full">
+          <!-- 黑色透明遮罩 -->
+          <div class="absolute top-0 left-0 w-full h-full bg-black/60"></div>
+          <div class="w-full min-h-812px lg:(min-h-1080px max-h-1080px)">
+            <!-- 輪播圖 -->
+            <img :src="`/images/image/${slide.imgPath}`" :alt="slide.label" class="w-full h-full object-cover">
+          </div>
+        </swiper-slide>
+      </swiper-container>
+    </ClientOnly>
+  </div>
+</template>
+
+<style scoped>
+/* 分頁容器的樣式  */
+swiper-container::part(pagination) {
+  display: flex;
+  justify-content: center;
+  gap: 4px;
+  padding-bottom: 140px;
+  z-index: 60;
+}
+
+@media (min-width: 768px) {
+  swiper-container::part(pagination) {
+    padding-bottom: 80px;
+  }
+}
+
+@media (min-width: 1024px) {
+  swiper-container::part(pagination) {
+    padding-bottom: 68px;
+  }
+}
+@media (min-width: 1440px) {
+  swiper-container::part(pagination) {
+    padding-bottom: 48px;
+  }
+}
+@media (min-width: 1440px) {
+  swiper-container::part(pagination) {
+    padding-bottom: 32px;
+  }
+}
+
+/* 點點樣式 */
+swiper-container::part(bullet) {
+  width: 32px;
+  height: 4px;
+  background: #F1EAE4;
+  border-radius: 4px;
+  opacity: 1;
+  cursor: pointer;
+}
+
+/* 活動分頁點的樣式 */
+swiper-container::part(bullet-active) {
+  width: 60px;
+  height: 4px;
+  background: #BF9D7D;
+  border-radius: 4px;
+}
+</style>

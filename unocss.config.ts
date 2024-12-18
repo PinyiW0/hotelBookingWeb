@@ -1,3 +1,4 @@
+import transformerVariantGroup from '@unocss/transformer-variant-group';
 import { defineConfig, presetUno, presetIcons } from 'unocss';
 import presetWebFonts from '@unocss/preset-web-fonts';
 import type { IconifyJSON } from '@iconify/types';
@@ -43,7 +44,6 @@ export default defineConfig({
       },
     },
     breakpoints: {
-      xs: '375px',
       sm: '640px',
       md: '768px',
       lg: '1024px',
@@ -74,5 +74,8 @@ export default defineConfig({
         fluent: () => import('@iconify-json/fluent/icons.json').then(i => i.default as IconifyJSON),
       },
     }),
+  ],
+  transformers: [
+    transformerVariantGroup(),
   ],
 })

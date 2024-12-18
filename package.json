@@ -18,6 +18,7 @@
     "element-plus": "^2.8.7",
     "nuxt": "^3.14.0",
     "pinia": "^2.2.6",
+    "swiper": "^11.1.15",
     "vee-validate": "^4.14.6",
     "vue": "latest",
     "vue-router": "latest",
@@ -28,11 +29,14 @@
     "@iconify-json/fluent": "^1.2.6",
     "@iconify-json/material-symbols": "^1.2.6",
     "@iconify-json/mdi": "^1.2.1",
-    "@unocss/nuxt": "^0.64.0",
-    "@unocss/preset-icons": "^0.64.0",
-    "@unocss/preset-uno": "^0.64.0",
-    "@unocss/preset-web-fonts": "^0.64.0",
-    "sass": "^1.80.6",
-    "unocss": "^0.64.0"
+    "@unocss/core": "^0.65.0",
+    "@unocss/nuxt": "^0.65.0",
+    "@unocss/preset-icons": "^0.65.0",
+    "@unocss/preset-uno": "^0.65.0",
+    "@unocss/preset-web-fonts": "^0.65.0",
+    "@unocss/transformer-variant-group": "^0.65.0",
+    "sass": "^1.83.0",
+    "sass-loader": "^16.0.4",
+    "unocss": "^0.65.0"
   }
 }

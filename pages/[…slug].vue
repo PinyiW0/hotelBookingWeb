@@ -1,5 +1,4 @@
 <script lang="ts" setup>
-
 useSeoMeta({
   title: "查無頁面",
   description: "404 Pages not found.",
@@ -8,9 +7,10 @@ useSeoMeta({
 });
 definePageMeta({
   layout: 'custom-error'
-})
+});
 const route = useRoute() as any;
-
+const event = useRequestEvent();
+setResponseStatus(event, 404);
 </script>
 
 <template>
