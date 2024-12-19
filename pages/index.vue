@@ -33,8 +33,8 @@ const roomImg: any[] = [
   <div>
     <!-- swiper area -->
     <ClientOnly>
-      <div class="w-full max-h-782px overflow-hidden">
-        <Carousel class="absolute top-0 left-0 -z-1" />
+      <div class="w-full overflow-hidden bg-black">
+        <Carousel class="absolute top-0 left-0 z-1" />
         <div
           class="relative px-5 pt-10 lg:pt-0 3xl:pt-19 pb-38 flex flex-col items-center gap-10 xl:(px-20 flex-row gap-0) justify-between">
           <CarouselTitle class=" relative z-2"/>
@@ -75,7 +75,7 @@ const roomImg: any[] = [
     <div class="relative py-20 xl:pt-50 xl:pb-50 w-full bg-gray-120">
       <!-- BG -->
       <div class="absolute w-full h-594px xl:h-672px xl:top-20 overflow-hidden">
-        <img src="/images/About-BG.png" alt="About-BG" class="w-full h-full object-cover object-center">
+        <img src="/images/About-BG.png" aria-hidden class="w-full h-full object-cover object-center">
       </div>
       <div class="relative mt-10 pl-10 pr-5 max-w-1296px ml-auto xl:px-0">
         <ClientOnly>
@@ -94,9 +94,14 @@ const roomImg: any[] = [
         </div>
       </div>
     </div>
+    <!-- 房型 swiper -->
+     <div class="relative py-20 md:pt-35 w-full h-full bg-gray-120">
+      <img src="/images/deco/room-line.png" aria-hidden class="absolute top--6 right-0 md:top-7 lg:hidden">
+      <RoomCarousel class="px-3 lg:px-0 xl:pr-5" />
+     </div>
     <!-- 佳餚美饌 -->
     <div class="relative py-20 xl:py-30 w-full h-full flex flex-col justify-start bg-primary-10">
-      <img src="/images/Deco/Line2.png" alt="直線"
+      <img src="/images/Deco/Line2.png" aria-hidden
         class="hidden 2xl:(block max-w-180px) absolute top-10 left-15 3xl:max-w-187px">
       <div class="px-3 xl:(pl-80 pr-0) mx-auto flex flex-col gap-10">
         <PageTitle title="佳餚美饌" :linePositionRight="true" />
@@ -131,7 +136,7 @@ const roomImg: any[] = [
         </div>
       </div>
       <div class="mt-10 md:mt-15 xl:mt-20 w-full overflow-x-hidden">
-        <img src="/images/deco/Line.png" alt="線條" class="w-full min-h-30 object-cover">
+        <img src="/images/deco/Line.png" aria-hidden class="w-full min-h-30 object-cover">
       </div>
     </div>
   </div>
