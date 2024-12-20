@@ -14,7 +14,7 @@ const bannerList: any[] = [
         pagination-clickable="true"
         pagination-hide-on-click="false"
         loop="true" autoplay-delay="5000" effect="fade" class="w-full h-full">
-        <swiper-slide v-for="(slide, idx) in bannerList" :key="idx" class="relative">
+        <swiper-slide v-for="(slide, idx) in bannerList" :key="idx" class="relative w-full h-full">
           <!-- 黑色透明遮罩 -->
           <div class="absolute top-0 left-0 w-full h-full bg-black/60"></div>
           <!-- 輪播圖 -->
@@ -31,30 +31,28 @@ swiper-container::part(pagination) {
   display: flex;
   justify-content: center;
   gap: 4px;
-  padding-bottom: 200px;
-  z-index: 60;
+  position: absolute;
+  bottom: 3%;
+  left: 2%;
+  z-index: 60 !important;
 }
 
 @media (min-width: 1024px) {
   swiper-container::part(pagination) {
-    padding-bottom: 100px;
+    bottom: 4%;
+    left: 0%;
   }
 }
 @media (min-width: 1280px) {
   swiper-container::part(pagination) {
-    padding-bottom: 300px;
-  }
-}
-
-@media (min-width: 1440px) {
-  swiper-container::part(pagination) {
-    padding-bottom: 240px;
+    bottom: 5%;
   }
 }
 
 @media (min-width: 1920px) {
   swiper-container::part(pagination) {
-    padding-bottom: 32px;
+    bottom: 38%;
+    z-index: 30 !important;
   }
 }
 

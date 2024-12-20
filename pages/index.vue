@@ -33,27 +33,27 @@ const roomImg: any[] = [
   <div>
     <!-- swiper area -->
     <ClientOnly>
-      <div class="w-full overflow-hidden bg-black">
-        <Carousel class="absolute top-0 left-0 z-1" />
+      <div class="w-full h-full overflow-x-hidden overflow-y-visible">
+        <Carousel class="absolute top-0 left-0 z-1 3xl:-z-1" />
         <div
-          class="relative px-5 pt-10 lg:pt-0 3xl:pt-19 pb-38 flex flex-col items-center gap-10 xl:(px-20 flex-row gap-0) justify-between">
-          <CarouselTitle class=" relative z-2"/>
+          class="relative px-5 flex flex-col items-center gap-10 xl:(px-20 flex-row gap-0) justify-between">
+          <CarouselTitle class="relative z-2 pt-4"/>
           <div
             class="absolute top-1/3 xl:(top-1/8 right-1/6 px-0 pt-0) 3xl:(top-1/5 right-1/6) z-2 px-6.5 pt-5 flex flex-col gap-2">
             <h2 class="text-12 xl:(text-16 leading-25) 3xl:text-20 text-white font-bold tracking-1 leading-15">高雄</h2>
             <h2 class="text-12 xl:(text-16 tracking-1) 3xl:text-20 text-white font-bold">豪華住宿之選</h2>
             <h2 class="mt-4 text-base xl:(text-6 w-full) 3xl:text-8 text-white font-600 w-90%">我們致力於為您提供無與倫比的奢華體驗與優質服務
             </h2>
-            <HeroBtn text="立即訂房" class="mt-10 mr-9 lg:mr-0 2xl:mt-13" />
+            <HeroBtn text="立即訂房" class="mt-10 mr-9 lg:(mr-0 mt-4) 2xl:mt-13" />
           </div>
           <div
-            class="relative z-1 min-w-291px min-h-420px sm:(w-320px h-430px) xl:(w-650px h-440px rounded-20) 2xl:(w-680px h-490px) 3xl:(w-924px h-678px) border-t-(px solid #F5F7F9) border-r-(px solid #F5F7F9) rounded-10 sm:rounded-15 bg-gradient-to-t from-white/30 to-white-0 backdrop-blur-20">
+            class="relative z-1 w-291px h-420px sm:(w-320px h-430px) lg:(w-340px h-320px) xl:(w-650px h-440px rounded-20) 2xl:(w-680px h-490px) 3xl:(w-924px h-678px) border-t-(px solid #F5F7F9) border-r-(px solid #F5F7F9) rounded-10 sm:rounded-15 bg-gradient-to-t from-white/30 to-white-0 backdrop-blur-20">
           </div>
         </div>
       </div>
     </ClientOnly>
     <!-- news area -->
-    <div class="px-3 w-full bg-primary-10">
+    <div class="xl:mt-42 px-3 w-full bg-primary-10">
       <div class="mx-auto py-20 max-w-1296px flex flex-col gap-10 xl:(flex-row gap-20)">
         <!-- title -->
         <PageTitle title="最新消息" />
@@ -97,7 +97,7 @@ const roomImg: any[] = [
     <!-- 房型 swiper -->
      <div class="relative py-20 md:pt-35 w-full h-full bg-gray-120">
       <img src="/images/deco/room-line.png" aria-hidden class="absolute top--6 right-0 md:top-7 lg:hidden">
-      <RoomCarousel class="px-3 lg:px-0 xl:pr-5" />
+      <RoomCarousel class="px-3 lg:px-0" />
      </div>
     <!-- 佳餚美饌 -->
     <div class="relative py-20 xl:py-30 w-full h-full flex flex-col justify-start bg-primary-10">

@@ -25,9 +25,9 @@ export default defineNuxtConfig({
     '@unocss/reset/eric-meyer.css',
     '/assets/stylesheets/reset.css',
     '/assets/stylesheets/transition.css',
-    'swiper/css', // 基本樣式
-    'swiper/css/navigation', // 導航樣式
-    'swiper/css/pagination', // 分頁樣式
+    'swiper/css',
+    'swiper/css/navigation',
+    'swiper/css/pagination',
     'swiper/css/autoplay',
   ],
   build: {
@@ -37,9 +37,6 @@ export default defineNuxtConfig({
     "dirs": ['stores']
   },
   modules: ['@pinia/nuxt', '@unocss/nuxt', '@element-plus/nuxt'],
-  // swiper:{
-  //   modules:['navigation', 'pagination', 'autoplay', 'scrollbar']
-  // },
   runtimeConfig: {
     "public": {
       "title": import.meta.env.NUXT_TITLE,
