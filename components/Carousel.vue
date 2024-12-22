@@ -18,7 +18,7 @@ const bannerList: any[] = [
           <!-- 黑色透明遮罩 -->
           <div class="absolute top-0 left-0 w-full h-full bg-black/60"></div>
           <!-- 輪播圖 -->
-          <img :src="`/images/image/${slide.imgPath}`" :alt="slide.label" class="w-full h-full object-cover">
+          <img :src="`/images/Image/${slide.imgPath}`" :alt="slide.label" class="w-full h-full object-cover">
         </swiper-slide>
       </swiper-container>
     </ClientOnly>
