@@ -1,31 +1,52 @@
 <script setup lang="ts">
-import FoodCarousel from '~/components/FoodCarousel.vue';
-
+const api = useApi();
 defineOptions({
   name: 'Index'
 });
 useSeoMeta({
-  title: '享樂酒店 ｜ 首頁',
+  title: '首頁',
   description: '首頁',
 });
+// #region 獲取資料
+/** 最新消息 */
+const newsList = ref<any[]>([]);
+const getNewsList = async () => {
+  const { result = null } = await api.News.Load();
+  newsList.value = result;
+};
+getNewsList();
+
+/** 關於我們 */
 const aboutContent: any[] = [
   { label: '享樂酒店，位於美麗島高雄的心臟地帶，是這座城市的璀璨瑰寶與傲人地標。<br />我們的存在，不僅僅是為了提供奢華的住宿體驗，更是為了將高雄的美麗與活力，獻給每一位蒞臨的旅客。 ' },
   { label: '我們的酒店，擁有時尚典雅的裝潢，每一個細節都充滿著藝術與設計的精緻。<br />我們的員工，都以熱情的服務與專業的態度，讓每一位客人都能感受到賓至如歸的溫暖。 ' },
   { label: '在這裡，您可以遙望窗外，欣賞高雄的城市景色，感受這座城市的繁華與活力；您也可以舒適地坐在我們的餐廳，品嚐精緻的佳餚，體驗無與倫比的味覺盛宴。 ' },
   { label: '享樂酒店，不僅是您在高雄的住宿之選，更是您感受高雄魅力的最佳舞台。我們期待著您的蒞臨，讓我們共同編織一段難忘的高雄故事。' },
 ];
+
+/** 房型 */
+const roomsList = ref<any[]>([]);
+const getRoomsList = async () => {
+  const { result = null } = await api.Rooms.Load();
+  roomsList.value = result;
+};
+getRoomsList();
+
+/** 美味佳餚 */
+const foodList = ref<any[]>([]);
+const getFoodList = async () => {
+  const { result = null } = await api.Culinary.Load();
+  foodList.value = result;
+};
+getFoodList();
+
+/** 交通方式 */
 const trafficInfo: any[] = [
   { title: '自行開車', content: '如果您選擇自行開車，可以透過國道一號下高雄交流道，往市區方向行駛，並依路標指示即可抵達「享樂酒店」。飯店內設有停車場，讓您停車方便。', icon: 'i-mdi:car' },
   { title: '高鐵/火車', content: '如果您是搭乘高鐵或火車，可於左營站下車，外頭有計程車站，搭乘計程車約20分鐘即可抵達。或者您也可以轉乘捷運紅線至中央公園站下車，步行約10分鐘便可抵達。', icon: 'i-material-symbols:train' },
   { title: '禮賓車服務', content: '承億酒店提供禮賓專車接送服務，但因目的地遠近會有不同的收費，請撥打電話將由專人為您服務洽詢專線：(07)123-4567', icon: 'i-mdi:car-hatchback' },
 ];
-const roomImg: any[] = [
-  { path: '/image/Room-1.png' },
-  { path: '/image/Room-1.png' },
-  { path: '/image/Room-1.png' },
-  { path: '/image/Room-1.png' },
-];
-
+// #endregion 獲取資料
 
 </script>
 
@@ -58,14 +79,15 @@ const roomImg: any[] = [
         <!-- title -->
         <PageTitle title="最新消息" />
         <!-- content -->
-        <ul class="flex flex-col items-center gap-10">
-          <li class="flex flex-col items-center justify-center gap-8 xl:flex-row hover:cursor-pointer group">
-            <img src="/images/image/news.png" alt=""
-              class="w-full max-h-294px md:max-h-340 xl:max-h-294px object-cover rounded-2">
+        <ul class="w-full flex flex-col items-center gap-10">
+          <li v-for="item in newsList" :key="item._id" class="flex flex-col items-center justify-center gap-8 xl:flex-row hover:cursor-pointer group">
+            <div class="w-351px h-294px md:(w-660px h-380px) xl:(w-474px h-294px) rounded-2 overflow-hidden flex-shrink-0">
+              <img :src="item.image" :alt="item.title"
+                class="w-full h-full object-cover duration-400 group-hover:(scale-110 filter-grayscale)">
+            </div>
             <div class="flex flex-col gap-8">
-              <h3 class="text-7 lg:text-8 font-bold tracking-2px duration-300 group-hover:text-primary">秋季旅遊，豪華享受方案</h3>
-              <p class="text-3.5 lg:text-base text-gray-80 leading-6">
-                秋天就是要來場豪華的旅遊！我們為您準備了一系列的秋季特別方案，包括舒適的住宿、美食饗宴，以及精彩的活動。不論您是想來一趟浪漫之旅，還是想和家人共度美好時光，都能在這裡找到最適合的方案。</p>
+              <h3 class="text-7 lg:text-8 font-bold tracking-2px duration-300 group-hover:text-primary">{{ item.title }}</h3>
+              <p class="text-3.5 lg:text-base text-gray-80 leading-6">{{ item.description }}</p>
             </div>
           </li>
         </ul>
@@ -97,7 +119,7 @@ const roomImg: any[] = [
     <!-- 房型 swiper -->
      <div class="relative py-20 md:pt-35 w-full h-full bg-gray-120">
       <img src="/images/deco/room-line.png" aria-hidden class="absolute top--6 right-0 md:top-7 lg:hidden">
-      <RoomCarousel class="px-3 lg:px-0" />
+      <RoomCarousel :slideList="roomsList" class="px-3 lg:px-0" />
      </div>
     <!-- 佳餚美饌 -->
     <div class="relative py-20 xl:py-30 w-full h-full flex flex-col justify-start bg-primary-10">
@@ -106,7 +128,7 @@ const roomImg: any[] = [
       <div class="px-3 xl:(pl-80 pr-0) mx-auto flex flex-col gap-10">
         <PageTitle title="佳餚美饌" :linePositionRight="true" />
         <ClientOnly>
-          <FoodCarousel />
+          <FoodCarousel :slideList="foodList" />
         </ClientOnly>
       </div>
     </div>
@@ -141,5 +163,3 @@ const roomImg: any[] = [
     </div>
   </div>
 </template>
-
-<style scoped></style>

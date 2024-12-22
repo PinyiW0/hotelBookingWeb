@@ -2,6 +2,8 @@ export default defineNuxtConfig({
   devtools: { enabled: false },
   app: {
     head:{
+      viewport: 'width=device-width, initial-scale=1, maximum-scale=1',
+      titleTemplate: `${import.meta.env.NUXT_TITLE || '享樂酒店'} | %s`,
       meta:[
         { property: 'og:title', content: import.meta.env.NUXT_TITLE}
       ]
@@ -40,7 +42,7 @@ export default defineNuxtConfig({
   runtimeConfig: {
     "public": {
       "title": import.meta.env.NUXT_TITLE,
-      "apiBaseUrl": '',
+      "apiBaseUrl": import.meta.env.NUXT_BASE_API,
     }
   },
   compatibilityDate: '2024-04-03',

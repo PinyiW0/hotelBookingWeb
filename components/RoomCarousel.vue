@@ -1,10 +1,10 @@
 <script setup lang="ts">
-const bannerList: any[] = [
-  { name: '尊爵雙人房', description: '享受高級的住宿體驗，尊爵雙人房提供給您舒適寬敞的空間和精緻的裝潢。', price: 10000, imageUrl: 'Room0.png', _id: '675553f61b4a0d104e7400ea' },
-  { name: '景觀雙人房', description: '景觀雙人房擁有絕美的高雄市景觀，讓您在舒適的環境中欣賞城市之美。', price: 15000, imageUrl: 'Room1.png', _id: '675554eb1b4a0d104e7400f1' },
-  { name: '豪華雅緻房', description: '享受高級的住宿體驗，尊爵雙人房提供給您舒適寬敞的空間和精緻的裝潢。', price: 18000, imageUrl: 'Room0.png', _id: '6755550b1b4a0d104e7400f4' },
-  { name: '景觀尊榮家庭房', description: '景觀雙人房擁有絕美的高雄市景觀，讓您在舒適的環境中欣賞城市之美。', price: 22000, imageUrl: 'Room1.png', _id: '6755552d1b4a0d104e7400f7' },
-];
+defineProps({
+  slideList: {
+    type: Array,
+    requied: true
+  } as any
+});
 </script>
 
 <template>
@@ -17,16 +17,16 @@ const bannerList: any[] = [
         loop="true"
         autoplay-delay="5000" effect="fade" class="roomSwiper">
 
-        <swiper-slide v-for="slide in bannerList" :key="slide.id" class="bg-gray-120 relative">
+        <swiper-slide v-for="slide in slideList" :key="slide.id" class="bg-gray-120 relative">
           <!-- deco -->
           <img src="/images/deco/room-line-web.png" aria-hidden
             class="absolute top-6 z-1 hidden lg:(block right--120) xl:right-0 w-1060px h-187px">
           <img src="/images/deco/waveBG-web.png" aria-hidden class="absolute bottom--30 z--1">
           
-          <div class="flex flex-col item-center gap-6 lg:(flex-row items-end gap-10) xl:gap-16">
+          <div class="flex flex-col item-center gap-6 lg:(flex-row items-end gap-10) xl:gap-16 group">
             <!-- img -->
             <div class="w-full lg:(w-700px h-700px) xl:(w-900px h-900px) rounded-r-2 overflow-hidden">
-              <img :src="`/images/image/${slide.imageUrl}`" :alt="slide.name" class="w-full h-full object-cover">
+              <img :src="`${slide.imageUrl}`" :alt="slide.name" class="w-full h-full object-cover duration-400 group-hover:scale-110">
             </div>
             <!-- content -->
             <div
@@ -35,7 +35,7 @@ const bannerList: any[] = [
               <p class="text-sm text-white">{{ slide.description }}</p>
               <p class="mt-4 lg:mt-6 text-6 text-white font-bold tracking-widest">NT$ {{ slide.price }}</p>
               <!-- btn -->
-              <HeroBtn text="查看更多" class="mt-6" />
+              <HeroBtn :to="`/rooms/${slide._id}`" text="查看更多" class="mt-6" />
               <div class="mt-6 p-4 flex items-center justify-end gap-8">
                 <div
                   class="room-swiper-button-prev i-mdi:arrow-left text-primary w-6 h-6 duration-300 hover:(text-white cursor-pointer)" />

@@ -32,12 +32,12 @@ const setTarget = computed(() => {
   <NuxtLink v-if="to" :to="to" :external="isExternal" :target="setTarget"
     :class="[btnBaseCls, btnHoverCls, btnDisabledCls]"
     class="flex items-center justify-center decoration-none cursor-pointer duration-400">
-    <p class="text-base lg:text-5 xl:text-6">{{ text }}</p>
+    <p class="text-base lg:text-5 xl:text-6 text-black">{{ text }}</p>
       <div class="linePrimary h-1px w-20 xl:w-150px bg-black duration-400 transition-transform group-hover:bg-white"></div>
   </NuxtLink>
   <button v-else :aria-label="text" :class="[btnBaseCls, btnHoverCls, btnDisabledCls]" :disabled="disabled">
-    <p class="text-base lg:text-5 xl:text-6">{{ text }}</p>
-    <div class="linePrimary h-1px w-20 xl:w-150px bg-black duration-400 transition-transform group-hover:bg-white"></div>
+    <p class="text-base lg:text-5 xl:text-6 text-black">{{ text }}</p>
+    <div class="linePrimary h-1px w-20 xl:w-150px bg-black decoration-none duration-400 transition-transform group-hover:bg-white"></div>
   </button>
 
 </template>
