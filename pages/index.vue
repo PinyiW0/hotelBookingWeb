@@ -123,7 +123,7 @@ const trafficInfo: any[] = [
      </div>
     <!-- 佳餚美饌 -->
     <div class="relative py-20 xl:py-30 w-full h-full flex flex-col justify-start bg-primary-10">
-      <img src="/images/Deco/Line2.png" aria-hidden
+      <img src="/images/deco/Line2.png" aria-hidden
         class="hidden 2xl:(block max-w-180px) absolute top-10 left-15 3xl:max-w-187px">
       <div class="px-3 xl:(pl-80 pr-0) mx-auto flex flex-col gap-10">
         <PageTitle title="佳餚美饌" :linePositionRight="true" />
