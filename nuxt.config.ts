@@ -15,6 +15,11 @@ export default defineNuxtConfig({
       name: 'fade', mode: 'out-in'
     },
   },
+  nitro: {
+    publicAssets: [
+      { dir: 'public', baseURL: '/' },
+    ],
+  },
   vue: {
     compilerOptions: {
       isCustomElement: (tag) => ['swiper-container', 'swiper-slide'].includes(tag)
