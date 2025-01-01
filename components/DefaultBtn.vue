@@ -27,19 +27,22 @@
     let type = '';
     switch (props.btnStyle) {
       case 'secondary':
-        type = 'px-8 py-4 text-base text-primary bg-white rounded-2 border-(px solid primary) hover:(text-primary-120 border-primary-120 bg-primary-10) disabled:border-gray-60';
+        type = 'px-8 py-4 text-base text-primary bg-white rounded-2 border-(px solid primary) hover:(text-primary-120 border-primary-120 bg-primary-10)';
         break;
       case 'ghost':
         type = 'px-8 py-4 text-base text-white border-0 bg-transparent hover:text-primary';
         break;
       case 'onlyText':
-        type = 'text-base text-primary border-0 bg-transparent border-b-(px solid primary) hover:(text-primary-120 border-primary-120) disabled:border-gray-60';
+        type = 'text-base text-primary border-0 bg-transparent border-b-(px solid primary) hover:(text-primary-120 border-primary-120)';
         break;
     
       default:
         type = 'px-8 py-4 w-full text-base text-white bg-primary rounded-2 border-0 hover:bg-primary-120'
         break;
     }
+    if (props.disabled) {
+    type += ' !text-gray-60 pointer-events-none !bg-gray-40 !border-gray-40';
+  }
     return type;
   });
 
@@ -56,9 +59,8 @@
     <p>{{ text }}</p>
     <img v-if="imgIcon" :src="`/images/icon/${imgIcon}.svg`" :alt="text" :class="iconWidth">
   </NuxtLink>
-  <button v-else :aria-label="text" :class="btnCls" class="w-fit flex items-center justify-center gap-1 decoration-none cursor-pointer duration-400 disabled:(text-gray-60 pointer-events-none)">
+  <button v-else :aria-label="text" :disabled="props.disabled" :class="btnCls" class="w-fit flex items-center justify-center gap-1 decoration-none cursor-pointer duration-400">
     <p class="font-bold whitespace-nowrap">{{ text }}</p>
     <img v-if="imgIcon" :src="`/images/icon/${imgIcon}.svg`" :alt="text" :class="iconWidth">
   </button>
-
 </template>
