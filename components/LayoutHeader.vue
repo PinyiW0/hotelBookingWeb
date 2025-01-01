@@ -40,10 +40,10 @@ const menuList: any[] = [
         <li v-for="(item, idx) in menuList" :key="idx"
           class="py-4 w-full list-none flex items-center justify-center">
           <template v-if="item.btnStyle">
-            <DefaultBtn :to="item.path" :text="item.label" :btnStyle="item.btnStyle" class="!w-full font-bold" />
+            <DefaultBtn @click="openMenu = false" :to="item.path" :text="item.label" :btnStyle="item.btnStyle" class="!w-full font-bold" />
           </template>
           <template v-else>
-            <NuxtLink :to="item.path" class="text-base text-white text-center font-bold tracking-wider decoration-none">
+            <NuxtLink @click="openMenu = false" :to="item.path" class="text-base text-white text-center font-bold tracking-wider decoration-none duration-300 hover:opacity-60">
               {{ item.label }}
             </NuxtLink>
           </template>
@@ -59,7 +59,7 @@ const menuList: any[] = [
             <DefaultBtn :to="item.path" :text="item.label" :btnStyle="item.btnStyle" class="font-bold" />
           </template>
           <template v-else>
-            <NuxtLink :to="item.path" class="text-base text-white font-bold tracking-wider decoration-none">
+            <NuxtLink :to="item.path" class="text-base text-white font-bold tracking-wider decoration-none duration-300 hover:opacity-60">
               {{ item.label }}
             </NuxtLink>
           </template>
