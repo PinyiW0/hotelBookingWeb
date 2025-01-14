@@ -1,4 +1,5 @@
 <script setup lang="ts">
+const router = useRouter();
 import type { FormRules } from 'element-plus';
 defineOptions({
   name: 'Register'
@@ -15,10 +16,12 @@ definePageMeta({
 interface LoginInForm {
   email: string;
   password: string;
+  confirmPassword: string;
 };
 const form = ref<LoginInForm>({
   email: '',
   password: '',
+  confirmPassword:'',
 });
 const form2 = ref({
   name: '',
@@ -35,7 +38,20 @@ const rules = reactive<FormRules>({
     { required: true, message: '電子信箱為必填', trigger: ['blur', 'change'] },
     { type: 'email', message: '電子信箱格式錯誤', trigger: ['blur', 'change'] },
   ],
-  password: [{ required: true, message: ' 密碼為必填', trigger: ['blur', 'change'] }]
+  password: [{ required: true, message: ' 密碼為必填', trigger: ['blur', 'change'] }],
+  confirmPassword: [
+    { required: true, message: '請再次輸入密碼', trigger: ['blur', 'change'] },
+    {
+      validator: (rule, value, callback) => {
+        if (value !== form.value.password) {
+          callback(new Error('兩次輸入的密碼不一致'));
+        } else {
+          callback();
+        }
+      },
+      trigger: ['blur', 'change'],
+    },
+  ],
 });
 const step2Rules = reactive<FormRules>({
   name: [{ required: true, message: '姓名為必填', trigger: ['blur', 'change'] }],
@@ -66,7 +82,7 @@ const steps = ref<Step[]>([
   { value: 1, label: '輸入信箱及密碼', completed: false },
   { value: 2, label: '填寫基本資料', completed: false },
 ])
-const activeStep = ref(2);
+const activeStep = ref(1);
 /** 下一步 */
 const nextStep = () => {
   if (activeStep.value < steps.value.length) {
@@ -74,15 +90,12 @@ const nextStep = () => {
     activeStep.value++;
   }
 };
-/** 返回上一步 */
-const prevStep = () => {
-  if (activeStep.value > 1) {
-    steps.value[activeStep.value - 2].completed = false;
-    activeStep.value--;
-  }
+/** 完成註冊 */
+const submit = () => {
+  steps.value[activeStep.value - 1].completed = true;
+  alert('註冊完成！');
+  router.push('/login');
 };
-/** 判斷是否為最後一步 */
-const isLastStep = () => activeStep.value === steps.value.length;
 // #endregion 步驟相關
 
 const agreeRules = ref(false);
@@ -107,27 +120,31 @@ const agreeRules = ref(false);
         </div>
         <!-- 步驟選擇器 -->
         <el-steps :space="200" :active="activeStep" finish-status="success" align-center class="my-4 flex justify-center">
-          <el-step title="輸入信箱及密碼" />
-          <el-step title="填寫基本資料" />
+          <el-step 
+            v-for="step in steps" 
+            :key="step.value" 
+            :title="step.label" 
+            :status="step.completed ? 'success' : step.value === activeStep ? 'process' : 'wait'" 
+          />
         </el-steps>
       </div>
 
       <!-- step1 -->
       <div v-if="activeStep === 1" class="mt-8 w-full flex flex-col gap-10">
         <!-- form1 -->
-        <el-form :model="form" :rules="rules" class="flex flex-col gap-4">
+        <el-form ref="formRef" :model="form" :rules="rules" class="flex flex-col gap-4">
           <el-form-item label="電子信箱" label-position="top" prop="email">
             <el-input v-model="form.email" placeholder="hello@exsample.com" />
           </el-form-item>
           <el-form-item label="密碼" label-position="top" prop="password">
             <el-input v-model="form.password" type="password" placeholder="請輸入密碼" show-password />
           </el-form-item>
-          <el-form-item label="確認密碼" label-position="top" prop="password">
-            <el-input v-model="form.password" type="password" placeholder="請再輸入一次密碼" show-password />
+          <el-form-item label="確認密碼" label-position="top" prop="confirmPassword">
+            <el-input v-model="form.confirmPassword" type="password" placeholder="請再輸入一次密碼" show-password />
           </el-form-item>
         </el-form>
         <!-- nextStep -->
-        <DefaultBtn to="/register" text="下一步" class="font-bold" />
+        <DefaultBtn @click="nextStep" to="/register" text="下一步" class="font-bold" />
         <!-- go to login -->
         <div class="flex items-center gap-2">
           <p class="text-sm text-white">已經有會員了嗎？</p>
@@ -137,7 +154,7 @@ const agreeRules = ref(false);
       <!-- step2 -->
       <div v-if="activeStep === 2" class="mt-8 w-full flex flex-col gap-10">
         <!-- form2 -->
-        <el-form :model="form2" :rules="step2Rules" class="flex flex-col gap-4">
+        <el-form ref="form2Ref" :model="form2" :rules="step2Rules" class="flex flex-col gap-4">
           <el-form-item label="姓名" label-position="top" prop="name">
             <el-input v-model="form2.name" placeholder="請輸入姓名" />
           </el-form-item>
@@ -162,7 +179,7 @@ const agreeRules = ref(false);
         </el-form>
         <el-checkbox v-model="agreeRules" label="我已閱讀並同意本網站個資使用規範" size="large" class="custom-checkbox" />
         <!-- nextStep -->
-        <DefaultBtn to="/register" text="完成註冊" class="font-bold" />
+        <DefaultBtn @click="submit" to="/register" text="完成註冊" class="font-bold" />
         <!-- go to login -->
         <div class="flex items-center gap-2">
           <p class="text-sm text-white">已經有會員了嗎？</p>

@@ -2,7 +2,7 @@
 /** @const open menu */
 const openMenu = ref<boolean>(false);
 const menuList: any[] = [
-  { label: '客房旅宿', path: '/room' },
+  { label: '客房旅宿', path: '/rooms' },
   { label: '會員登入', path: '/login' },
   { label: '立即訂房', path: '/room', btnStyle: 'primary' },
 ]
