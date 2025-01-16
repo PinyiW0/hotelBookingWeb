@@ -10,7 +10,7 @@ const menuList: any[] = [
 
 <template>
   <header
-    class="relative fixed top-0 z-60 left-0 w-full h-18 lg:h-40 px-3 lg:px-20 py-4 flex items-center justify-between bg-transparent">
+    class="relative fixed top-0 z-60 left-0 w-full h-18 lg:h-40 px-3 lg:px-20 py-4 flex items-center justify-between">
     <!-- logo -->
     <h1>
       <a href="/">
