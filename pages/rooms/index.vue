@@ -56,7 +56,7 @@ onBeforeUnmount(() => {
   <section class="flex flex-col justify-center">
     <!-- swiper area -->
     <ClientOnly>
-      <div class="absolute top-0 left-0 w-full h-full overflow-x-hidden overflow-y-visible">
+      <div class="absolute top-0 left-0 w-full h-full overflow-hidden">
          <!-- swiper -->
         <el-carousel arrow="never" :indicator-position="undefined" class="w-full !h-466px !sm:h-120 !md:h-150 !lg:h-160 !xl:h-200">
           <el-carousel-item v-for="(slide, idx) in bannerList" :key="idx">
@@ -67,7 +67,7 @@ onBeforeUnmount(() => {
           </el-carousel-item>
         </el-carousel>
         <div
-          class="absolute top-1/4 md:top-1/3 left-1/2 -translate-1/2 py-54 max-w-780px mx-auto flex flex-col xl:(top-1/3 flex-row gap-20) items-center gap-5">
+          class="absolute top-35% md:top-1/3 xl:top-60% left-1/2 -translate-1/2 py-54 max-w-780px mx-auto flex flex-col xl:(top-1/3 flex-row gap-20) items-center gap-5">
           <CarouselTitle class="pt-4"/>
           <h2 class="text-8 xl:(text-12 leading-25) text-white font-bold tracking-1 leading-15 whitespace-nowrap">客房旅宿</h2>
         </div>
@@ -87,7 +87,7 @@ onBeforeUnmount(() => {
             <!-- swiper -->
             <el-carousel :arrow="isDesktop ? 'always' : 'never'" class="w-full !h-50 !sm:h-70 !xl:(w-773px h-457px)">
               <el-carousel-item v-for="item in 4" :key="item">
-                <img src="/images/Image/Room.png" alt="" class="w-full h-full xl:min-h-457px object-cover block">
+                <img src="/images/Image/Room-1.png" alt="" class="w-full h-full xl:min-h-457px object-cover block">
               </el-carousel-item>
             </el-carousel>
              <div class="p-4 xl:p-10 flex flex-col gap-6">
