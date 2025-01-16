@@ -9,9 +9,9 @@ useSeoMeta({
   description: '房型詳細頁',
 });
 /** 調整 header 背景色 */
-const headerBgColor = useState<string>('headerBgColor');
-headerBgColor.value = 'bg-gray-120';
-
+definePageMeta({
+  headerBgColor: 'bg-gray-120',
+});
 /** 房間資訊 */
 const roomInfoList: any[] = [
   { iconName:'i-fluent:slide-size-24-filled', txt:'24 坪' },

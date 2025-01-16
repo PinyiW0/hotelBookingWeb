@@ -1,5 +1,8 @@
 <script setup lang="ts">
-const headerBgColor = useState<string>('headerBgColor', () => 'bg-transparent');
+const route = useRoute();
+const headerBgColor = computed(() => {
+  return route.meta.headerBgColor || 'bg-transparent';
+});
 </script>
 
 <template>
