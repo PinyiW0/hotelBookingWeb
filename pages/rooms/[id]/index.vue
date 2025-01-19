@@ -1,4 +1,5 @@
 <script setup lang="ts">
+const { $dayjs } = useNuxtApp();
 // TODO: 補layout header
 defineOptions({
   name: 'RoomsIndex'
@@ -62,13 +63,29 @@ const galleryData: any[] = [
   ]
 ];
 
+// #region 預訂人數
 const people = ref<number>(1);
+const showError = ref<boolean>(false);
+const errorMessage = computed(() => {
+  if (people.value >= 4) return '人數不得大於4';
+  return '';
+});
+
 const handlePeople = (num: number) => {
   const newVal = people.value + num;
-  if (newVal >= 1 && newVal <= 4) {
-    people.value = newVal;
-  };
+  showError.value = newVal > 4;
+  if (!showError.value) people.value = newVal;
 };
+// #endregion 預訂人數
+
+// #region 日期選擇
+const checkInDate = ref('');
+const checkOutDate = ref('');
+/* checkin日期 disabled 規則 */
+const disabledStartDate = (time: Date) => $dayjs(time) < $dayjs().subtract(1, "day");
+/* checkout disabled 規則 */
+const disabledEndDate = (time: Date) => $dayjs(time) < $dayjs(checkInDate.value).add(1, "day");
+// #endregion 日期選擇
 </script>
 
 <template>
@@ -144,9 +161,26 @@ const handlePeople = (num: number) => {
             </div>
             <div class="mt-7 flex flex-col gap-4">
               <!-- 日期 -->
-              <div class="flex items-center gap-2"></div>
+              <div class="flex items-center gap-2">
+                <el-date-picker
+                    v-model="checkInDate"
+                    :disabled-date="disabledStartDate"
+                    format="YYYY/MM/DD"
+                    placeholder="入住日期"
+                    size="large"
+                />
+                <el-date-picker
+                    v-model="checkOutDate"
+                    :disabled-date="disabledEndDate"
+                    :disabled="!checkInDate"
+                    format="YYYY/MM/DD"
+                    placeholder="退房日期"
+                    size="large"
+                    class="checkout-picker"
+                />
+              </div>
               <!-- 人數 -->
-              <div class="flex items-center justify-between">
+              <div class="mt-7 flex items-center justify-between">
                 <p class="py-4 text-4 font-bold">人數</p>
                 <div class="flex items-center">
                   <button @click="handlePeople(-1)" :disabled="people <= 1" class="p-0 rounded-full border-(px solid gray-40) bg-white group">
@@ -165,8 +199,8 @@ const handlePeople = (num: number) => {
                 </div>
               </div>
             </div>
-            <div v-if="people <= 1" class="text-4 text-error text-right duration-300">人數不得小於1</div>
-            <div v-if="people >= 4" class="text-4 text-error text-right duration-300">人數不得大於4</div>
+            <!-- 錯誤訊息 -->
+            <div class="text-4 text-error text-right duration-300">{{ errorMessage }}</div>
             <p class="mt-7 text-4 xl:text-6 text-primary font-bold tracking-wider">NT$ 10,000</p>
             <DefaultBtn text="立即預訂" class="mt-7 font-bold" />
           </div>
@@ -177,6 +211,14 @@ const handlePeople = (num: number) => {
 </template>
 
 <style scoped>
+:deep(.el-input--large .el-input__wrapper ) {
+  padding: 32px 12px;
+  border: 1px solid #4B4B4B;
+  border-radius: 8px;
+}
+:deep(.checkout-picker .el-input__prefix) {
+  display: none;
+}
 :deep(.el-carousel__button) {
   background-color: #F1EAE4;
   border-radius: 100px;
