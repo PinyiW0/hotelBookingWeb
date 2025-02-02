@@ -11,6 +11,7 @@ const headerBgColor = computed(() => {
       <NuxtPage />
     <LayoutFooter />
   </section>
+  <GoTop />
 </template>
 
 <style scoped></style>
