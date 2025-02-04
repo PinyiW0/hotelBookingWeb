@@ -7,6 +7,10 @@ useSeoMeta({
   title: '客房旅宿頁',
   description: '客房旅宿頁',
 });
+/** 調整 header 背景色 */
+definePageMeta({
+  headerBgColor: 'bg-gray-120',
+});
 
 // 輪播圖
 const bannerList: any[] = [

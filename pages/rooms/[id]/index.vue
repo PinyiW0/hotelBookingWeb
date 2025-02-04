@@ -1,6 +1,8 @@
 <script setup lang="ts">
 const { $dayjs } = useNuxtApp();
-// TODO: 補layout header
+import { useRoute, useRouter } from 'vue-router';
+const route = useRoute();
+const router = useRouter();
 defineOptions({
   name: 'RoomsIndex'
 });
@@ -62,6 +64,11 @@ const galleryData: any[] = [
     { src: '/images/Image/Room-1.png', alt: '' }
   ]
 ];
+/** 前往預定頁 */
+const id = route.params.id;
+const handleBooking = () => {
+  router.push(`/rooms/${id}/booking`)
+};
 
 // #region 預訂人數
 const people = ref<number>(1);
@@ -202,7 +209,7 @@ const disabledEndDate = (time: Date) => $dayjs(time) < $dayjs(checkInDate.value)
             <!-- 錯誤訊息 -->
             <div class="text-4 text-error text-right duration-300">{{ errorMessage }}</div>
             <p class="mt-7 text-4 xl:text-6 text-primary font-bold tracking-wider">NT$ 10,000</p>
-            <DefaultBtn text="立即預訂" class="mt-7 font-bold" />
+            <DefaultBtn @click="handleBooking" text="立即預訂" class="mt-7 font-bold" />
           </div>
          </div>
       </div>
