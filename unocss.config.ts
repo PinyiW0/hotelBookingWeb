@@ -5,7 +5,7 @@ import type { IconifyJSON } from '@iconify/types';
 
 export default defineConfig({
   shortcuts: {},
-  rules:[],
+  rules: [],
   theme: {
     colors: {
       primary: {
@@ -18,7 +18,7 @@ export default defineConfig({
       },
       success: {
         120: '#299F65',
-        DEFAULT: '#BF9D7D',
+        DEFAULT: '#52DD7E',
         20: '#BCFBBD',
         10: '#E8FEE7',
       },

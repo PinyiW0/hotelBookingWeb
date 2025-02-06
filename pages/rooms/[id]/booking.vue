@@ -5,9 +5,12 @@ const route = useRoute();
 const router = useRouter();
 import CityCountyData from 'assets/json/cityCountyData.json';
 const { $dayjs } = useNuxtApp();
-$dayjs.locale('zh-tw');
 defineOptions({
   name: 'RoomsIdBooking'
+});
+/** 調整 header 背景色 */
+definePageMeta({
+  headerBgColor: 'bg-gray-120',
 });
 // TODO:之後要做動態 SEO
 useSeoMeta({
@@ -112,14 +115,10 @@ const updateAreas = () => {
 const isLoading = ref(false);
 const handleBooking = async () => {
   isLoading.value = true;
-  // isLoading.value = false;
+  // 模擬延遲，例如 2 秒
+  await new Promise(resolve => setTimeout(resolve, 2000));
+  await router.push(`/rooms/${route.params.id}/success`).finally(() => isLoading.value = false);
 }
-const isHovered = ref(false);
-const resetAnimation = () => {
-  setTimeout(() => {
-    isHovered.value = false; // 回到原始狀態
-  }, 100); // 確保動畫完成後才重置
-};
 </script>
 
 <template>
