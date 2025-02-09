@@ -1,8 +1,7 @@
 <script setup lang="ts">
-/** 調整 header 背景色 */
 const { $dayjs } = useNuxtApp();
 defineOptions({
-  name: 'RoomsIdBooking'
+  name: 'RoomsIdSuccess'
 });
 definePageMeta({
   headerBgColor: 'bg-gray-120',
