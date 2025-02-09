@@ -23,10 +23,11 @@ const facilityInfo: any[] = [
 
 <template>
   <section class="w-full bg-gray-120">
-    <div class="px-3 w-full mx-auto flex flex-col justify-center xl:(px-0 py-30 max-w-1296px flex-row gap-18)">
-      <div class="mt-10 flex flex-col gap-10">
+    <div
+      class="px-3 sm:px-10 w-full mx-auto flex flex-col items-center justify-center gap-15 xl:(px-0 py-30 max-w-1296px flex-row items-start gap-18)">
+      <div class="mt-10 w-full flex flex-col gap-10">
         <!-- 預定成功狀態 -->
-        <div class="flex flex-col gap-1">
+        <div class="w-full flex flex-col gap-1">
           <div class="flex flex-col gap-4 xl:(flex-row items-center gap-10)">
             <div class="w-10 h-10 flex items-center justify-center bg-success rounded-full">
               <div class="i-material-symbols:check w-7 h-7 text-white" />
@@ -46,7 +47,7 @@ const facilityInfo: any[] = [
           </div>
         </div>
         <!-- 訂房人資訊 -->
-        <div class="flex flex-col gap-8">
+        <div class="w-full flex flex-col gap-8">
           <h3 class="text-6 text-white font-bold tracking-wider leading-10">訂房人資訊</h3>
           <ul class="flex flex-col gap-6">
             <li class="flex flex-col gap-2">
@@ -65,10 +66,10 @@ const facilityInfo: any[] = [
         </div>
       </div>
       <!-- 即將來的行程 -->
-      <div class="mt-5 mb-10 p-4 xl:(p-10 mb-0) max-w-478px flex flex-col gap-2 bg-white rounded-2">
+      <div class="mt-5 mb-10 p-4 w-full xl:(p-10 mb-0 max-w-478px) flex flex-col gap-2 bg-white rounded-2">
         <p class="text-3.5 xl:text-4 text-gray-80">預訂參考編號： HH2302183151222</p>
         <p class="text-4 xl:text-6 font-bold leading-8">即將來的行程</p>
-        <div class="mt-4 w-full max-h-150px xl:(mt-6 max-h-60) rounded-2 overflow-hidden">
+        <div class="mt-4 w-full max-h-150px sm:max-h-120 xl:(mt-6 max-h-60) rounded-2 overflow-hidden">
           <img src="/images/Image/Room.png" alt="" class="w-full h-full object-center">
         </div>
         <div class="mt-4 pb-6 flex flex-col gap-2 border-b-(px solid gray-40) xl:(pb-10 mt-6)">
@@ -84,14 +85,14 @@ const facilityInfo: any[] = [
         <div class="mt-4 flex flex-col gap-4 xl:(gap-6 mt-10)">
           <severTitle title="房內設備" titleSize="text-4" />
           <div
-            class="mt-2 p-6 w-full grid grid-cols-2 sm:grid-cols-5 gap-x-10 gap-y-2 bg-white rounded-2 border-(px solid gray-40)">
+            class="mt-2 p-6 w-full grid grid-cols-2 sm:grid-cols-3  gap-x-10 gap-y-2 bg-white rounded-2 border-(px solid gray-40)">
             <RoomTagCard v-for="i in facilityInfo" :title="i.title" />
           </div>
         </div>
         <div class="mt-4 flex flex-col gap-4 xl:(gap-6 mt-10)">
           <severTitle title="備品提供" titleSize="text-4" />
           <div
-            class="mt-2 p-6 w-full grid grid-cols-2 sm:grid-cols-5 gap-x-10 gap-y-2 bg-white rounded-2 border-(px solid gray-40)">
+            class="mt-2 p-6 w-full grid grid-cols-2 sm:grid-cols-3 gap-x-10 gap-y-2 bg-white rounded-2 border-(px solid gray-40)">
             <RoomTagCard v-for="i in facilityInfo" :title="i.title" />
           </div>
         </div>
