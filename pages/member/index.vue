@@ -73,6 +73,18 @@ const submit = () => {
   alert('密碼修改成功！');
   router.push('/member');
 };
+/** 修改基本資料 */
+const isEditUserInfo = ref(false);
+const userInfo = reactive({
+  name: 'Jessica Wang',
+  phone: '+886 912 345 678',
+  birthday: '1990 年 8 月 15 日',
+  address: '高雄市新興區六角路 123 號'
+});
+const saveInfo = () => {
+  isEditUserInfo.value = false;
+  alert('資料修改成功！');
+};
 </script>
 
 <template>
@@ -126,29 +138,30 @@ const submit = () => {
           <!-- 姓名 -->
           <div class="flex flex-col gap-2">
             <p class="text-3.5 text-gray-80">姓名</p>
-            <p class="text-3.4 font-bold">Jessica Ｗang</p>
-            <el-input v-if="false" v-model="form.oldPassword" type="password" placeholder="請輸入密碼" show-password />
+            <p v-if="!isEditUserInfo" class="text-3.4 font-bold">Jessica Ｗang</p>
+            <el-input v-else v-model="userInfo.name" placeholder="請輸入姓名" />
           </div>
           <!-- 手機號碼 -->
           <div class="flex flex-col gap-2">
             <p class="text-3.5 text-gray-80">手機號碼</p>
-            <p class="text-3.4 font-bold">+886 912 345 678</p>
-            <el-input v-if="false" v-model="form.oldPassword" type="password" placeholder="請輸入密碼" show-password />
+            <p v-if="!isEditUserInfo" class="text-3.4 font-bold">+886 912 345 678</p>
+            <el-input v-else v-model="userInfo.phone" placeholder="請輸入手機號碼" />
           </div>
           <!-- 生日 -->
           <div class="flex flex-col gap-2">
             <p class="text-3.5 text-gray-80">生日</p>
-            <p class="text-3.4 font-bold">1990 年 8 月 15 日</p>
-            <el-input v-if="false" v-model="form.oldPassword" type="password" placeholder="請輸入密碼" show-password />
+            <p v-if="!isEditUserInfo" class="text-3.4 font-bold">1990 年 8 月 15 日</p>
+            <el-input v-else v-model="userInfo.birthday" placeholder="請輸入生日" />
           </div>
           <!-- 地址 -->
           <div class="flex flex-col gap-2">
             <p class="text-3.5 text-gray-80">地址</p>
-            <p class="text-3.4 font-bold">高雄市新興區六角路 123 號</p>
-            <el-input v-if="false" v-model="form.oldPassword" type="password" placeholder="請輸入密碼" show-password />
+            <p v-if="!isEditUserInfo" class="text-3.4 font-bold">高雄市新興區六角路 123 號</p>
+            <el-input v-else v-model="userInfo.address" placeholder="請輸入密碼" />
           </div>
-          <DefaultBtn @click="submit" text="編輯" btnStyle="secondary" class="font-bold" />
-          <DefaultBtn @click="submit" to="/member" text="儲存設定" class="font-bold" />
+          <DefaultBtn v-if="!isEditUserInfo" @click="isEditUserInfo = true" text="編輯" btnStyle="secondary"
+            class="font-bold" />
+          <DefaultBtn @click="saveInfo" v-if="!!isEditUserInfo" to="/member" text="儲存設定" class="font-bold" />
         </div>
       </div>
     </div>
