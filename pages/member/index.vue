@@ -2,6 +2,7 @@
 const { $dayjs } = useNuxtApp();
 const router = useRouter();
 import type { FormRules } from 'element-plus';
+import CityCountyData from 'assets/json/cityCountyData.json';
 
 defineOptions({
   name: 'MemberIndex'
@@ -23,6 +24,17 @@ const handleChangeTab = (val: string) => {
   // getList(val);
 };
 
+// watch(() => route.query.tab, (newTab) => {
+//   if (newTab && tabList.value.some((tab) => tab.value === newTab)) {
+//     defaultTab.value = newTab as string;
+//     getList(newTab as string);
+//   } else {
+//     defaultTab.value = '學生';
+//     getList('學生')
+//   };
+// });
+
+// #region 修改密碼相關
 /** updatePasswordform */
 interface updatePassword {
   oldPassword: string;
@@ -34,12 +46,9 @@ const form = ref<updatePassword>({
   newPassword: '',
   confirmPassword: '',
 });
-/** 驗證 */
-const rules = reactive<FormRules>({
-  email: [
-    { required: true, message: '電子信箱為必填', trigger: ['blur', 'change'] },
-    { type: 'email', message: '電子信箱格式錯誤', trigger: ['blur', 'change'] },
-  ],
+
+/** 密碼驗證 */
+const pswRules = reactive<FormRules>({
   oldPassword: [{ required: true, message: '舊密碼為必填', trigger: ['blur', 'change'] }],
   newPassword: [{ required: true, message: '新密碼為必填', trigger: ['blur', 'change'] }],
   confirmPassword: [
@@ -58,33 +67,73 @@ const rules = reactive<FormRules>({
     },
   ],
 });
-/** 監聽tab切換 */
-// watch(() => route.query.tab, (newTab) => {
-//   if (newTab && tabList.value.some((tab) => tab.value === newTab)) {
-//     defaultTab.value = newTab as string;
-//     getList(newTab as string);
-//   } else {
-//     defaultTab.value = '學生';
-//     getList('學生')
-//   };
-// });
+
 /** 修改密碼 */
+const isEditPassword = ref(false);
+const resetPassword = () => {
+  isEditPassword.value = true;
+};
+/** 修改密碼提交 */
 const submit = () => {
   alert('密碼修改成功！');
+  isEditPassword.value = false;
   router.push('/member');
 };
-/** 修改基本資料 */
+// #endregion 修改密碼相關
+
+// #region 基本資料相關
+/** 取得基本資料 */
 const isEditUserInfo = ref(false);
 const userInfo = reactive({
   name: 'Jessica Wang',
   phone: '+886 912 345 678',
   birthday: '1990 年 8 月 15 日',
-  address: '高雄市新興區六角路 123 號'
+  city: '高雄市',
+  county: '新興區',
+  addr: '六角路123號',
+  // 此為用來做驗證的欄位
+  address: ''
 });
-const saveInfo = () => {
+
+/** 儲存基本資料 */
+const saveUserInfo = () => {
   isEditUserInfo.value = false;
   alert('資料修改成功！');
 };
+/** 篩選相對應區域 */
+const filteredAreas = computed(() => {
+  const selectedCity = CityCountyData.find(city => city.CityName === userInfo.city);
+  return selectedCity ? selectedCity.AreaList : [];
+});
+/** 清除區域選擇 */
+const updateAreas = () => {
+  userInfo.county = '';
+};
+
+/** 使用者資料驗證 */
+const userInfoRules = reactive<FormRules>({
+  name: [
+    { required: true, message: '請輸入姓名', trigger: ['blur', 'change'] },
+  ],
+  phone: [
+    { required: true, message: '請輸入手機號碼', trigger: ['blur', 'change'] },
+  ],
+  birthday: [
+    { required: true, message: '請輸入生日', trigger: ['blur', 'change'] },
+  ],
+  address: [
+    { required: true, message: '請輸入地址', trigger: ['blur', 'change'] },
+  ],
+})
+
+/** 地址驗證欄位處理 */
+watch(
+  () => [userInfo.city, userInfo.county, userInfo.addr],
+  ([newCity, newCounty, newAddr]) => {
+    userInfo.address = `${newCity} ${newCounty} ${newAddr}`.trim();
+  }
+);
+// #endregion 基本資料相關
 </script>
 
 <template>
@@ -104,7 +153,7 @@ const saveInfo = () => {
       <!-- 個人資料 -->
       <div v-if="defaultTab === 'personalData'" class="flex flex-col gap-6 xl:(flex-row gap-10)">
         <!-- 修改密碼 -->
-        <div class="p-6 w-full flex flex-col gap-6 bg-white rounded-5">
+        <div class="p-6 w-full h-fit flex flex-col gap-6 bg-white rounded-5">
           <h3 class="text-5 font-bold">修改密碼</h3>
           <!-- 電子信箱 -->
           <div class="flex flex-col gap-2">
@@ -112,56 +161,90 @@ const saveInfo = () => {
             <p class="text-3.4 font-bold">Jessica@exsample.com</p>
           </div>
           <!-- 密碼 -->
-          <div class="flex items-center justify-between gap-2">
+          <div v-if="!isEditPassword" class="flex items-center justify-between gap-2">
             <div class="flex flex-col gap-2">
               <p class="text-3.5 text-gray-80">密碼</p>
               <p class="text-3.4 font-bold">XXX</p>
             </div>
-            <DefaultBtn @click="submit" text="重設" btnStyle="onlyText" class="font-bold" />
+            <DefaultBtn @click="resetPassword" text="重設" btnStyle="onlyText" class="font-bold" />
           </div>
-          <el-form ref="formRef" :model="form" :rules="rules" class="flex flex-col gap-4">
-            <el-form-item label="舊密碼" label-position="top" prop="oldPassword">
-              <el-input v-model="form.oldPassword" type="password" placeholder="請輸入密碼" show-password />
-            </el-form-item>
-            <el-form-item label="新密碼" label-position="top" prop="newPassword">
-              <el-input v-model="form.newPassword" type="password" placeholder="請輸入密碼" show-password />
-            </el-form-item>
-            <el-form-item label="確認新密碼" label-position="top" prop="confirmPassword">
-              <el-input v-model="form.confirmPassword" type="password" placeholder="請再輸入一次密碼" show-password />
-            </el-form-item>
-          </el-form>
-          <DefaultBtn @click="submit" to="/register" text="儲存設定" class="font-bold" />
+          <div v-else class="flex flex-col gap-2">
+            <el-form ref="formRef" :model="form" :rules="pswRules" class="flex flex-col gap-4">
+              <el-form-item label="舊密碼" label-position="top" prop="oldPassword">
+                <el-input v-model="form.oldPassword" type="password" placeholder="請輸入密碼" show-password />
+              </el-form-item>
+              <el-form-item label="新密碼" label-position="top" prop="newPassword">
+                <el-input v-model="form.newPassword" type="password" placeholder="請輸入密碼" show-password />
+              </el-form-item>
+              <el-form-item label="確認新密碼" label-position="top" prop="confirmPassword">
+                <el-input v-model="form.confirmPassword" type="password" placeholder="請再輸入一次密碼" show-password />
+              </el-form-item>
+            </el-form>
+            <DefaultBtn @click="submit" to="/register" text="儲存設定"
+              :disabled="!form.oldPassword || !form.newPassword || !form.confirmPassword" class="font-bold" />
+          </div>
         </div>
         <!-- 基本資料 -->
         <div class="p-6 w-full flex flex-col gap-6 bg-white rounded-5">
           <h3 class="text-5 font-bold">基本資料</h3>
-          <!-- 姓名 -->
-          <div class="flex flex-col gap-2">
-            <p class="text-3.5 text-gray-80">姓名</p>
-            <p v-if="!isEditUserInfo" class="text-3.4 font-bold">Jessica Ｗang</p>
-            <el-input v-else v-model="userInfo.name" placeholder="請輸入姓名" />
-          </div>
-          <!-- 手機號碼 -->
-          <div class="flex flex-col gap-2">
-            <p class="text-3.5 text-gray-80">手機號碼</p>
-            <p v-if="!isEditUserInfo" class="text-3.4 font-bold">+886 912 345 678</p>
-            <el-input v-else v-model="userInfo.phone" placeholder="請輸入手機號碼" />
-          </div>
-          <!-- 生日 -->
-          <div class="flex flex-col gap-2">
-            <p class="text-3.5 text-gray-80">生日</p>
-            <p v-if="!isEditUserInfo" class="text-3.4 font-bold">1990 年 8 月 15 日</p>
-            <el-input v-else v-model="userInfo.birthday" placeholder="請輸入生日" />
-          </div>
-          <!-- 地址 -->
-          <div class="flex flex-col gap-2">
-            <p class="text-3.5 text-gray-80">地址</p>
-            <p v-if="!isEditUserInfo" class="text-3.4 font-bold">高雄市新興區六角路 123 號</p>
-            <el-input v-else v-model="userInfo.address" placeholder="請輸入密碼" />
-          </div>
+          <el-form ref="userInfoFormRef" :model="userInfo" :rules="userInfoRules" label-position="top"
+            class="flex flex-col gap-4">
+            <!-- 姓名 -->
+            <el-form-item label="姓名" prop="name">
+              <template v-if="isEditUserInfo">
+                <el-input v-model="userInfo.name" placeholder="請輸入姓名" />
+              </template>
+              <template v-else>
+                <p class="text-3.4 font-bold">{{ userInfo.name }}</p>
+              </template>
+            </el-form-item>
+
+            <!-- 手機號碼 -->
+            <el-form-item label="手機號碼" prop="phone">
+              <template v-if="isEditUserInfo">
+                <el-input v-model="userInfo.phone" placeholder="請輸入手機號碼" />
+              </template>
+              <template v-else>
+                <p class="text-3.4 font-bold">{{ userInfo.phone }}</p>
+              </template>
+            </el-form-item>
+
+            <!-- 生日 -->
+            <el-form-item label="生日" prop="birthday">
+              <template v-if="isEditUserInfo">
+                <el-input v-model="userInfo.birthday" placeholder="請輸入生日" />
+              </template>
+              <template v-else>
+                <p class="text-3.4 font-bold">{{ userInfo.birthday }}</p>
+              </template>
+            </el-form-item>
+
+            <!-- 地址 -->
+            <el-form-item label="地址" prop="address">
+              <template v-if="isEditUserInfo">
+                <div class="w-full flex items-center gap-2">
+                  <el-select @change="updateAreas" v-model="userInfo.city" placeholder="請選擇縣市" class="!h-52px"
+                    size="large">
+                    <el-option v-for="city in CityCountyData" :key="city.CityName" :label="city.CityName"
+                      :value="city.CityName" />
+                  </el-select>
+                  <el-select v-model="userInfo.county" :disabled="!filteredAreas.length" placeholder="請選擇區域"
+                    class="!h-52px" size="large">
+                    <el-option v-for="area in filteredAreas" :key="area.ZipCode" :label="area.AreaName"
+                      :value="area.AreaName" />
+                  </el-select>
+                </div>
+                <el-input v-model="userInfo.addr" placeholder="請輸入詳細地址" class="mt-4" />
+              </template>
+              <template v-else>
+                <p class="text-3.4 font-bold">{{ userInfo.city }}{{ userInfo.county }}{{ userInfo.addr }}</p>
+              </template>
+            </el-form-item>
+          </el-form>
           <DefaultBtn v-if="!isEditUserInfo" @click="isEditUserInfo = true" text="編輯" btnStyle="secondary"
             class="font-bold" />
-          <DefaultBtn @click="saveInfo" v-if="!!isEditUserInfo" to="/member" text="儲存設定" class="font-bold" />
+          <DefaultBtn @click="saveUserInfo" v-if="!!isEditUserInfo" to="/member" text="儲存設定"
+            :disabled="!userInfo.name || !userInfo.phone || !userInfo.birthday || !userInfo.addr" class="font-bold" />
         </div>
       </div>
     </div>
@@ -173,7 +256,7 @@ const saveInfo = () => {
 
 <style scoped>
 :deep(.el-form-item__label) {
-  color: black;
+  color: #4B4B4B;
 }
 
 :deep(.el-form-item) {
