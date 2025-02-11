@@ -1,6 +1,8 @@
 <script setup lang="ts">
 const router = useRouter();
 import type { FormRules } from 'element-plus';
+import CityCountyData from 'assets/json/cityCountyData.json';
+
 defineOptions({
   name: 'Register'
 });
@@ -21,7 +23,7 @@ interface LoginInForm {
 const form = ref<LoginInForm>({
   email: '',
   password: '',
-  confirmPassword:'',
+  confirmPassword: '',
 });
 const form2 = ref({
   name: '',
@@ -31,7 +33,21 @@ const form2 = ref({
   detail: '',
   city: '',
   county: '',
+  addr: '',
+  // 此為用來做驗證的欄位
+  address: ''
 });
+
+/** 篩選相對應區域 */
+const filteredAreas = computed(() => {
+  const selectedCity = CityCountyData.find(city => city.CityName === form2.value.city);
+  return selectedCity ? selectedCity.AreaList : [];
+});
+// 清除區域選擇
+const updateAreas = () => {
+  form2.value.county = '';
+};
+
 /** 驗證 */
 const rules = reactive<FormRules>({
   email: [
@@ -59,18 +75,16 @@ const step2Rules = reactive<FormRules>({
   birthday: [{ required: true, message: '生日為必填', trigger: ['blur', 'change'] }],
   zipcode: [{ required: true, message: '郵遞區號為必填', trigger: ['blur', 'change'] }],
   detail: [{ required: true, message: '詳細地址為必填', trigger: ['blur', 'change'] }],
-  city: [{ required: true, message: '縣市為必填', trigger: ['blur', 'change'] }],
-  county: [{ required: true, message: '區域為必填', trigger: ['blur', 'change'] }],
+  address: [{ required: true, message: '請輸入地址', trigger: ['blur', 'change'] },],
 });
 
-const cities = [
-  {label:'台北',value:'台北'},
-  {label:'高雄',value:'高雄'},
-];
-const county = [
-  {label:'中山區',value:'中山區'},
-  {label:'新興區',value:'新興區'},
-]
+/** 地址驗證欄位處理 */
+watch(() => [form2.value.city, form2.value.county, form2.value.addr],
+  ([newCity, newCounty, newAddr]) => {
+    form2.value.address = `${newCity} ${newCounty} ${newAddr}`.trim();
+  }
+);
+
 // #region 步驟相關
 /** 步驟 */
 interface Step {
@@ -119,13 +133,10 @@ const agreeRules = ref(false);
           <h2 class="text-8 text-white font-bold tracking-wide">立即註冊</h2>
         </div>
         <!-- 步驟選擇器 -->
-        <el-steps :space="200" :active="activeStep" finish-status="success" align-center class="my-4 flex justify-center">
-          <el-step 
-            v-for="step in steps" 
-            :key="step.value" 
-            :title="step.label" 
-            :status="step.completed ? 'success' : step.value === activeStep ? 'process' : 'wait'" 
-          />
+        <el-steps :space="200" :active="activeStep" finish-status="success" align-center
+          class="my-4 flex justify-center">
+          <el-step v-for="step in steps" :key="step.value" :title="step.label"
+            :status="step.completed ? 'success' : step.value === activeStep ? 'process' : 'wait'" />
         </el-steps>
       </div>
 
@@ -165,16 +176,19 @@ const agreeRules = ref(false);
             <el-date-picker v-model="form2.birthday" type="date" placeholder="請選擇出生年月日" size="large"
               class="!w-full !h-52px" />
           </el-form-item>
-          <el-form-item label="地址" label-position="top" prop="birthday">
+          <el-form-item label="地址" label-position="top" prop="address">
             <div class="w-full flex items-center gap-2">
-              <el-select v-model="form2.city" placeholder="請選擇縣市" class="!h-52px" size="large">
-                <el-option v-for="item in cities" :key="item.value" :label="item.label" :value="item.value" />
+              <el-select @change="updateAreas" v-model="form2.city" placeholder="請選擇縣市" class="!h-52px" size="large">
+                <el-option v-for="city in CityCountyData" :key="city.CityName" :label="city.CityName"
+                  :value="city.CityName" />
               </el-select>
-              <el-select v-model="form2.county" placeholder="請選擇區域" class="!h-52px" size="large">
-                <el-option v-for="item in county" :key="item.value" :label="item.label" :value="item.value" />
+              <el-select v-model="form2.county" :disabled="!filteredAreas.length" placeholder="請選擇區域" class="!h-52px"
+                size="large">
+                <el-option v-for="area in filteredAreas" :key="area.ZipCode" :label="area.AreaName"
+                  :value="area.AreaName" />
               </el-select>
             </div>
-            <el-input v-model="form2.birthday" placeholder="請輸入詳細地址" class="mt-2" />
+            <el-input v-model="form2.addr" placeholder="請輸入詳細地址" class="mt-4" />
           </el-form-item>
         </el-form>
         <el-checkbox v-model="agreeRules" label="我已閱讀並同意本網站個資使用規範" size="large" class="custom-checkbox" />
@@ -191,11 +205,12 @@ const agreeRules = ref(false);
 </template>
 
 <style scoped>
-:deep(.el-select--large .el-select__wrapper){
+:deep(.el-select--large .el-select__wrapper) {
   padding: 18px 24px;
   border: 1px solid #909090;
   border-radius: 8px;
 }
+
 :deep(.el-form-item__label) {
   color: white;
 }
