@@ -112,23 +112,14 @@ const updateAreas = () => {
 
 /** 使用者資料驗證 */
 const userInfoRules = reactive<FormRules>({
-  name: [
-    { required: true, message: '請輸入姓名', trigger: ['blur', 'change'] },
-  ],
-  phone: [
-    { required: true, message: '請輸入手機號碼', trigger: ['blur', 'change'] },
-  ],
-  birthday: [
-    { required: true, message: '請輸入生日', trigger: ['blur', 'change'] },
-  ],
-  address: [
-    { required: true, message: '請輸入地址', trigger: ['blur', 'change'] },
-  ],
+  name: [{ required: true, message: '請輸入姓名', trigger: ['blur', 'change'] },],
+  phone: [{ required: true, message: '請輸入手機號碼', trigger: ['blur', 'change'] },],
+  birthday: [{ required: true, message: '請輸入生日', trigger: ['blur', 'change'] },],
+  address: [{ required: true, message: '請輸入地址', trigger: ['blur', 'change'] },],
 })
 
 /** 地址驗證欄位處理 */
-watch(
-  () => [userInfo.city, userInfo.county, userInfo.addr],
+watch(() => [userInfo.city, userInfo.county, userInfo.addr],
   ([newCity, newCounty, newAddr]) => {
     userInfo.address = `${newCity} ${newCounty} ${newAddr}`.trim();
   }
