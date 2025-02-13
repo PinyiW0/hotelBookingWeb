@@ -119,7 +119,8 @@ watch(() => [userInfo.city, userInfo.county, userInfo.addr],
       <div v-if="!isEditPassword" class="flex items-center justify-between gap-2">
         <div class="flex flex-col gap-2">
           <p class="text-3.5 text-gray-80">密碼</p>
-          <p class="text-3.4 font-bold">XXX</p>
+          <p class="text-3.4 font-bold password-hidden">密碼內容</p>
+          <!-- <p class="text-3.4 font-bold">XXX</p> -->
         </div>
         <DefaultBtn @click="resetPassword" text="重設" btnStyle="onlyText" class="font-bold" />
       </div>
@@ -131,7 +132,7 @@ watch(() => [userInfo.city, userInfo.county, userInfo.addr],
           <el-form-item label="新密碼" label-position="top" prop="newPassword">
             <el-input v-model="form.newPassword" type="password" placeholder="請輸入密碼" show-password />
           </el-form-item>
-          <el-form-item label="確認新密碼" label-position="top" prop="confirmPassword">
+          <el-form-item label="確認新密碼" label-position="top" prop="confirmPassword" class="pb-6">
             <el-input v-model="form.confirmPassword" type="password" placeholder="請再輸入一次密碼" show-password />
           </el-form-item>
         </el-form>
@@ -175,7 +176,7 @@ watch(() => [userInfo.city, userInfo.county, userInfo.addr],
         </el-form-item>
 
         <!-- 地址 -->
-        <el-form-item label="地址" prop="address">
+        <el-form-item label="地址" prop="address" class="pb-6">
           <template v-if="isEditUserInfo">
             <div class="w-full flex items-center gap-2">
               <el-select @change="updateAreas" v-model="userInfo.city" placeholder="請選擇縣市" class="!h-52px" size="large">
@@ -210,5 +211,11 @@ watch(() => [userInfo.city, userInfo.county, userInfo.addr],
 
 :deep(.el-form-item) {
   margin-bottom: 0;
+}
+
+/** 隱藏密碼 */
+.password-hidden {
+  -webkit-text-security: disc;
+  user-select: none;
 }
 </style>

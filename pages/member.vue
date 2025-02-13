@@ -34,7 +34,7 @@ const handleChangeTab = (val: string) => {
     </div>
     <div class="px-3 py-10 w-full flex flex-col gap-10 xl:(pt-20 pb-30 max-w-1296px mx-auto gap-20)">
       <Tab @update:model-value="handleChangeTab" v-model="defaultTab" :list="tabList" />
-      <NuxtPage />
+      <NuxtPage :key="$route.fullPath" />
     </div>
     <!-- DECO -->
     <img src="/images/deco/success-mob.svg" aria-hidden class="md:hidden w-full object-cover">
