@@ -49,6 +49,13 @@ const updateAreas = () => {
 };
 
 /** 驗證 */
+/** 驗證確認密碼 */
+const checkConfirmPwd = (rule: any, value: string, callback: any) => {
+  if (value !== form.value.password) {
+    callback(new Error("密碼不一致"));
+  }
+  callback();
+};
 const rules = reactive<FormRules>({
   email: [
     { required: true, message: '電子信箱為必填', trigger: ['blur', 'change'] },
@@ -56,17 +63,8 @@ const rules = reactive<FormRules>({
   ],
   password: [{ required: true, message: ' 密碼為必填', trigger: ['blur', 'change'] }],
   confirmPassword: [
-    { required: true, message: '請再次輸入密碼', trigger: ['blur', 'change'] },
-    {
-      validator: (rule, value, callback) => {
-        if (value !== form.value.password) {
-          callback(new Error('兩次輸入的密碼不一致'));
-        } else {
-          callback();
-        }
-      },
-      trigger: ['blur', 'change'],
-    },
+    { required: true, message: '必填，請再次輸入密碼', trigger: ['blur', 'change'] },
+    { required: true, validator: checkConfirmPwd, trigger: ['blur', 'change'] },
   ],
 });
 const step2Rules = reactive<FormRules>({
