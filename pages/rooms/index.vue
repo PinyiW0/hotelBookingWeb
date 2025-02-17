@@ -7,10 +7,6 @@ useSeoMeta({
   title: '客房旅宿頁',
   description: '客房旅宿頁',
 });
-/** 調整 header 背景色 */
-definePageMeta({
-  headerBgColor: 'bg-gray-120',
-});
 
 // 輪播圖
 const bannerList: any[] = [
@@ -68,11 +64,11 @@ onBeforeUnmount(() => {
             <!-- 黑色透明遮罩 -->
             <div class="absolute top-0 left-0 w-full h-full bg-black/60"></div>
             <!-- 輪播圖 -->
-            <img :src="`/images/Image/Room-${idx}`" :alt="slide.label" class="w-full h-full object-cover">
+            <img :src="`/images/Image/Room-${idx}.png`" :alt="slide.label" class="w-full h-full object-cover">
           </el-carousel-item>
         </el-carousel>
         <div
-          class="absolute top-35% md:top-1/3 xl:top-60% left-1/2 -translate-1/2 py-54 max-w-780px mx-auto flex flex-col xl:(top-1/3 flex-row gap-20) items-center gap-5">
+          class="absolute top-35% md:top-1/3 xl:top-60% 3xl:top-35% left-1/2 -translate-1/2 py-54 max-w-780px mx-auto flex flex-col xl:(top-1/3 flex-row gap-20) items-center gap-5">
           <CarouselTitle class="pt-4" />
           <h2 class="text-8 xl:(text-12 leading-25) text-white font-bold tracking-1 leading-15 whitespace-nowrap">客房旅宿
           </h2>

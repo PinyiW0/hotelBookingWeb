@@ -47,46 +47,68 @@ const trafficInfo: any[] = [
   { title: '禮賓車服務', content: '承億酒店提供禮賓專車接送服務，但因目的地遠近會有不同的收費，請撥打電話將由專人為您服務洽詢專線：(07)123-4567', icon: 'i-mdi:car-hatchback' },
 ];
 // #endregion 獲取資料
-
+const bannerList: any[] = [
+  { label: 'room1' },
+  { label: 'room2' },
+  { label: 'room3' },
+  { label: 'room4' },
+];
 </script>
 
 <template>
-  <div>
+  <section class="flex flex-col justify-center">
     <!-- swiper area -->
     <ClientOnly>
-      <div class="w-full h-full overflow-x-hidden overflow-y-visible">
-        <Carousel class="absolute top-0 left-0 z-1 3xl:-z-1" />
+      <div class="absolute top-0 left-0 w-full h-full overflow-hidden">
+        <!-- swiper -->
+        <el-carousel arrow="never" :indicator-position="undefined"
+          class="w-full !h-466px !sm:h-120 !md:h-150 !lg:h-160 !xl:h-200 !2xl:h-220 !3xl:h-270">
+          <el-carousel-item v-for="(slide, idx) in bannerList" :key="idx">
+            <!-- 黑色透明遮罩 -->
+            <div class="absolute top-0 left-0 w-full h-full bg-black/60"></div>
+            <!-- 輪播圖 -->
+            <img :src="`/images/Image/Room-${idx}.png`" :alt="slide.label" class="w-full h-full object-cover">
+          </el-carousel-item>
+        </el-carousel>
         <div
-          class="relative px-5 flex flex-col items-center gap-10 xl:(px-20 flex-row gap-0) justify-between">
-          <CarouselTitle class="relative z-2 pt-4"/>
-          <div
-            class="absolute top-1/3 xl:(top-1/8 right-1/6 px-0 pt-0) 3xl:(top-1/5 right-1/6) z-2 px-6.5 pt-5 flex flex-col gap-2">
-            <h2 class="text-12 xl:(text-16 leading-25) 3xl:text-20 text-white font-bold tracking-1 leading-15">高雄</h2>
-            <h2 class="text-12 xl:(text-16 tracking-1) 3xl:text-20 text-white font-bold">豪華住宿之選</h2>
-            <h2 class="mt-4 text-base xl:(text-6 w-full) 3xl:text-8 text-white font-600 w-90%">我們致力於為您提供無與倫比的奢華體驗與優質服務
-            </h2>
-            <HeroBtn text="立即訂房" class="mt-10 mr-9 lg:(mr-0 mt-4) 2xl:mt-13" />
-          </div>
-          <div
-            class="relative z-1 w-291px h-420px sm:(w-320px h-430px) lg:(w-340px h-320px) xl:(w-650px h-440px rounded-20) 2xl:(w-680px h-490px) 3xl:(w-924px h-678px) border-t-(px solid #F5F7F9) border-r-(px solid #F5F7F9) rounded-10 sm:rounded-15 bg-gradient-to-t from-white/30 to-white-0 backdrop-blur-20">
+          class="absolute top-35% md:top-1/3 left-1/2 -translate-1/2 py-54 max-w-780px mx-auto flex flex-col xl:(top-48% left-1/2 max-w-1024px flex-row gap-20 justify-between) 2xl:max-w-1280px 3xl:max-w-1760px items-center gap-5">
+          <div class="relative w-full flex flex-col items-center justify-center gap-10 xl:(flex-row gap-12) 3xl:gap-20">
+            <!-- 副標題 -->
+            <CarouselTitle class="pt-4" />
+            <!-- 主標題 -->
+            <div class="px-6.5 pt-5 3xl:w-full flex-shrink-0 flex flex-col gap-2 self-stretch">
+              <h2 class="text-12 xl:(text-16 leading-25) 3xl:text-20 text-white font-bold tracking-1 leading-15">高雄</h2>
+              <h2 class="text-12 xl:(text-16 tracking-1) 3xl:text-20 text-white font-bold">豪華住宿之選</h2>
+              <h2 class="mt-4 text-base xl:(text-6 w-full) 3xl:text-8 text-white font-600 w-90% leading-12">
+                我們致力於為您提供無與倫比的奢華體驗與優質服務
+              </h2>
+              <HeroBtn text="立即訂房" class="mt-10 mr-9 lg:(mr-0 mt-4) 2xl:mt-13" />
+            </div>
+            <!-- 主標題背景圖 -->
+            <div
+              class="absolute -z-1 w-291px h-420px sm:(w-320px h-430px) lg:(w-340px h-320px) xl:(w-580px h-420px top-4/7 -right-7/11 -translate-1/2) rounded-20 2xl:(w-640px h-490px top-1/2 -right-7/11 -translate-1/2) 3xl:(w-924px h-678px -top-1/4 -right-1/3) border-t-(px solid #F5F7F9) border-r-(px solid #F5F7F9) rounded-10 sm:rounded-15 bg-gradient-to-t from-white/30 to-white-0 backdrop-blur-20">
+            </div>
           </div>
         </div>
       </div>
     </ClientOnly>
     <!-- news area -->
-    <div class="xl:mt-42 px-3 w-full bg-primary-10">
+    <div class="pt-180 xl:pt-140 2xl:pt-190 3xl:pt-240 px-3 w-full bg-primary-10">
       <div class="mx-auto py-20 max-w-1296px flex flex-col gap-10 xl:(flex-row gap-20)">
         <!-- title -->
         <PageTitle title="最新消息" />
         <!-- content -->
         <ul class="w-full flex flex-col items-center gap-10">
-          <li v-for="item in newsList" :key="item._id" class="flex flex-col items-center justify-center gap-8 xl:flex-row hover:cursor-pointer group">
-            <div class="w-351px h-294px md:(w-660px h-380px) xl:(w-474px h-294px) rounded-2 overflow-hidden flex-shrink-0">
+          <li v-for="item in newsList" :key="item._id"
+            class="flex flex-col items-center justify-center gap-8 xl:flex-row hover:cursor-pointer group">
+            <div
+              class="w-351px h-294px md:(w-660px h-380px) xl:(w-474px h-294px) rounded-2 overflow-hidden flex-shrink-0">
               <img :src="item.image" :alt="item.title"
                 class="w-full h-full object-cover duration-400 group-hover:(scale-110 filter-grayscale)">
             </div>
             <div class="flex flex-col gap-8">
-              <h3 class="text-7 lg:text-8 font-bold tracking-2px duration-300 group-hover:text-primary">{{ item.title }}</h3>
+              <h3 class="text-7 lg:text-8 font-bold tracking-2px duration-300 group-hover:text-primary">{{ item.title }}
+              </h3>
               <p class="text-3.5 lg:text-base text-gray-80 leading-6">{{ item.description }}</p>
             </div>
           </li>
@@ -99,13 +121,13 @@ const trafficInfo: any[] = [
       <div class="absolute w-full h-594px xl:h-672px xl:top-20 overflow-hidden">
         <img src="/images/About-BG.png" aria-hidden class="w-full h-full object-cover object-center">
       </div>
-      <div class="relative mt-10 pl-10 pr-5 max-w-1296px ml-auto xl:px-0">
+      <div class="relative mt-10 pl-10 pr-5 max-w-1296px ml-auto xl:px-0 ">
         <ClientOnly>
           <DotSquire class="absolute z-20 -top-70 -left-80" />
         </ClientOnly>
         <!-- CONTENT -->
         <div
-          class="max-w-1044px bg-gradient-to-b from-gray-120/80 to-#BE9C7C/80 backdrop-blur rounded-t-10 rounded-lb-10 border-b-(px solid #F5F7F9) border-l-(px solid #F5F7F9)">
+          class="max-w-1044px mx-auto bg-gradient-to-b from-gray-120/80 to-#BE9C7C/80 backdrop-blur rounded-t-10 rounded-lb-10 border-b-(px solid #F5F7F9) border-l-(px solid #F5F7F9)">
           <div class="p-8 flex flex-col gap-10 xl:p-20">
             <PageTitle title="關於我們" color="text-white" :showWhiteLine="true" />
             <div class="flex flex-col gap-4 xl:mt-10">
@@ -117,10 +139,10 @@ const trafficInfo: any[] = [
       </div>
     </div>
     <!-- 房型 swiper -->
-     <div class="relative py-20 md:pt-35 w-full h-full bg-gray-120">
+    <div class="relative py-20 md:pt-35 w-full h-full bg-gray-120">
       <img src="/images/deco/room-line.png" aria-hidden class="absolute top--6 right-0 md:top-7 lg:hidden">
       <RoomCarousel :slideList="roomsList" class="px-3 lg:px-0" />
-     </div>
+    </div>
     <!-- 佳餚美饌 -->
     <div class="relative py-20 xl:py-30 w-full h-full flex flex-col justify-start bg-primary-10">
       <img src="/images/deco/Line2.png" aria-hidden
@@ -135,7 +157,7 @@ const trafficInfo: any[] = [
 
     <!-- 交通方式 -->
     <div class="pt-20 w-full bg-gray-120">
-      <div class="px-3 xl:px-0 mx-auto max-w-1296px flex flex-col gap-10 xl:gap-20">
+      <div class="px-3 xl:(px-5 gap-20) 2xl:px-0 mx-auto max-w-1296px flex flex-col gap-10">
         <PageTitle title="交通方式" :linePositionRight="true" />
         <div class="flex flex-col gap-8 xl:gap-10">
           <!-- map -->
@@ -161,5 +183,29 @@ const trafficInfo: any[] = [
         <img src="/images/deco/Line.png" aria-hidden class="w-full min-h-30 object-cover">
       </div>
     </div>
-  </div>
+  </section>
 </template>
+
+<style scoped>
+:deep(.el-carousel__indicator.is-active button) {
+  background-color: #BF9D7D;
+  color: #BF9D7D;
+}
+
+:deep(.el-carousel__container) {
+  height: 100% !important;
+}
+
+@media (min-width: 1280px) {
+  :deep(.el-carousel__indicators) {
+    bottom: 130px !important;
+  }
+}
+
+@media (min-width: 1440px) {
+  :deep(.el-carousel__indicators) {
+    bottom: 24px !important;
+    justify-content: center;
+  }
+}
+</style>

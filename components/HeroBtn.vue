@@ -15,8 +15,8 @@ const props = defineProps({
 
 // 按鈕樣式
 const btnBaseCls =
-  "p-5 md:p-7 2xl:p-10 max-w-772px flex items-center justify-end gap-2 text-2xl font-bold tracking-widest bg-white rounded-2 border-0 relative decoration-none cursor-pointer transition-all duration-400 group";
-const btnHoverCls = "hover:(bg-primary text-white)";
+  "p-5 md:p-7 2xl:p-10 max-w-772px flex items-center justify-end gap-2 text-black text-2xl font-bold tracking-widest bg-white rounded-2 border-0 relative decoration-none cursor-pointer transition-all duration-400 group";
+const btnHoverCls = "hover:(bg-primary !text-white)";
 const btnDisabledCls = "disabled:(opacity-60 pointer-events-none)";
 
 // 標記是否為外部連結
@@ -32,12 +32,15 @@ const setTarget = computed(() => {
   <NuxtLink v-if="to" :to="to" :external="isExternal" :target="setTarget"
     :class="[btnBaseCls, btnHoverCls, btnDisabledCls]"
     class="flex items-center justify-center decoration-none cursor-pointer duration-400">
-    <p class="text-base lg:text-5 xl:text-6 text-black">{{ text }}</p>
-      <div class="linePrimary h-1px w-20 xl:w-150px bg-black duration-400 transition-transform group-hover:bg-white"></div>
+    <p class="text-base lg:text-5 xl:text-6">{{ text }}</p>
+    <div class="linePrimary h-1px w-20 xl:w-150px bg-black duration-400 transition-transform group-hover:bg-white">
+    </div>
   </NuxtLink>
   <button v-else :aria-label="text" :class="[btnBaseCls, btnHoverCls, btnDisabledCls]" :disabled="disabled">
-    <p class="text-base lg:text-5 xl:text-6 text-black">{{ text }}</p>
-    <div class="linePrimary h-1px w-20 xl:w-150px bg-black decoration-none duration-400 transition-transform group-hover:bg-white"></div>
+    <p class="text-base lg:text-5 xl:text-6">{{ text }}</p>
+    <div
+      class="linePrimary h-1px w-20 xl:w-150px bg-black decoration-none duration-400 transition-transform group-hover:bg-white">
+    </div>
   </button>
 
 </template>
@@ -46,6 +49,7 @@ const setTarget = computed(() => {
 /* 線條 自定義動畫 */
 @layer utilities {
   @keyframes linePrimary {
+
     0%,
     100% {
       transform: scaleX(0.3);
