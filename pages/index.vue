@@ -59,10 +59,10 @@ const bannerList: any[] = [
   <section class="flex flex-col justify-center">
     <!-- swiper area -->
     <ClientOnly>
-      <div class="absolute top-0 left-0 w-full h-full overflow-hidden">
+      <div class="absolute top-0 left-0 w-full h-fit overflow-hidden">
         <!-- swiper -->
         <el-carousel arrow="never" :indicator-position="undefined"
-          class="w-full !h-466px !sm:h-120 !md:h-150 !lg:h-160 !xl:h-200 !2xl:h-220 !3xl:h-270">
+          class="w-full !h-210 !md:h-200 !lg:h-180 !xl:h-200 !2xl:h-220 !3xl:h-270">
           <el-carousel-item v-for="(slide, idx) in bannerList" :key="idx">
             <!-- 黑色透明遮罩 -->
             <div class="absolute top-0 left-0 w-full h-full bg-black/60"></div>
@@ -71,29 +71,31 @@ const bannerList: any[] = [
           </el-carousel-item>
         </el-carousel>
         <div
-          class="absolute top-35% md:top-1/3 left-1/2 -translate-1/2 py-54 max-w-780px mx-auto flex flex-col xl:(top-48% left-1/2 max-w-1024px flex-row gap-20 justify-between) 2xl:max-w-1280px 3xl:max-w-1760px items-center gap-5">
-          <div class="relative w-full flex flex-col items-center justify-center gap-10 xl:(flex-row gap-12) 3xl:gap-20">
+          class="absolute top-46% md:top-48% left-1/2 -translate-1/2 max-w-780px mx-auto flex flex-col lg:top-50% xl:(top-38% left-1/2 max-w-1024px flex-row gap-20 justify-between) 2xl:(max-w-1280px top-40%) 3xl:(max-w-1760px top-50%) items-center gap-5">
+          <div
+            class="relative w-full flex flex-col items-center justify-center gap-20 md:gap-16 lg:(flex-row gap-12) 3xl:gap-20">
             <!-- 副標題 -->
             <CarouselTitle class="pt-4" />
             <!-- 主標題 -->
-            <div class="px-6.5 pt-5 3xl:w-full flex-shrink-0 flex flex-col gap-2 self-stretch">
+            <div class="px-6.5 pt-5 3xl:w-fit flex-shrink-0 flex flex-col gap-2 self-stretch">
               <h2 class="text-12 xl:(text-16 leading-25) 3xl:text-20 text-white font-bold tracking-1 leading-15">高雄</h2>
-              <h2 class="text-12 xl:(text-16 tracking-1) 3xl:text-20 text-white font-bold">豪華住宿之選</h2>
-              <h2 class="mt-4 text-base xl:(text-6 w-full) 3xl:text-8 text-white font-600 w-90% leading-12">
+              <h2 class="text-12 xl:(text-16 tracking-1) 3xl:text-20 text-white font-bold whitespace-nowrap">豪華住宿之選</h2>
+              <h2
+                class="mt-4 text-base w-full lg:(w-90% leading-6) xl:(text-6 w-full leading-12) 3xl:text-8 text-white font-600">
                 我們致力於為您提供無與倫比的奢華體驗與優質服務
               </h2>
               <HeroBtn text="立即訂房" class="mt-10 mr-9 lg:(mr-0 mt-4) 2xl:mt-13" />
             </div>
             <!-- 主標題背景圖 -->
             <div
-              class="absolute -z-1 w-291px h-420px sm:(w-320px h-430px) lg:(w-340px h-320px) xl:(w-580px h-420px top-4/7 -right-7/11 -translate-1/2) rounded-20 2xl:(w-640px h-490px top-1/2 -right-7/11 -translate-1/2) 3xl:(w-924px h-678px -top-1/4 -right-1/3) border-t-(px solid #F5F7F9) border-r-(px solid #F5F7F9) rounded-10 sm:rounded-15 bg-gradient-to-t from-white/30 to-white-0 backdrop-blur-20">
+              class="absolute -z-1 w-291px h-420px top-2/5 -right-5px rounded-10 sm:-right-20px md:(w-310px h-400px top-2/5) lg:(w-400px h-380px -right-1/5 rounded-20) xl:(w-580px h-420px top-3/7 -right-7/11 -translate-1/2) 2xl:(w-640px h-490px top-1/2 -right-7/11 -translate-1/2) 3xl:(w-900px h-678px top-1/2 -right-4/7) border-t-(px solid #F5F7F9) border-r-(px solid #F5F7F9) bg-gradient-to-t from-white/30 to-white-0 backdrop-blur-20">
             </div>
           </div>
         </div>
       </div>
     </ClientOnly>
     <!-- news area -->
-    <div class="pt-180 xl:pt-140 2xl:pt-190 3xl:pt-240 px-3 w-full bg-primary-10">
+    <div class="pt-180 md:pt-190 lg:pt-140 xl:pt-160 2xl:pt-190 3xl:pt-240 px-3 w-full bg-primary-10">
       <div class="mx-auto py-20 max-w-1296px flex flex-col gap-10 xl:(flex-row gap-20)">
         <!-- title -->
         <PageTitle title="最新消息" />
@@ -154,7 +156,6 @@ const bannerList: any[] = [
         </ClientOnly>
       </div>
     </div>
-
     <!-- 交通方式 -->
     <div class="pt-20 w-full bg-gray-120">
       <div class="px-3 xl:(px-5 gap-20) 2xl:px-0 mx-auto max-w-1296px flex flex-col gap-10">
@@ -196,9 +197,25 @@ const bannerList: any[] = [
   height: 100% !important;
 }
 
+:deep(.el-carousel__indicators) {
+  bottom: 20px !important;
+}
+
+@media (min-width: 768px) {
+  :deep(.el-carousel__indicators) {
+    bottom: 20px !important;
+  }
+}
+
+@media (min-width: 1024px) {
+  :deep(.el-carousel__indicators) {
+    bottom: 24px !important;
+  }
+}
+
 @media (min-width: 1280px) {
   :deep(.el-carousel__indicators) {
-    bottom: 130px !important;
+    bottom: 40px !important;
   }
 }
 
