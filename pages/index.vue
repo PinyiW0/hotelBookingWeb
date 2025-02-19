@@ -7,6 +7,7 @@ useSeoMeta({
   title: '首頁',
   description: '首頁',
 });
+
 // #region 獲取資料
 /** 最新消息 */
 const newsList = ref<any[]>([]);
@@ -14,7 +15,6 @@ const getNewsList = async () => {
   const { result = null } = await api.News.Load();
   newsList.value = result;
 };
-getNewsList();
 
 /** 關於我們 */
 const aboutContent: any[] = [
@@ -30,7 +30,6 @@ const getRoomsList = async () => {
   const { result = null } = await api.Rooms.Load();
   roomsList.value = result;
 };
-getRoomsList();
 
 /** 美味佳餚 */
 const foodList = ref<any[]>([]);
@@ -38,7 +37,15 @@ const getFoodList = async () => {
   const { result = null } = await api.Culinary.Load();
   foodList.value = result;
 };
-getFoodList();
+
+/** 確認資料載入後關閉載入畫面 */
+const isLoading = ref(true);
+const loadData = async () => {
+  await Promise.all([getNewsList(), getRoomsList(), getFoodList()]);
+  isLoading.value = false;
+};
+
+loadData();
 
 /** 交通方式 */
 const trafficInfo: any[] = [
@@ -57,6 +64,10 @@ const bannerList: any[] = [
 
 <template>
   <section class="flex flex-col justify-center">
+    <!-- loading -->
+    <SuccessLoading :isShow="isLoading">
+      <p class="text-6 font-bold tracking-wider">努力加載畫面中</p>
+    </SuccessLoading>
     <!-- swiper area -->
     <ClientOnly>
       <div class="absolute top-0 left-0 w-full h-fit overflow-hidden">
@@ -71,13 +82,13 @@ const bannerList: any[] = [
           </el-carousel-item>
         </el-carousel>
         <div
-          class="absolute top-46% md:top-48% left-1/2 -translate-1/2 max-w-780px mx-auto flex flex-col lg:top-50% xl:(top-38% left-1/2 max-w-1024px flex-row gap-20 justify-between) 2xl:(max-w-1280px top-40%) 3xl:(max-w-1760px top-50%) items-center gap-5">
+          class="absolute top-46% md:top-48% left-1/2 -translate-1/2 max-w-780px mx-auto flex flex-col lg:top-50% xl:(left-1/2 max-w-1024px flex-row gap-20 justify-between) 2xl:(max-w-1280px top-52%) 3xl:(max-w-1760px top-50% left-45%) items-center gap-5">
           <div
-            class="relative w-full flex flex-col items-center justify-center gap-20 md:gap-16 lg:(flex-row gap-12) 3xl:gap-20">
+            class="relative w-full flex flex-col items-center justify-center gap-20 md:gap-16 lg:(flex-row gap-12) 3xl:gap-15">
             <!-- 副標題 -->
             <CarouselTitle class="pt-4" />
             <!-- 主標題 -->
-            <div class="px-6.5 pt-5 3xl:w-fit flex-shrink-0 flex flex-col gap-2 self-stretch">
+            <div class="relative px-6.5 pt-5 3xl:w-fit flex-shrink-0 flex flex-col gap-2 self-stretch">
               <h2 class="text-12 xl:(text-16 leading-25) 3xl:text-20 text-white font-bold tracking-1 leading-15">高雄</h2>
               <h2 class="text-12 xl:(text-16 tracking-1) 3xl:text-20 text-white font-bold whitespace-nowrap">豪華住宿之選</h2>
               <h2
@@ -85,10 +96,10 @@ const bannerList: any[] = [
                 我們致力於為您提供無與倫比的奢華體驗與優質服務
               </h2>
               <HeroBtn text="立即訂房" class="mt-10 mr-9 lg:(mr-0 mt-4) 2xl:mt-13" />
-            </div>
-            <!-- 主標題背景圖 -->
-            <div
-              class="absolute -z-1 w-291px h-420px top-2/5 -right-5px rounded-10 sm:-right-20px md:(w-310px h-400px top-2/5) lg:(w-400px h-380px -right-1/5 rounded-20) xl:(w-580px h-420px top-3/7 -right-7/11 -translate-1/2) 2xl:(w-640px h-490px top-1/2 -right-7/11 -translate-1/2) 3xl:(w-900px h-678px top-1/2 -right-4/7) border-t-(px solid #F5F7F9) border-r-(px solid #F5F7F9) bg-gradient-to-t from-white/30 to-white-0 backdrop-blur-20">
+              <!-- 主標題背景圖 -->
+              <div
+                class="absolute -z-1 w-291px h-420px top-0 right-5px rounded-10 md:(w-310px h-400px) lg:(w-400px h-380px -top-5 -right-6 rounded-20) xl:(w-580px h-420px top-0 -right-8) 2xl:(w-640px h-490px top-60 -right-105 -translate-1/2) 3xl:(w-900px h-678px top-1/2 -right-155) border-t-(px solid #F5F7F9) border-r-(px solid #F5F7F9) bg-gradient-to-t from-white/30 to-white-0 backdrop-blur-20">
+              </div>
             </div>
           </div>
         </div>
