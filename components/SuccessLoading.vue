@@ -25,7 +25,7 @@ watch(
             <div class="loader" />
             <div class="flex flex-col items-center gap-4">
               <img src="/images/LOGO-pri.svg" alt="享樂酒店logo" width="144px">
-              <p class="text-6 font-bold tracking-wider">正在處理你的預訂</p>
+              <slot />
             </div>
 
           </div>

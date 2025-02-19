@@ -103,5 +103,3 @@ const facilityInfo: any[] = [
     <img src="/images/deco/success-line.svg" aria-hidden class="hidden md:block object-cover">
   </section>
 </template>
-
-<style scoped></style>

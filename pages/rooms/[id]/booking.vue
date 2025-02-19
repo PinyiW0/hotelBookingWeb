@@ -260,7 +260,9 @@ const handleBooking = async () => {
       </div>
     </div>
     <!-- loading -->
-    <SuccessLoading :isShow="isLoading" />
+    <SuccessLoading :isShow="isLoading">
+      <p class="text-6 font-bold tracking-wider">正在處理你的預訂</p>
+    </SuccessLoading>
   </section>
 </template>
 
