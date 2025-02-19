@@ -1,11 +1,11 @@
 export default defineNuxtConfig({
   devtools: { enabled: false },
   app: {
-    head:{
+    head: {
       viewport: 'width=device-width, initial-scale=1, maximum-scale=1',
       titleTemplate: `${import.meta.env.NUXT_TITLE || '享樂酒店'} | %s`,
-      meta:[
-        { property: 'og:title', content: import.meta.env.NUXT_TITLE}
+      meta: [
+        { property: 'og:title', content: import.meta.env.NUXT_TITLE }
       ]
     },
     pageTransition: {
