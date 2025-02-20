@@ -26,11 +26,13 @@ export default defineNuxtConfig({
     }
   },
   plugins: [
-    { src: '~/plugins/swiper.client.ts', mode: 'client' }
+    { src: '~/plugins/swiper.client.ts', mode: 'client' },
+    { src: '~/plugins/sweetalert2.ts' }
   ],
   css: [
     '@unocss/reset/eric-meyer.css',
     '/assets/stylesheets/reset.css',
+    '/assets/stylesheets/swal.css',
     '/assets/stylesheets/transition.css',
     'swiper/css',
     'swiper/css/navigation',
