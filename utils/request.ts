@@ -1,33 +1,65 @@
+import Swal from 'sweetalert2';
+
+type FetchOptions = {
+  method?: 'GET' | 'POST' | 'PUT' | 'DELETE';
+  headers?: Record<string, string>;
+  timeout?: number;
+  showError?: boolean;
+  query?: Record<string, any>;
+  body?: any;
+};
+interface ApiError {
+  status?: number;
+  message: string;
+  data?: any;
+};
+
 async function _fetchData<T>(
   url: string,
-  options: {
-    method?: 'GET' | 'POST' | 'PUT' | 'DELETE';
-    params?: Record<string, any>;
-    headers?: Record<string, string>;
-    timeout?: number;
-    showError?: boolean;
-  } = {}
+  options: FetchOptions = {}
 ): Promise<T> {
   const { public: { apiBaseUrl } } = useRuntimeConfig() as { public: { apiBaseUrl: string } };
 
+
   try {
-    const { method = 'GET', params = {}, headers = {}, timeout = 30000, showError = true } = options;
+    const { method = 'GET', headers = {}, timeout = 30000, showError = true, query = {}, body, ...rest } = options;
 
     const res = await $fetch.raw<T>(url, {
       method,
       baseURL: apiBaseUrl,
       headers,
       timeout,
-      ...params,
+      query,
+      body,
+      ...rest,
     });
 
     return res._data as T;
   } catch (error: any) {
-    console.error('Error:', error);
-    throw error;
+    const apiError: ApiError = {
+      status: error.response?.status,
+      message: error.message || '發生錯誤',
+      data: error.response?._data
+    };
+    // 處理基本全局錯誤
+    if (options.showError) {
+      Swal.fire({
+        icon: error.response?.status === 404 ? 'warning' : 'error',
+        title: apiError.message,
+        timer: 2000,
+        timerProgressBar: true,
+        showConfirmButton: false,
+        heightAuto: true,
+        didOpen: (toast) => {
+          toast.addEventListener("mouseenter", Swal.stopTimer);
+          toast.addEventListener("mouseleave", Swal.resumeTimer);
+        },
+      })
+    }
+    throw apiError;
   }
 }
 
-export function fetchData(url: string, params: Record<string, any> = {}): Promise<any> {
-  return _fetchData(url, params).then((res: any) => res).catch((e: any) => { throw e });
+export function fetchData(url: string, options: FetchOptions = {}): Promise<any> {
+  return _fetchData(url, options);
 }
