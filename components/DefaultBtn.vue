@@ -52,6 +52,7 @@
   const setTarget = computed(() => {
     return (props.to && props.to.indexOf('http') > -1) ? '_blank' : '_self';
   });
+  const emit = defineEmits(['click']);
 </script>
 
 <template>
@@ -59,7 +60,7 @@
     <p>{{ text }}</p>
     <img v-if="imgIcon" :src="`/images/icon/${imgIcon}.svg`" :alt="text" :class="iconWidth">
   </NuxtLink>
-  <button v-else :aria-label="text" :disabled="props.disabled" :class="btnCls" class="w-fit flex items-center justify-center gap-1 decoration-none cursor-pointer duration-400">
+  <button v-else @click="$emit('click')" :aria-label="text" :disabled="props.disabled" :class="btnCls" class="w-fit flex items-center justify-center gap-1 decoration-none cursor-pointer duration-400">
     <p class="font-bold whitespace-nowrap">{{ text }}</p>
     <img v-if="imgIcon" :src="`/images/icon/${imgIcon}.svg`" :alt="text" :class="iconWidth">
   </button>
