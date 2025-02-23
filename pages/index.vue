@@ -95,7 +95,7 @@ const bannerList: any[] = [
                 class="mt-4 text-base w-full lg:(w-90% leading-6) xl:(text-6 w-full leading-12) 3xl:text-8 text-white font-600">
                 我們致力於為您提供無與倫比的奢華體驗與優質服務
               </h2>
-              <HeroBtn text="立即訂房" class="mt-10 mr-9 lg:(mr-0 mt-4) 2xl:mt-13" />
+              <HeroBtn to='/rooms' text="立即訂房" class="mt-10 mr-9 lg:(mr-0 mt-4) 2xl:mt-13" />
               <!-- 主標題背景圖 -->
               <div
                 class="absolute -z-1 w-291px h-420px top-0 right-5px rounded-10 md:(w-310px h-400px) lg:(w-400px h-380px -top-5 -right-6 rounded-20) xl:(w-580px h-420px top-0 -right-8) 2xl:(w-640px h-490px top-60 -right-105 -translate-1/2) 3xl:(w-900px h-678px top-1/2 -right-155) border-t-(px solid #F5F7F9) border-r-(px solid #F5F7F9) bg-gradient-to-t from-white/30 to-white-0 backdrop-blur-20">

@@ -17,6 +17,7 @@ definePageMeta({
   layout: 'login',
 });
 
+// #region 登入
 /** form */
 interface LoginInForm {
   email: string;
@@ -26,18 +27,18 @@ const loginForm = ref<InstanceType<typeof ElForm> | null>(null);
 const formTemplate = {
   email: '',
   password: '',
-}
+};
 const temp = ref<any>(JSON.parse(JSON.stringify(formTemplate)));
 const rememberAccount = ref(false);
 
 /** 驗證 */
-const rules = reactive<FormRules>({
+const rules: FormRules = {
   email: [
-    { required: true, message: ' 電子信箱為必填', trigger: ['blur', 'change'] },
-    { type: 'email', message: ' 電子信箱格式錯誤', trigger: ['blur', 'change'] },
+    { required: true, message: '電子信箱為必填', trigger: ['blur', 'change'] },
+    { type: 'email', message: '電子信箱格式錯誤', trigger: ['blur', 'change'] },
   ],
-  password: [{ required: true, message: ' 密碼為必填', trigger: ['blur', 'change'] }]
-});
+  password: [{ required: true, message: '密碼為必填', trigger: ['blur', 'change'] }]
+};
 
 /** 登入 */
 const handleLogin = () => {
@@ -63,7 +64,7 @@ const handleLogin = () => {
       // 清空表單
       if (!rememberAccount.value && loginForm.value) {
         loginForm.value.resetFields();
-      }
+      };
       router.push('/');
     } else {
       $swal.fire({
@@ -73,8 +74,8 @@ const handleLogin = () => {
         text: '請稍後再試，或是聯絡客服',
         showConfirmButton: true
       });
-    }
-  })
+    };
+  });
 };
 /** 載入記住的帳號資訊 */
 onMounted(() => {
@@ -82,8 +83,9 @@ onMounted(() => {
   if (savedInfo) {
     temp.value = JSON.parse(savedInfo);
     rememberAccount.value = true;
-  }
+  };
 });
+// #endregion 登入
 </script>
 
 <template>
