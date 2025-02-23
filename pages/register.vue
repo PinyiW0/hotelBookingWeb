@@ -1,6 +1,11 @@
 <script setup lang="ts">
+const api = useApi();
+const { $swal } = useNuxtApp() as any;
+import { useRouter } from 'vue-router';
 const router = useRouter();
+const { $dayjs } = useNuxtApp();
 import type { FormRules } from 'element-plus';
+import type { FormInstance } from 'element-plus';
 import CityCountyData from 'assets/json/cityCountyData.json';
 
 defineOptions({
@@ -14,18 +19,18 @@ definePageMeta({
   layout: 'login',
 });
 
-/** form */
+/** accountForm */
 interface LoginInForm {
   email: string;
   password: string;
   confirmPassword: string;
 };
-const form = ref<LoginInForm>({
+const accountForm = ref<LoginInForm>({
   email: '',
   password: '',
   confirmPassword: '',
 });
-const form2 = ref({
+const profileForm = ref({
   name: '',
   phone: '',
   birthday: '',
@@ -40,23 +45,24 @@ const form2 = ref({
 
 /** 篩選相對應區域 */
 const filteredAreas = computed(() => {
-  const selectedCity = CityCountyData.find(city => city.CityName === form2.value.city);
+  const selectedCity = CityCountyData.find(city => city.CityName === profileForm.value.city);
   return selectedCity ? selectedCity.AreaList : [];
 });
 // 清除區域選擇
-const updateAreas = () => {
-  form2.value.county = '';
+const resetAreas = () => {
+  profileForm.value.county = '';
 };
 
 /** 驗證 */
 /** 驗證確認密碼 */
 const checkConfirmPwd = (rule: any, value: string, callback: any) => {
-  if (value !== form.value.password) {
+  if (value !== accountForm.value.password) {
     callback(new Error("密碼不一致"));
   }
   callback();
 };
-const rules = reactive<FormRules>({
+/** Step.1 帳號資訊驗證 */
+const accountFormRules = reactive<FormRules>({
   email: [
     { required: true, message: '電子信箱為必填', trigger: ['blur', 'change'] },
     { type: 'email', message: '電子信箱格式錯誤', trigger: ['blur', 'change'] },
@@ -67,7 +73,8 @@ const rules = reactive<FormRules>({
     { required: true, validator: checkConfirmPwd, trigger: ['blur', 'change'] },
   ],
 });
-const step2Rules = reactive<FormRules>({
+/** Step.2 會員資料驗證 */
+const profileFormRules = reactive<FormRules>({
   name: [{ required: true, message: '姓名為必填', trigger: ['blur', 'change'] }],
   phone: [{ required: true, message: '手機號碼為必填', trigger: ['blur', 'change'] }],
   birthday: [{ required: true, message: '生日為必填', trigger: ['blur', 'change'] }],
@@ -77,11 +84,13 @@ const step2Rules = reactive<FormRules>({
 });
 
 /** 地址驗證欄位處理 */
-watch(() => [form2.value.city, form2.value.county, form2.value.addr],
+watch(() => [profileForm.value.city, profileForm.value.county, profileForm.value.addr],
   ([newCity, newCounty, newAddr]) => {
-    form2.value.address = `${newCity} ${newCounty} ${newAddr}`.trim();
+    profileForm.value.address = `${newCity} ${newCounty} ${newAddr}`.trim();
   }
 );
+/** 生日日期 disabled */
+const disabledDate = (time: any) => !$dayjs(time).isBefore($dayjs().startOf('day'));
 
 // #region 步驟相關
 /** 步驟 */
@@ -95,22 +104,103 @@ const steps = ref<Step[]>([
   { value: 2, label: '填寫基本資料', completed: false },
 ])
 const activeStep = ref(1);
+
+/** 表單 ref */
+const accountFormRef = ref<FormInstance | null>(null);
+const profileFormRef = ref<FormInstance | null>(null);
+
 /** 下一步 */
 const nextStep = () => {
-  if (activeStep.value < steps.value.length) {
-    steps.value[activeStep.value - 1].completed = true;
-    activeStep.value++;
-  }
+  accountFormRef.value?.validate(async (isValid: boolean) => {
+    if (isValid) {
+      steps.value[activeStep.value - 1].completed = true;
+      activeStep.value++;
+    } else {
+      $swal({
+        title: "錯誤",
+        text: "請完整填寫帳號資訊",
+        icon: "error"
+      });
+    }
+  })
 };
+const isCompleted = computed(() => {
+  const { email, password, confirmPassword } = accountForm.value;
+  return email.trim() !== '' && password.trim() !== '' && confirmPassword.trim() !== '';
+});
+
 /** 完成註冊 */
+const agreeRules = ref(false);
+/** 根據所選縣市與區域取得 ZipCode */
+const getZipCode = (): string => {
+  const selectedCity = CityCountyData.find(city => city.CityName === profileForm.value.city);
+  if (!selectedCity) return '';
+  const selectedArea = selectedCity.AreaList.find(area => area.AreaName === profileForm.value.county);
+  return selectedArea ? selectedArea.ZipCode : '';
+};
+/** 註冊 */
 const submit = () => {
-  steps.value[activeStep.value - 1].completed = true;
-  alert('註冊完成！');
-  router.push('/login');
+  if (!agreeRules.value) {
+    $swal.fire({
+      icon: "error",
+      iconColor: '#DA3E51',
+      title: "重要提醒",
+      text: "請閱讀並同意本網站個資使用規範",
+      timer: 2000,
+    });
+    return;
+  };
+  profileFormRef.value?.validate(async (isValid: boolean) => {
+    if (isValid) {
+      const { email, password } = accountForm.value;
+      const { name, phone, birthday, city, county, addr } = profileForm.value;
+      // 合併帳號與會員資料
+      const registrationData = {
+        name: name,
+        email: email,
+        password: password,
+        phone: phone,
+        birthday: $dayjs(birthday).format('YYYY/MM/DD'),
+        address: {
+          zipcode: getZipCode(),
+          detail: `${city}${county}${addr}`
+        }
+      } as any;
+      const { status } = await api.Users.SignIn(registrationData);
+      if (status) {
+        await $swal.fire({
+          icon: 'success',
+          iconColor: '#52DD7E',
+          title: '註冊成功！',
+          showConfirmButton: false,
+          timer: 2000,
+          timerProgressBar: true
+        });
+        steps.value[activeStep.value - 1].completed = true;
+        accountFormRef.value?.resetFields();
+        profileFormRef.value?.resetFields();
+        router.push('/login');
+      } else {
+        $swal.fire({
+          icon: 'error',
+          iconColor: '#DA3E51',
+          title: '註冊失敗！',
+          text: '請稍後再試，或是聯絡客服',
+          showConfirmButton: true
+        });
+      };
+    } else {
+      $swal.fire({
+        icon: 'error',
+        iconColor: '#DA3E51',
+        title: '註冊失敗！',
+        text: '請檢查資料是否正確',
+        showConfirmButton: true
+      });
+    }
+  });
 };
 // #endregion 步驟相關
-
-const agreeRules = ref(false);
 </script>
 
 <template>
@@ -140,20 +230,20 @@ const agreeRules = ref(false);
 
       <!-- step1 -->
       <div v-if="activeStep === 1" class="mt-8 w-full flex flex-col gap-10">
-        <!-- form1 -->
-        <el-form ref="formRef" :model="form" :rules="rules" class="flex flex-col gap-4">
+        <!-- accountForm -->
+        <el-form ref="accountFormRef" :model="accountForm" :rules="accountFormRules" class="flex flex-col gap-4">
           <el-form-item label="電子信箱" label-position="top" prop="email">
-            <el-input v-model="form.email" placeholder="hello@exsample.com" />
+            <el-input v-model="accountForm.email" placeholder="hello@exsample.com" />
           </el-form-item>
           <el-form-item label="密碼" label-position="top" prop="password">
-            <el-input v-model="form.password" type="password" placeholder="請輸入密碼" show-password />
+            <el-input v-model="accountForm.password" type="password" placeholder="請輸入密碼" show-password />
           </el-form-item>
           <el-form-item label="確認密碼" label-position="top" prop="confirmPassword">
-            <el-input v-model="form.confirmPassword" type="password" placeholder="請再輸入一次密碼" show-password />
+            <el-input v-model="accountForm.confirmPassword" type="password" placeholder="請再輸入一次密碼" show-password />
           </el-form-item>
         </el-form>
         <!-- nextStep -->
-        <DefaultBtn @click="nextStep" to="/register" text="下一步" class="font-bold" />
+        <DefaultBtn @click="nextStep" :disabled="!isCompleted" text="下一步" class="font-bold" />
         <!-- go to login -->
         <div class="flex items-center gap-2">
           <p class="text-sm text-white">已經有會員了嗎？</p>
@@ -163,35 +253,36 @@ const agreeRules = ref(false);
       <!-- step2 -->
       <div v-if="activeStep === 2" class="mt-8 w-full flex flex-col gap-10">
         <!-- form2 -->
-        <el-form ref="form2Ref" :model="form2" :rules="step2Rules" class="flex flex-col gap-4">
+        <el-form ref="profileFormRef" :model="profileForm" :rules="profileFormRules" class="flex flex-col gap-4">
           <el-form-item label="姓名" label-position="top" prop="name">
-            <el-input v-model="form2.name" placeholder="請輸入姓名" />
+            <el-input v-model="profileForm.name" placeholder="請輸入姓名" />
           </el-form-item>
           <el-form-item label="手機號碼" label-position="top" prop="phone">
-            <el-input v-model="form2.phone" placeholder="請輸入手機號碼" />
+            <el-input v-model="profileForm.phone" placeholder="請輸入手機號碼" />
           </el-form-item>
           <el-form-item label="生日" label-position="top" prop="birthday">
-            <el-date-picker v-model="form2.birthday" type="date" placeholder="請選擇出生年月日" size="large"
-              class="!w-full !h-52px" />
+            <el-date-picker v-model="profileForm.birthday" :disabled-date="disabledDate" type="date"
+              placeholder="請選擇出生年月日" size="large" class="!w-full !h-52px" />
           </el-form-item>
           <el-form-item label="地址" label-position="top" prop="address">
             <div class="w-full flex items-center gap-2">
-              <el-select @change="updateAreas" v-model="form2.city" placeholder="請選擇縣市" class="!h-52px" size="large">
+              <el-select @change="resetAreas" v-model="profileForm.city" placeholder="請選擇縣市" class="!h-52px"
+                size="large">
                 <el-option v-for="city in CityCountyData" :key="city.CityName" :label="city.CityName"
                   :value="city.CityName" />
               </el-select>
-              <el-select v-model="form2.county" :disabled="!filteredAreas.length" placeholder="請選擇區域" class="!h-52px"
-                size="large">
+              <el-select v-model="profileForm.county" :disabled="!filteredAreas.length" placeholder="請選擇區域"
+                class="!h-52px" size="large">
                 <el-option v-for="area in filteredAreas" :key="area.ZipCode" :label="area.AreaName"
                   :value="area.AreaName" />
               </el-select>
             </div>
-            <el-input v-model="form2.addr" placeholder="請輸入詳細地址" class="mt-4" />
+            <el-input v-model="profileForm.addr" placeholder="請輸入詳細地址" class="mt-4" />
           </el-form-item>
         </el-form>
         <el-checkbox v-model="agreeRules" label="我已閱讀並同意本網站個資使用規範" size="large" class="custom-checkbox" />
         <!-- nextStep -->
-        <DefaultBtn @click="submit" to="/register" text="完成註冊" class="font-bold" />
+        <DefaultBtn @click="submit" text="完成註冊" class="font-bold" />
         <!-- go to login -->
         <div class="flex items-center gap-2">
           <p class="text-sm text-white">已經有會員了嗎？</p>

@@ -8,7 +8,7 @@ export default {
     return fetchData('/user/Login', { method: 'POST', body });
   },
   /** 註冊 */
-  SignIn(body: SignInQuery): Promise<{ result: SignInData }> {
+  SignIn(body: SignInQuery): Promise<{ status: boolean, result: SignInData }> {
     return fetchData('/user/signup', { method: 'POST', body });
   },
   /** 忘記密碼 */
