@@ -6,12 +6,14 @@ const headerBgColor = computed(() => {
 </script>
 
 <template>
-  <section class="w-full overflow-x-hidden">
-    <LayoutHeader :class="headerBgColor" /> 
+  <div>
+    <section class="w-full overflow-x-hidden">
+      <LayoutHeader :class="headerBgColor" />
       <NuxtPage />
-    <LayoutFooter />
-  </section>
-  <GoTop />
+      <LayoutFooter />
+    </section>
+    <GoTop />
+  </div>
 </template>
 
 <style scoped></style>
