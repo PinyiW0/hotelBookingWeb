@@ -3,7 +3,6 @@ const api = useApi();
 const { $swal } = useNuxtApp() as any;
 import { useRouter } from 'vue-router';
 const router = useRouter();
-import type { FormRules } from 'element-plus';
 import type { ForgotPswQuery } from '@/api/Users/types';
 
 defineOptions({
@@ -41,8 +40,8 @@ const sendMail = async () => {
     code: "0Zvjde",
     newPassword: "Dirt5528295"
   };
-  try {
-    const res = await api.Users.ForgotPsw({ ...params, showError: false });
+  const { status, message } = await api.Users.ForgotPsw(params);
+  if (status) {
     $swal.fire({
       icon: 'success',
       iconColor: '#52DD7E',
@@ -53,16 +52,17 @@ const sendMail = async () => {
       timerProgressBar: true
     });
     router.push('/login');
-  } catch (error: any) {
+  } else {
     $swal.fire({
       icon: 'error',
       title: '發生錯誤',
-      text: '此使用者不存在',
+      text: message,
       showConfirmButton: false,
     });
   }
 };
 </script>
+
 <template>
   <div class="relative grid grid-cols-1 xl:grid-cols-2 h-screen">
     <!-- deco line -->
