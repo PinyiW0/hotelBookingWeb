@@ -33,6 +33,7 @@ export default defineNuxtConfig({
     '@unocss/reset/eric-meyer.css',
     '/assets/stylesheets/reset.css',
     '/assets/stylesheets/swal.css',
+    'sweetalert2/dist/sweetalert2.min.css',
     '/assets/stylesheets/transition.css',
     'swiper/css',
     'swiper/css/navigation',
