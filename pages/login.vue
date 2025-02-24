@@ -24,11 +24,10 @@ interface LoginInForm {
   password: string;
 };
 const loginForm = ref<InstanceType<typeof ElForm> | null>(null);
-const formTemplate = {
+const formTemplate = ref<LoginInForm>({
   email: '',
   password: '',
-};
-const temp = ref<any>(JSON.parse(JSON.stringify(formTemplate)));
+});
 const rememberAccount = ref(false);
 
 /** 驗證 */
@@ -41,47 +40,45 @@ const rules: FormRules = {
 };
 
 /** 登入 */
-const handleLogin = () => {
-  if (!loginForm.value) return;
-  loginForm.value.validate(async (isValid: boolean) => {
-    if (isValid) {
-      // 處理記住帳號邏輯
-      if (rememberAccount.value) {
-        localStorage.setItem('loginInfo', JSON.stringify(temp.value));
-      } else {
-        localStorage.removeItem('loginInfo');
-      };
-
-      await api.Users.Login(temp.value);
-      await $swal.fire({
-        icon: 'success',
-        iconColor: '#52DD7E',
-        title: '登入成功！',
-        showConfirmButton: false,
-        timer: 2000,
-        timerProgressBar: true
-      });
-      // 清空表單
-      if (!rememberAccount.value && loginForm.value) {
-        loginForm.value.resetFields();
-      };
-      router.push('/');
+const handleLogin = async () => {
+  const isValid = await loginForm.value?.validate();
+  if (isValid) {
+    // 記住帳號
+    if (rememberAccount.value) {
+      localStorage.setItem('loginInfo', JSON.stringify(formTemplate.value.email));
     } else {
-      $swal.fire({
-        icon: 'error',
-        iconColor: '#DA3E51',
-        title: '登入失敗！',
-        text: '請稍後再試，或是聯絡客服',
-        showConfirmButton: true
-      });
+      localStorage.removeItem('loginInfo');
     };
-  });
+
+    await api.Users.Login(formTemplate.value);
+    await $swal.fire({
+      icon: 'success',
+      iconColor: '#52DD7E',
+      title: '登入成功！',
+      showConfirmButton: false,
+      timer: 2000,
+      timerProgressBar: true
+    });
+    // 清空表單
+    if (!rememberAccount.value) {
+      loginForm.value?.resetFields();
+    };
+    router.push('/');
+  } else {
+    $swal.fire({
+      icon: 'error',
+      iconColor: '#DA3E51',
+      title: '登入失敗！',
+      text: '請稍後再試，或是聯絡客服',
+      showConfirmButton: true
+    });
+  };
 };
 /** 載入記住的帳號資訊 */
 onMounted(() => {
   const savedInfo = localStorage.getItem('loginInfo');
   if (savedInfo) {
-    temp.value = JSON.parse(savedInfo);
+    formTemplate.value.email = JSON.parse(savedInfo);
     rememberAccount.value = true;
   };
 });
@@ -106,12 +103,12 @@ onMounted(() => {
         <h2 class="text-8 text-white font-bold tracking-wide">立即開始旅程</h2>
       </div>
       <!-- form -->
-      <el-form ref="loginForm" :model="temp" :rules="rules" class="flex flex-col gap-4">
+      <el-form ref="loginForm" :model="formTemplate" :rules="rules" class="flex flex-col gap-4">
         <el-form-item label="電子信箱" label-position="top" prop="email">
-          <el-input v-model="temp.email" placeholder="請輸入電子信箱" />
+          <el-input v-model="formTemplate.email" placeholder="請輸入電子信箱" />
         </el-form-item>
         <el-form-item label="密碼" label-position="top" prop="password">
-          <el-input v-model="temp.password" type="password" placeholder="請輸入密碼" show-password />
+          <el-input v-model="formTemplate.password" type="password" placeholder="請輸入密碼" show-password />
         </el-form-item>
       </el-form>
       <!-- submit -->
