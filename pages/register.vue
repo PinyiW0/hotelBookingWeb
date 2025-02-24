@@ -1,13 +1,13 @@
 <script setup lang="ts">
-const api = useApi();
-const { selectedCity, selectedCounty, getAreaList, resetCity, getZipCode, formatAddr } = useAddress();
-const { $swal } = useNuxtApp() as any;
 import { useRouter } from 'vue-router';
-const router = useRouter();
-const { $dayjs } = useNuxtApp();
-import type { FormRules } from 'element-plus';
-import type { FormInstance } from 'element-plus';
+const { selectedCity, selectedCounty, getAreaList, resetCity, getZipCode, formatAddr } = useAddress();
+import type { FormRules, FormInstance } from 'element-plus';
 import CityCountyData from 'assets/json/cityCountyData.json';
+
+const api = useApi();
+const { $swal } = useNuxtApp() as any;
+const { $dayjs } = useNuxtApp();
+const router = useRouter();
 
 defineOptions({
   name: 'Register'
@@ -49,9 +49,10 @@ const profileForm = ref({
 const checkConfirmPwd = (rule: any, value: string, callback: any) => {
   if (value !== accountForm.value.password) {
     callback(new Error("密碼不一致"));
-  }
+  };
   callback();
 };
+
 /** Step.1 帳號資訊驗證 */
 const accountFormRules = reactive<FormRules>({
   email: [
@@ -67,7 +68,10 @@ const accountFormRules = reactive<FormRules>({
 /** Step.2 會員資料驗證 */
 const profileFormRules = reactive<FormRules>({
   name: [{ required: true, message: '姓名為必填', trigger: ['blur', 'change'] }],
-  phone: [{ required: true, message: '手機號碼為必填', trigger: ['blur', 'change'] }],
+  phone: [
+    { required: true, message: '手機號碼為必填', trigger: ['blur', 'change'] },
+    { pattern: /^09\d{8}$/, message: '請輸入正確的手機號碼格式', trigger: ['blur', 'change'] }
+  ],
   birthday: [{ required: true, message: '生日為必填', trigger: ['blur', 'change'] }],
   zipcode: [{ required: true, message: '郵遞區號為必填', trigger: ['blur', 'change'] }],
   detail: [{ required: true, message: '詳細地址為必填', trigger: ['blur', 'change'] }],
@@ -80,6 +84,7 @@ watch(() => [profileForm.value.city, profileForm.value.county, profileForm.value
     profileForm.value.address = formatAddr(newCity, newCounty, newAddr);
   }
 );
+
 /** 生日日期 disabled */
 const disabledDate = (time: any) => !$dayjs(time).isBefore($dayjs().startOf('day'));
 
@@ -106,14 +111,8 @@ const nextStep = () => {
     if (isValid) {
       steps.value[activeStep.value - 1].completed = true;
       activeStep.value++;
-    } else {
-      $swal({
-        title: "錯誤",
-        text: "請完整填寫帳號資訊",
-        icon: "error"
-      });
-    }
-  })
+    };
+  });
 };
 const isCompleted = computed(() => {
   const { email, password, confirmPassword } = accountForm.value;
@@ -135,6 +134,7 @@ const submit = () => {
     });
     return;
   };
+
   profileFormRef.value?.validate(async (isValid: boolean) => {
     if (isValid) {
       const { email, password } = accountForm.value;
@@ -151,6 +151,7 @@ const submit = () => {
           detail: formatAddr(city, county, addr)
         }
       } as any;
+
       const { status } = await api.Users.SignIn(registrationData);
       if (status) {
         await $swal.fire({
@@ -161,6 +162,7 @@ const submit = () => {
           timer: 2000,
           timerProgressBar: true
         });
+
         steps.value[activeStep.value - 1].completed = true;
         accountFormRef.value?.resetFields();
         profileFormRef.value?.resetFields();
@@ -174,14 +176,6 @@ const submit = () => {
           showConfirmButton: true
         });
       };
-    } else {
-      $swal.fire({
-        icon: 'error',
-        iconColor: '#DA3E51',
-        title: '註冊失敗！',
-        text: '請檢查資料是否正確',
-        showConfirmButton: true
-      });
     }
   });
 };
@@ -240,7 +234,7 @@ const submit = () => {
         <!-- form2 -->
         <el-form ref="profileFormRef" :model="profileForm" :rules="profileFormRules" class="flex flex-col gap-4">
           <el-form-item label="姓名" label-position="top" prop="name">
-            <el-input v-model="profileForm.name" placeholder="請輸入姓名" />
+            <el-input v-model.trim="profileForm.name" placeholder="請輸入姓名" />
           </el-form-item>
           <el-form-item label="手機號碼" label-position="top" prop="phone">
             <el-input v-model="profileForm.phone" placeholder="請輸入手機號碼" />

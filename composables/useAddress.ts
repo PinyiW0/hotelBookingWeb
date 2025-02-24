@@ -1,8 +1,8 @@
 import CityCountyData from '~/assets/json/cityCountyData.json';
 
-export const useAddress = () => {
-  const selectedCity = ref('');
-  const selectedCounty = ref('');
+export const useAddress = (defaultCity = '', defaultCounty = '') => {
+  const selectedCity = ref(defaultCity);
+  const selectedCounty = ref(defaultCounty);
 
   // 取得區域列表
   const getAreaList = computed(() => {
