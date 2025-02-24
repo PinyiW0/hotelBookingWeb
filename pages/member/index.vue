@@ -1,4 +1,7 @@
 <script setup lang="ts">
+const api = useApi();
+const { selectedCity, selectedCounty, getAreaList, resetCity } = useAddress();
+const { $swal } = useNuxtApp() as any;
 const { $dayjs } = useNuxtApp();
 const router = useRouter();
 import type { FormRules } from 'element-plus';
@@ -65,8 +68,8 @@ const userInfo = reactive({
   name: 'Jessica Wang',
   phone: '+886 912 345 678',
   birthday: '1990 年 8 月 15 日',
-  city: '高雄市',
-  county: '新興區',
+  city: selectedCity,
+  county: selectedCounty,
   addr: '六角路123號',
   // 此為用來做驗證的欄位
   address: ''
@@ -76,15 +79,6 @@ const userInfo = reactive({
 const saveUserInfo = () => {
   isEditUserInfo.value = false;
   alert('資料修改成功！');
-};
-/** 篩選相對應區域 */
-const filteredAreas = computed(() => {
-  const selectedCity = CityCountyData.find(city => city.CityName === userInfo.city);
-  return selectedCity ? selectedCity.AreaList : [];
-});
-/** 清除區域選擇 */
-const updateAreas = () => {
-  userInfo.county = '';
 };
 
 /** 使用者資料驗證 */
@@ -179,13 +173,13 @@ watch(() => [userInfo.city, userInfo.county, userInfo.addr],
         <el-form-item label="地址" prop="address" class="pb-6">
           <template v-if="isEditUserInfo">
             <div class="w-full flex items-center gap-2">
-              <el-select @change="updateAreas" v-model="userInfo.city" placeholder="請選擇縣市" class="!h-52px" size="large">
+              <el-select @change="resetCity" v-model="userInfo.city" placeholder="請選擇縣市" class="!h-52px" size="large">
                 <el-option v-for="city in CityCountyData" :key="city.CityName" :label="city.CityName"
                   :value="city.CityName" />
               </el-select>
-              <el-select v-model="userInfo.county" :disabled="!filteredAreas.length" placeholder="請選擇區域" class="!h-52px"
+              <el-select v-model="userInfo.county" :disabled="!getAreaList.length" placeholder="請選擇區域" class="!h-52px"
                 size="large">
-                <el-option v-for="area in filteredAreas" :key="area.ZipCode" :label="area.AreaName"
+                <el-option v-for="area in getAreaList" :key="area.ZipCode" :label="area.AreaName"
                   :value="area.AreaName" />
               </el-select>
             </div>

@@ -1,10 +1,14 @@
 <script setup lang="ts">
-import type { FormRules } from 'element-plus';
+const api = useApi();
+const { selectedCity, selectedCounty, getAreaList, resetCity } = useAddress();
+const { $swal } = useNuxtApp() as any;
+const { $dayjs } = useNuxtApp();
 import { useRoute, useRouter } from 'vue-router';
 const route = useRoute();
 const router = useRouter();
+import type { FormRules } from 'element-plus';
 import CityCountyData from 'assets/json/cityCountyData.json';
-const { $dayjs } = useNuxtApp();
+
 defineOptions({
   name: 'RoomsIdBooking'
 });
@@ -61,8 +65,8 @@ const form = ref<LoginInForm>({
   name: '',
   phone: '',
   email: '',
-  city: '',
-  county: '',
+  city: selectedCity.value,
+  county: selectedCounty.value,
   addr: '',
 });
 /** 房間資訊 */
@@ -101,15 +105,6 @@ const rules = reactive<FormRules>({
     { type: 'email', message: ' 電子信箱格式錯誤', trigger: ['blur', 'change'] },
   ],
 });
-/** 篩選相對應區域 */
-const filteredAreas = computed(() => {
-  const selectedCity = CityCountyData.find(city => city.CityName === form.value.city);
-  return selectedCity ? selectedCity.AreaList : [];
-});
-// 清除區域選擇
-const updateAreas = () => {
-  form.value.county = '';
-};
 
 // 預定房間
 const isLoading = ref(false);
@@ -188,13 +183,13 @@ const handleBooking = async () => {
               </el-form-item>
               <el-form-item label="地址" label-position="top" prop="birthday">
                 <div class="w-full flex items-center gap-2">
-                  <el-select @change="updateAreas" v-model="form.city" placeholder="請選擇縣市" class="!h-52px" size="large">
+                  <el-select @change="resetCity" v-model="form.city" placeholder="請選擇縣市" class="!h-52px" size="large">
                     <el-option v-for="city in CityCountyData" :key="city.CityName" :label="city.CityName"
                       :value="city.CityName" />
                   </el-select>
-                  <el-select v-model="form.county" :disabled="!filteredAreas.length" placeholder="請選擇區域" class="!h-52px"
+                  <el-select v-model="form.county" :disabled="!getAreaList.length" placeholder="請選擇區域" class="!h-52px"
                     size="large">
-                    <el-option v-for="area in filteredAreas" :key="area.ZipCode" :label="area.AreaName"
+                    <el-option v-for="area in getAreaList" :key="area.ZipCode" :label="area.AreaName"
                       :value="area.AreaName" />
                   </el-select>
                 </div>

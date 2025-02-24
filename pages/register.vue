@@ -1,5 +1,6 @@
 <script setup lang="ts">
 const api = useApi();
+const { selectedCity, selectedCounty, getAreaList, resetCity, getZipCode, formatAddr } = useAddress();
 const { $swal } = useNuxtApp() as any;
 import { useRouter } from 'vue-router';
 const router = useRouter();
@@ -36,22 +37,12 @@ const profileForm = ref({
   birthday: '',
   zipcode: '',
   detail: '',
-  city: '',
-  county: '',
+  city: selectedCity,
+  county: selectedCounty,
   addr: '',
   // 此為用來做驗證的欄位
   address: ''
 });
-
-/** 篩選相對應區域 */
-const filteredAreas = computed(() => {
-  const selectedCity = CityCountyData.find(city => city.CityName === profileForm.value.city);
-  return selectedCity ? selectedCity.AreaList : [];
-});
-// 清除區域選擇
-const resetAreas = () => {
-  profileForm.value.county = '';
-};
 
 /** 驗證 */
 /** 驗證確認密碼 */
@@ -86,7 +77,7 @@ const profileFormRules = reactive<FormRules>({
 /** 地址驗證欄位處理 */
 watch(() => [profileForm.value.city, profileForm.value.county, profileForm.value.addr],
   ([newCity, newCounty, newAddr]) => {
-    profileForm.value.address = `${newCity} ${newCounty} ${newAddr}`.trim();
+    profileForm.value.address = formatAddr(newCity, newCounty, newAddr);
   }
 );
 /** 生日日期 disabled */
@@ -131,13 +122,7 @@ const isCompleted = computed(() => {
 
 /** 完成註冊 */
 const agreeRules = ref(false);
-/** 根據所選縣市與區域取得 ZipCode */
-const getZipCode = (): string => {
-  const selectedCity = CityCountyData.find(city => city.CityName === profileForm.value.city);
-  if (!selectedCity) return '';
-  const selectedArea = selectedCity.AreaList.find(area => area.AreaName === profileForm.value.county);
-  return selectedArea ? selectedArea.ZipCode : '';
-};
+
 /** 註冊 */
 const submit = () => {
   if (!agreeRules.value) {
@@ -162,8 +147,8 @@ const submit = () => {
         phone: phone,
         birthday: $dayjs(birthday).format('YYYY/MM/DD'),
         address: {
-          zipcode: getZipCode(),
-          detail: `${city}${county}${addr}`
+          zipcode: getZipCode(city, county),
+          detail: formatAddr(city, county, addr)
         }
       } as any;
       const { status } = await api.Users.SignIn(registrationData);
@@ -266,14 +251,14 @@ const submit = () => {
           </el-form-item>
           <el-form-item label="地址" label-position="top" prop="address">
             <div class="w-full flex items-center gap-2">
-              <el-select @change="resetAreas" v-model="profileForm.city" placeholder="請選擇縣市" class="!h-52px"
+              <el-select @change="resetCity" v-model="profileForm.city" placeholder="請選擇縣市" class="!h-52px"
                 size="large">
                 <el-option v-for="city in CityCountyData" :key="city.CityName" :label="city.CityName"
                   :value="city.CityName" />
               </el-select>
-              <el-select v-model="profileForm.county" :disabled="!filteredAreas.length" placeholder="請選擇區域"
+              <el-select v-model="profileForm.county" :disabled="!getAreaList.length" placeholder="請選擇區域"
                 class="!h-52px" size="large">
-                <el-option v-for="area in filteredAreas" :key="area.ZipCode" :label="area.AreaName"
+                <el-option v-for="area in getAreaList" :key="area.ZipCode" :label="area.AreaName"
                   :value="area.AreaName" />
               </el-select>
             </div>
