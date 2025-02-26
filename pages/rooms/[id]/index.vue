@@ -21,24 +21,29 @@ definePageMeta({
   headerBgColor: 'bg-gray-120',
 });
 
-const galleryData: any[] = [
-  [ // 第一列圖片
-    { src: '/images/Image/main-1.png', alt: '' },
-    { src: '/images/Image/Room0.png', alt: '' }
-  ],
-  [ // 第二列圖片
-    { src: '/images/Image/Room-3.png', alt: '' },
-    { src: '/images/Image/Room-1.png', alt: '' }
-  ]
-];
 
 /** 房間資訊 */
 const id = route.params.id as string;
+const mainImg = ref<string>('');
+
+// 右側多圖處理 - mob
+const galleryDataForSwiper = computed(() =>
+  roomInfo.value?.imageUrlList.map((src, index) => ({ src, alt: `房間圖片${index + 1}` })) ?? []
+);
+// 右側多圖處理 - web
+const galleryDataForGrid = computed(() => {
+  const list = roomInfo.value?.imageUrlList ?? [];
+  return Array.from({ length: Math.ceil(list.length / 2) }, (_, i) =>
+    list.slice(i * 2, i * 2 + 2).map((src, index) => ({ src, alt: `房間圖片${i * 2 + index + 1}` }))
+  );
+});
 
 const getList = async () => {
   const { result = null } = await api.Rooms.Get(id);
   roomInfo.value = result;
+  mainImg.value = result?.imageUrl || '';
 };
+
 // 取得房型基本資訊
 const roomInfoList = computed(() => {
   return [
@@ -88,11 +93,21 @@ const handlePeople = (num: number) => {
 // #region 日期選擇
 const checkInDate = ref('');
 const checkOutDate = ref('');
-/* checkin日期 disabled 規則 */
+/* checkin disabled 規則 */
 const disabledStartDate = (time: Date) => $dayjs(time) < $dayjs().subtract(1, "day");
 /* checkout disabled 規則 */
 const disabledEndDate = (time: Date) => $dayjs(time) < $dayjs(checkInDate.value).add(1, "day");
 // #endregion 日期選擇
+
+//計算訂房費用
+const totalPrice = computed(() => {
+  if (!checkInDate.value || !checkOutDate.value) return 0;
+  const days = $dayjs(checkOutDate.value).diff($dayjs(checkInDate.value), 'day');
+  const price = (roomInfo.value?.price || 0) * days;
+  return new Intl.NumberFormat('zh-TW', {
+    style: 'decimal'
+  }).format(price);;
+});
 
 onMounted(() => {
   getList();
@@ -106,11 +121,11 @@ onMounted(() => {
       <div class="px-4 max-w-1760px mx-auto pt-0 pb-10 lg:py-20 grid grid-cols-2 gap-2">
         <!-- 左側主圖 -->
         <div class="w-full max-h-150 rounded-l-5 overflow-hidden">
-          <img src="/images/Image/main-0.png" alt="" width="978px" class="object-cover">
+          <img :src="roomInfo?.imageUrl" alt="房間主圖" width="978px" class="w-full h-full object-cover">
         </div>
         <!-- 右側組圖 -->
         <div class="grid grid-cols-2 gap-2">
-          <div v-for="(column, colIdx) in galleryData" :key="colIdx" class="grid gap-2">
+          <div v-for="(column, colIdx) in galleryDataForGrid" :key="colIdx" class="grid gap-2">
             <div v-for="(item, itemIdx) in column" :key="itemIdx"
               :class="{ 'rounded-tr-5': colIdx === 1 && itemIdx === 0, 'rounded-br-5': colIdx === 1 && itemIdx === 1 }"
               class="w-full h-74 overflow-hidden">
@@ -124,9 +139,9 @@ onMounted(() => {
       <div class="lg:hidden relative w-full h-full overflow-x-hidden overflow-y-visible">
         <!-- swiper -->
         <el-carousel :indicator-position="undefined" class="w-full !h-60 !sm:h-85 !md:h-115">
-          <el-carousel-item v-for="idx in 4" :key="idx">
+          <el-carousel-item v-for="(img, idx) in galleryDataForSwiper" :key="idx">
             <!-- 輪播圖 -->
-            <img :src="`/images/Image/Room-${idx - 1}.png`" :alt="`room${idx}`" class="w-full h-full object-cover">
+            <img :src="img.src" :alt="img.alt" class="w-full h-full object-cover">
           </el-carousel-item>
         </el-carousel>
         <DefaultBtn text="看更多" btnStyle="secondary" class="absolute right-0 bottom-0 z-5 m-5 font-bold" />
@@ -139,8 +154,8 @@ onMounted(() => {
         <!-- 房間資訊 -->
         <div class="w-full xl:max-w-70% flex flex-col gap-6 xl:gap-20">
           <div class="flex flex-col gap-4">
-            <h2 class="text-8 lg:text-12 font-bold">尊爵雙人房</h2>
-            <p class="text-3.5 lg:text-4 text-gray-80 leading-6">享受高級的住宿體驗，尊爵雙人房提供給您舒適寬敞的空間和精緻的裝潢。</p>
+            <h2 class="text-8 lg:text-12 font-bold">{{ roomInfo?.name }}</h2>
+            <p class="text-3.5 lg:text-4 text-gray-80 leading-6">{{ roomInfo?.description }}</p>
           </div>
           <!-- 房型基本資訊 -->
           <div class="flex flex-col gap-4 xl:gap-6">
@@ -171,8 +186,8 @@ onMounted(() => {
           <div class="max-h-620px p-10 flex flex-col gap-3 bg-white rounded-5">
             <h3 class="text-6 font-bold pb-4 border-b-(px solid gray-40)">預訂房型</h3>
             <div class="mt-7 flex flex-col gap-2">
-              <h2 class="text-10 text-gray-80 font-bold tracking-wider leading-10">尊爵雙人房</h2>
-              <p class="text-4 text-gray-80 leading-6">享受高級的住宿體驗，尊爵雙人房提供給您舒適寬敞的空間和精緻的裝潢。</p>
+              <h2 class="text-10 text-gray-80 font-bold tracking-wider leading-10">{{ roomInfo?.name }}</h2>
+              <p class="text-4 text-gray-80 leading-6">{{ roomInfo?.description }}</p>
             </div>
             <div class="mt-7 flex flex-col gap-4">
               <!-- 日期 -->
@@ -206,7 +221,10 @@ onMounted(() => {
             </div>
             <!-- 錯誤訊息 -->
             <div class="text-4 text-error text-right duration-300">{{ errorMessage }}</div>
-            <p class="mt-7 text-4 xl:text-6 text-primary font-bold tracking-wider">NT$ 10,000</p>
+            <p class="mt-7 text-4 xl:text-6 text-primary font-bold tracking-wider leading-8">
+              <span class="text-gray">一晚定價 NT${{ roomInfo?.price }},根據您的訂房天數預計為</span>
+              NT${{ totalPrice }}
+            </p>
             <DefaultBtn @click="handleBooking" text="立即預訂" class="mt-7 font-bold" />
           </div>
         </div>
