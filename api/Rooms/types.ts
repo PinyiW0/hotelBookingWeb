@@ -2,13 +2,15 @@ export interface RoomsInfo {
   name: string;
   description: string;
   imageUrl: string;
-  imageUrlList: string;
+  imageUrlList: string[];
   areaInfo: string;
   bedInfo: string;
   maxPeople: number;
   price: number;
   status: number;
-  layoutInfo:layoutInfoType[];
+  layoutInfo: layoutInfoType[];
+  facilityInfo: layoutInfoType[];
+  amenityInfo: layoutInfoType[];
   _id: string;
   createdAt: string;
   updatedAt: string;

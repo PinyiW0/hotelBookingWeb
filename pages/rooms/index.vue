@@ -79,7 +79,7 @@ onBeforeUnmount(() => {
 
     <!-- 房型挑選 -->
     <div class="pt-120 md:pt-150 lg:pt-155 xl:pt-200 py-30 w-full bg-primary-10 flex justify-center">
-      <div class="max-w-1296px flex flex-col items-center xl:(items-center justify-center) gap-20">
+      <div class="max-w-1296px px-3 flex flex-col items-center xl:(items-center justify-center) gap-20">
         <!-- title -->
         <div class="px-3 xl:px-0 w-full flex flex-col justify-center gap-4">
           <p class="text-3.5 xl:text-5 text-gray-80 font-bold">房型選擇</p>
