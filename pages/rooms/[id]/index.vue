@@ -109,13 +109,15 @@ const totalPrice = computed(() => {
   }).format(price);;
 });
 
+const openCalender = ref<boolean>(false);
+
 onMounted(() => {
   getList();
 });
 </script>
 
 <template>
-  <section class="w-full bg-primary-10">
+  <section class="relative w-full bg-primary-10">
     <!-- 照片區 -->
     <div class="hidden lg:block">
       <div class="px-4 max-w-1760px mx-auto pt-0 pb-10 lg:py-20 grid grid-cols-2 gap-2">
@@ -181,7 +183,7 @@ onMounted(() => {
             </ul>
           </div>
         </div>
-        <!-- 預約房型卡 -->
+        <!-- 預約房型卡 Web -->
         <div class="hidden lg:block">
           <div class="max-h-620px p-10 flex flex-col gap-3 bg-white rounded-5">
             <h3 class="text-6 font-bold pb-4 border-b-(px solid gray-40)">預訂房型</h3>
@@ -222,10 +224,26 @@ onMounted(() => {
             <!-- 錯誤訊息 -->
             <div class="text-4 text-error text-right duration-300">{{ errorMessage }}</div>
             <p class="mt-7 text-4 xl:text-6 text-primary font-bold tracking-wider leading-8">
-              <span class="text-gray">一晚定價 NT${{ roomInfo?.price }},根據您的訂房天數預計為</span>
+              <span class="text-gray">NT${{ roomInfo?.price }}/晚,根據您的訂房天數預計為</span>
               NT${{ totalPrice }}
             </p>
             <DefaultBtn @click="handleBooking" text="立即預訂" class="mt-7 font-bold" />
+          </div>
+        </div>
+        <!-- 預約房型卡 Mob -->
+        <div class="absolute left-0 bottom-0 lg:hidden w-full">
+          <div class="p-3 w-full flex items-center justify-between gap-5 bg-white border-t-(px solid gray-40)">
+            <p class="flex-1 text-4 xl:text-6 text-primary font-bold tracking-wider whitespace-nowrap">
+              NT${{ roomInfo?.price }}/晚
+            </p>
+            <DefaultBtn @click="!openCalender" text="查看可訂日期" class="flex-1 font-bold" />
+            <!-- 日期 -->
+            <div v-if="openCalender" class="flex items-center gap-2">
+              <el-date-picker v-model="checkInDate" :disabled-date="disabledStartDate" format="YYYY/MM/DD"
+                placeholder="入住日期" size="large" />
+              <el-date-picker v-model="checkOutDate" :disabled-date="disabledEndDate" :disabled="!checkInDate"
+                format="YYYY/MM/DD" placeholder="退房日期" size="large" class="checkout-picker" />
+            </div>
           </div>
         </div>
       </div>
