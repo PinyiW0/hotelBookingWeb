@@ -70,9 +70,16 @@ const knowList: any[] = [
   { txt: '為了確保所有客人的安全，請勿在走廊或公共區域大聲喧嘩，並遵守酒店的其他規定。' },
 ];
 
-/** 前往預定頁 */
+/** 儲存並導向訂房頁 */
 const handleBooking = () => {
-  router.push(`/rooms/${id}/booking`)
+  router.push({
+    path: `/rooms/${route.params.id}/booking`,
+    query: {
+      checkIn: checkInDate.value,
+      checkOut: checkOutDate.value,
+      people: people.value
+    }
+  });
 };
 
 // #region 預訂人數
@@ -104,12 +111,30 @@ const totalPrice = computed(() => {
   if (!checkInDate.value || !checkOutDate.value) return 0;
   const days = $dayjs(checkOutDate.value).diff($dayjs(checkInDate.value), 'day');
   const price = (roomInfo.value?.price || 0) * days;
-  return new Intl.NumberFormat('zh-TW', {
-    style: 'decimal'
-  }).format(price);;
+  return new Intl.NumberFormat('zh-TW', { style: 'decimal' }).format(price);
 });
 
+// 預定的手機版資料
 const openCalender = ref<boolean>(false);
+const openPeopleSelect = ref<boolean>(false);
+
+// 視窗打開時，禁止滾動
+watch([openCalender, openPeopleSelect], ([calender, people]) => {
+  document.body.style.overflow = (calender || people) ? "hidden" : "auto";
+});
+
+// 計算入住天數
+const stayDays = computed(() => {
+  if (!checkInDate.value || !checkOutDate.value) return 0;
+  return $dayjs(checkOutDate.value).diff($dayjs(checkInDate.value), 'day');
+});
+
+// 確認選擇日期，進入人數選擇視窗
+const handleConfirmDate = () => {
+  if (!checkInDate.value || !checkOutDate.value) return;
+  openCalender.value = false;
+  openPeopleSelect.value = true;
+};
 
 onMounted(() => {
   getList();
@@ -140,7 +165,8 @@ onMounted(() => {
     <ClientOnly>
       <div class="lg:hidden relative w-full h-full overflow-x-hidden overflow-y-visible">
         <!-- swiper -->
-        <el-carousel :indicator-position="undefined" class="w-full !h-60 !sm:h-85 !md:h-115">
+        <el-carousel v-show="!openCalender && !openPeopleSelect" :indicator-position="undefined"
+          class="w-full !h-60 !sm:h-85 !md:h-115">
           <el-carousel-item v-for="(img, idx) in galleryDataForSwiper" :key="idx">
             <!-- 輪播圖 -->
             <img :src="img.src" :alt="img.alt" class="w-full h-full object-cover">
@@ -170,7 +196,7 @@ onMounted(() => {
           <div class="flex flex-col gap-4 xl:gap-6">
             <severTitle title="房內設備" />
             <div v-if="facilityInfo.length > 0"
-              class="p-6 w-full grid grid-cols-2 sm:grid-cols-5 gap-x-10 gap-y-2 bg-white rounded-5">
+              class="p-6 w-full grid grid-cols-2 sm:grid-cols-5 gap-x-10 gap-y-2 bg-white rounded-2 xl:rounded-5">
               <RoomTagCard v-for="i in facilityInfo" :title="i.title" />
             </div>
           </div>
@@ -223,7 +249,7 @@ onMounted(() => {
             </div>
             <!-- 錯誤訊息 -->
             <div class="text-4 text-error text-right duration-300">{{ errorMessage }}</div>
-            <p class="mt-7 text-4 xl:text-6 text-primary font-bold tracking-wider leading-8">
+            <p class="mt-7 text-4 2xl:text-6 text-primary font-bold tracking-wider leading-8">
               <span class="text-gray">NT${{ roomInfo?.price }}/晚,根據您的訂房天數預計為</span>
               NT${{ totalPrice }}
             </p>
@@ -231,20 +257,89 @@ onMounted(() => {
           </div>
         </div>
         <!-- 預約房型卡 Mob -->
-        <div class="absolute left-0 bottom-0 lg:hidden w-full">
+        <div class="fixed left-0 bottom-0 lg:hidden w-full">
           <div class="p-3 w-full flex items-center justify-between gap-5 bg-white border-t-(px solid gray-40)">
             <p class="flex-1 text-4 xl:text-6 text-primary font-bold tracking-wider whitespace-nowrap">
               NT${{ roomInfo?.price }}/晚
             </p>
-            <DefaultBtn @click="!openCalender" text="查看可訂日期" class="flex-1 font-bold" />
-            <!-- 日期 -->
-            <div v-if="openCalender" class="flex items-center gap-2">
-              <el-date-picker v-model="checkInDate" :disabled-date="disabledStartDate" format="YYYY/MM/DD"
-                placeholder="入住日期" size="large" />
-              <el-date-picker v-model="checkOutDate" :disabled-date="disabledEndDate" :disabled="!checkInDate"
-                format="YYYY/MM/DD" placeholder="退房日期" size="large" class="checkout-picker" />
-            </div>
+            <DefaultBtn @click="openCalender = true" text="查看可訂日期" class="flex-1 font-bold" />
           </div>
+
+          <Teleport to="body">
+            <transition name="fade">
+              <div v-if="openCalender || openPeopleSelect">
+                <div class="z-5 fixed top-0 left-0 w-full h-full bg-black/50 backdrop-blur-80" />
+              </div>
+            </transition>
+            <!-- 查看預定日期視窗 -->
+            <transition name="slide-up">
+              <div v-if="openCalender"
+                class="z-50 fixed left-0 bottom-0 px-5 w-full h-80% flex flex-col justify-center items-center gap-12 bg-white rounded-t-4">
+                <div class="relative pt-10 w-full flex flex-col gap-12">
+                  <div class="block lg:hidden z-6 absolute top-4 left-0 z-10 cursor-pointer">
+                    <div @click="openCalender = !openCalender" class="i-mdi:multiply w-8 h-8 text-gray-80"></div>
+                  </div>
+                  <h2 class="text-6 text-gray-80 text-center font-bold">請選擇日期</h2>
+                  <el-date-picker v-model="checkInDate" :disabled-date="disabledStartDate" format="YYYY/MM/DD"
+                    placeholder="入住日期" size="large" class="!w-full" />
+                  <el-date-picker v-model="checkOutDate" :disabled-date="disabledEndDate" :disabled="!checkInDate"
+                    format="YYYY/MM/DD" placeholder="退房日期" size="large" class="!w-full" />
+                </div>
+                <div class="w-full flex flex-col gap-5">
+                  <DefaultBtn @click="handleConfirmDate" :disabled="!checkOutDate" text="確定日期" class="font-bold" />
+                  <DefaultBtn @click="openCalender = false" text="返回上一頁" btnStyle="secondary"
+                    class="w-full font-bold" />
+                </div>
+              </div>
+            </transition>
+
+            <!-- 人數選擇視窗 -->
+            <transition name="slide-up">
+              <div v-if="openPeopleSelect"
+                class="z-50 relative fixed left-0 bottom-0 px-5 w-full h-80% flex flex-col justify-center items-center gap-10 bg-white rounded-t-4">
+                <div class="block lg:hidden z-6 absolute top-6 left-4 z-10 cursor-pointer">
+                  <div @click="openCalender = !openCalender" class="i-mdi:multiply w-8 h-8 text-gray-80"></div>
+                </div>
+                <div class="pt-12 w-full flex flex-col gap-4">
+                  <h2 class="text-6 text-gray-80 text-center font-bold">請確認入住資訊</h2>
+                  <div class="mt-5 flex items-center gap-4">
+                    <h2 class="text-5 font-bold">{{ stayDays }} 晚</h2>
+                    <p class="text-4 text-gray-80">
+                      入住日期：{{ $dayjs(checkInDate).format('YYYY/MM/DD') }} ~ {{ $dayjs(checkOutDate).format('YYYY/MM/DD')
+                      }}
+                    </p>
+                  </div>
+                  <!-- 人數選擇 -->
+                  <div class="mt-7 flex flex-col gap-4 justify-between">
+                    <h3 class="text-4 font-bold">選擇人數</h3>
+                    <p class="text-4 text-gray-80">此房型最多供 {{ roomInfo?.maxPeople }} 人居住，不接受寵物入住。</p>
+                    <div class="flex items-center">
+                      <button @click="handlePeople(-1)" :disabled="people <= 1"
+                        class="p-0 rounded-full border-(px solid gray-40) bg-white group">
+                        <div class="p-4 rounded-full cursor-pointer duration-300 group-hover:bg-gray-60">
+                          <div class="i-mdi:minus w-6 h-6 duration-300 group-hover:(text-white)" />
+                        </div>
+                      </button>
+                      <div class="w-16">
+                        <p class="text-5 text-center font-bold">{{ people }}</p>
+                      </div>
+                      <button @click="handlePeople(1)" :disabled="people >= 4"
+                        class="p-0 rounded-full border-(px solid gray-40) bg-white group">
+                        <div class="p-4 rounded-full cursor-pointer duration-300 group-hover:bg-primary">
+                          <div class="i-mdi:plus w-6 h-6 duration-300 group-hover:(text-white)" />
+                        </div>
+                      </button>
+                    </div>
+                  </div>
+                </div>
+                <div class="w-full flex flex-col gap-5 pb-5">
+                  <DefaultBtn @click="handleBooking" text="儲存" class="font-bold" />
+                  <DefaultBtn @click="openPeopleSelect = false; openCalender = true" text="重新選擇日期" btnStyle="secondary"
+                    class="w-full font-bold" />
+                </div>
+              </div>
+            </transition>
+          </Teleport>
         </div>
       </div>
     </div>
