@@ -69,7 +69,7 @@ onBeforeUnmount(() => {
           </el-carousel-item>
         </el-carousel>
         <div
-          class="absolute top-35% md:top-1/3 xl:top-60% 3xl:top-35% left-1/2 -translate-1/2 py-54 max-w-780px mx-auto flex flex-col xl:(top-1/3 flex-row gap-20) items-center gap-5">
+          class="absolute top-18% md:top-25% lg:top-30% 2xl:top-35% 3xl:top-35% left-1/2 -translate-1/2 py-54 max-w-780px mx-auto flex flex-col xl:(top-1/3 flex-row gap-20) items-center gap-5">
           <CarouselTitle class="pt-4" />
           <h2 class="text-8 xl:(text-12 leading-25) text-white font-bold tracking-1 leading-15 whitespace-nowrap">客房旅宿
           </h2>

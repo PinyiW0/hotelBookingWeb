@@ -8,7 +8,7 @@ export default {
     return fetchData('/orders/', { method: 'GET' });
   },
   /** 新增訂單 */
-  AddOrder(body: AddOrderQuery): Promise<{ result: OrderListInfo[] }> {
+  AddOrder(body: AddOrderQuery): Promise<{ result: OrderListInfo }> {
     return fetchData('/orders/', { method: 'POST', body });
   },
   /** 取得 訂單詳細資訊 */

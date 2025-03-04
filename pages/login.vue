@@ -3,6 +3,7 @@ const api = useApi();
 const { $swal } = useNuxtApp() as any;
 import { useRouter } from 'vue-router';
 const router = useRouter();
+import { useUserInfoStore } from '@/stores/userInfo';
 import type { FormRules } from 'element-plus';
 import { ElForm } from 'element-plus';
 
@@ -50,7 +51,11 @@ const handleLogin = async () => {
       localStorage.removeItem('loginInfo');
     };
 
-    await api.Users.Login(formTemplate.value);
+    const { token, result = null } = await api.Users.Login(formTemplate.value);
+    if (result && token) {
+      const userStore = useUserInfoStore();
+      userStore.setUserInfo(result, token);
+    };
     await $swal.fire({
       icon: 'success',
       iconColor: '#52DD7E',

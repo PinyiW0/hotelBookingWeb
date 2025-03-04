@@ -1,15 +1,20 @@
 import type { UserInfo } from '@/api/Users/types'
 export const useUserInfoStore = defineStore('user', () => {
   const user = ref<UserInfo | null>(null);
+  const token = ref<string | null>(null);
   // 儲存使用者資訊
-  const setUserInfo = (userInfo: UserInfo) => {
+  const setUserInfo = (userInfo: UserInfo, userToken: string) => {
     user.value = userInfo;
+    token.value = userToken;
     localStorage.setItem('user', JSON.stringify(userInfo));
+    localStorage.setItem('token', userToken);
   };
   // 清除使用者資訊
   const clearUserInfo = () => {
-    user.value = null
-    localStorage.removeItem('user')
+    user.value = null;
+    token.value = null;
+    localStorage.removeItem('user');
+    localStorage.removeItem('token');
   };
   // 取得使用者資訊
   const getUserInfo = (): UserInfo | null => {
@@ -24,6 +29,7 @@ export const useUserInfoStore = defineStore('user', () => {
 
   return {
     user,
+    token,
     getUserInfo,
     setUserInfo,
     clearUserInfo,
