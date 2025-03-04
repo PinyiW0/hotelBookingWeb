@@ -19,11 +19,11 @@ async function _fetchData<T>(
   options: FetchOptions = {}
 ): Promise<T> {
   const { public: { apiBaseUrl } } = useRuntimeConfig() as { public: { apiBaseUrl: string } };
-
+  const token = localStorage.getItem('token');
 
   try {
     const { method = 'GET', headers = {}, timeout = 30000, showError = true, query = {}, body, ...rest } = options;
-
+    const authHeaders = token ? { ...headers, Authorization: `Bearer ${token}` } : headers;
     const res = await $fetch.raw<T>(url, {
       method,
       baseURL: apiBaseUrl,
@@ -36,6 +36,17 @@ async function _fetchData<T>(
 
     return res._data as T;
   } catch (error: any) {
+    // 處理 401 / 403 錯誤（未授權）
+    if (error.response?.status === 401 || error.response?.status === 403) {
+      // 清除本地存儲的登入資訊
+      localStorage.removeItem('token');
+      localStorage.removeItem('user');
+
+      // 導向登入頁
+      const router = useRouter();
+      router.push('/login');
+    };
+
     const apiError: ApiError = {
       status: error.response?.status,
       message: error.message || '發生錯誤',
