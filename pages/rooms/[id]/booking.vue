@@ -10,6 +10,8 @@ const api = useApi();
 const route = useRoute();
 const router = useRouter();
 const userStore = useUserInfoStore();
+const { $swal } = useNuxtApp() as any;
+const { getZipCode } = useAddress();
 const { selectedCity, selectedCounty, getAreaList, resetCity } = useAddress();
 const { $dayjs } = useNuxtApp();
 
@@ -143,7 +145,6 @@ const infoSections = computed(() => [
 const isLoading = ref(false);
 const checkInDate = $dayjs(bookingDateRange.value[0]).format('YYYY/MM/DD');
 const checkOutDate = $dayjs(bookingDateRange.value[1]).format('YYYY/MM/DD');
-const selectedArea = getAreaList.value.find((area: any) => area.AreaName === form.value.county);
 // 訂房
 const handleBooking = async () => {
   isLoading.value = true;
@@ -154,7 +155,7 @@ const handleBooking = async () => {
     peopleNum: people.value,
     userInfo: {
       address: {
-        zipcode: selectedArea ? Number(selectedArea.ZipCode) : 0,
+        zipcode: Number(getZipCode(form.value.city, form.value.county)),
         detail: form.value.addr,
       },
       name: form.value.name,
@@ -162,11 +163,23 @@ const handleBooking = async () => {
       email: form.value.email,
     }
   };
-  console.log('orderParam', orderParam);
-
   const { result = null } = await api.Orders.AddOrder(orderParam);
   await new Promise(resolve => setTimeout(resolve, 2000));
-  await router.push(`/rooms/${route.params.id}/success`).finally(() => isLoading.value = false);
+  if (result?._id) {
+    await router.push({
+      path: `/rooms/${route.params.id}/success`,
+      query: { orderId: result._id }
+    });
+  } else {
+    $swal.fire({
+      icon: 'error',
+      iconColor: '#DA3E51',
+      title: '訂單建立失敗！',
+      text: '請稍後再試，或是聯絡客服',
+      showConfirmButton: true
+    });
+  }
+  isLoading.value = false;;
 };
 /** 套用會員資料 */
 const applyMemberInfo = async () => {
@@ -178,8 +191,6 @@ const applyMemberInfo = async () => {
     form.value.city = userData.address.city;
     form.value.county = userData.address.county;
     form.value.addr = userData.address.detail;
-  } else {
-    console.log(userData);
   }
 };
 // #endregion 訂房人資訊
