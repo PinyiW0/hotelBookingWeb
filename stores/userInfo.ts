@@ -7,21 +7,39 @@ export const useUserInfoStore = defineStore('user', () => {
 
   if (userCookie.value) {
     try {
-      user.value = JSON.parse(userCookie.value);
+      user.value = JSON.parse(decodeURIComponent(userCookie.value));
     } catch (error) {
       console.error('Parse user cookie error:', error);
     }
   };
-  if (tokenCookie.value) {
-    token.value = tokenCookie.value;
-  };
+  token.value = tokenCookie.value ?? null;
+
+  // 監聽 cookie 變化，同步更新 store.user 和 token
+  watch(userCookie, (newVal) => {
+    if (newVal) {
+      try {
+        user.value = JSON.parse(decodeURIComponent(newVal));
+      } catch (error) {
+        console.error('Parse user cookie error:', error);
+        user.value = null;
+      }
+    } else {
+      user.value = null;
+    }
+  });
+
+  watch(tokenCookie, (newVal) => {
+    token.value = newVal ?? null;
+  });
+
   // 儲存使用者資訊
   const setUserInfo = (userInfo: UserInfo, userToken: string) => {
     user.value = userInfo;
     token.value = userToken;
-    userCookie.value = JSON.stringify(userInfo);
+    userCookie.value = encodeURIComponent(JSON.stringify(userInfo));
     tokenCookie.value = userToken;
   };
+
   // 清除使用者資訊
   const clearUserInfo = () => {
     user.value = null;
@@ -34,7 +52,7 @@ export const useUserInfoStore = defineStore('user', () => {
     const userCookie = useCookie('user');
     if (userCookie.value) {
       try {
-        user.value = JSON.parse(userCookie.value);
+        user.value = JSON.parse(decodeURIComponent(userCookie.value));
       } catch (error) {
         console.error('Parse user cookie error:', error);
       }

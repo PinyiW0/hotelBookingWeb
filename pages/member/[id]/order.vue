@@ -1,27 +1,31 @@
 <script setup lang="ts">
-import { isVisible } from 'element-plus/es/utils/index.mjs';
-
+import { useRoute, useRouter } from 'vue-router';
+const api = useApi();
 const { $dayjs } = useNuxtApp();
+const route = useRoute();
+
 defineOptions({
   name: 'MemberOrder'
 });
 definePageMeta({
   headerBgColor: 'bg-gray-120',
 });
+const orderInfo = ref<any>(null);
+const getOrderInfo = async () => {
+  const { result = null } = await api.Orders.GetList();
+  orderInfo.value = result;
+  console.log(orderInfo.value);
+};
+
 /**房內設備 */
-const facilityInfo: any[] = [
-  { title: '平面電視', isProvide: true },
-  { title: '吹風機', isProvide: true },
-  { title: '冰箱', isProvide: true },
-  { title: '熱水壺', isProvide: true },
-  { title: '檯燈', isProvide: true },
-  { title: '衣櫃', isProvide: true },
-  { title: '除濕機', isProvide: true },
-  { title: '浴缸', isProvide: true },
-  { title: '書桌', isProvide: true },
-  { title: '音響', isProvide: true },
-];
+const facilityInfo = computed(() => {
+  return orderInfo.value?.roomId?.facilityInfo?.filter((item: any) => item.isProvide)
+});
+
 const dialogVisible = ref(false);
+onMounted(() => {
+  getOrderInfo();
+});
 </script>
 
 <template>
@@ -32,7 +36,7 @@ const dialogVisible = ref(false);
         <p class="mt-4 text-3.5 xl:text-4 text-gray-80">預訂參考編號： HH2302183151222</p>
         <h2 class="text-4 xl:text-6 font-bold leading-8">即將來的行程</h2>
         <div class="mt-4 w-full max-h-150px sm:max-h-120 xl:(mt-6 max-h-60) rounded-2 overflow-hidden">
-          <img src="/images/Image/Room.png" alt="" class="w-full h-full object-center">
+          <img :key="$route.fullPath" src="/images/Image/Room.png" alt="" class="w-full h-full object-center">
         </div>
         <div class="mt-4 pb-6 flex flex-col gap-2 border-b-(px solid gray-40) xl:(pb-10 mt-6)">
           <p class="text-4 xl:text-5 text-gray-80 font-bold">尊爵雙人房，1 晚 | 住宿人數：2 位</p>

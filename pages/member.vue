@@ -40,7 +40,7 @@ watch(() => route.path, (newPath) => {
       <div
         class="px-5 py-10 w-full flex flex-col gap-4 xl:(px-0 py-30 max-w-1296px mx-auto flex-row items-center gap-6 )">
         <div class="w-18 h-18 xl:(w-36 h-36)">
-          <img src="/images/Image/memeberIcon.png" alt="會員照片" class="w-full h-full object-cover">
+          <img :key="$route.fullPath" src="/images/Image/memeberIcon.png" alt="會員照片" class="w-full h-full object-cover">
         </div>
         <h2 class="text-8 xl:text-12 text-white font-bold tracking-wider">Hello，{{ userName }}</h2>
       </div>
