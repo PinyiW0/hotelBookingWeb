@@ -53,5 +53,8 @@ export default defineNuxtConfig({
       "apiBaseUrl": import.meta.env.NUXT_BASE_API,
     }
   },
+  routeRules: {
+    '/login': { ssr: false }
+  },
   compatibilityDate: '2024-04-03',
 })

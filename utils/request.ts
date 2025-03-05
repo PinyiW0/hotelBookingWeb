@@ -23,7 +23,7 @@ async function _fetchData<T>(
 
   try {
     const { method = 'GET', headers = {}, timeout = 30000, showError = true, query = {}, body, ...rest } = options;
-    const authHeaders = token ? { ...headers, Authorization: `JWT ${token}` } : headers;
+    const authHeaders = token ? { ...headers, Authorization: `Bearer ${token}` } : headers;
     const res = await $fetch.raw<T>(url, {
       method,
       baseURL: apiBaseUrl,
