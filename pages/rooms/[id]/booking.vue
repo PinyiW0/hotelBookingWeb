@@ -198,6 +198,7 @@ const applyMemberInfo = async () => {
 onMounted(() => {
   getRoomInfo();
   discount.value = Math.floor(Math.random() * 6) * 100 + 500;
+  userStore.getUserInfo();
 });
 </script>
 

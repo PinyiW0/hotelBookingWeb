@@ -30,6 +30,7 @@ const formTemplate = ref<LoginInForm>({
   password: '',
 });
 const rememberAccount = ref(false);
+const loginInfoCookie = useCookie('loginInfo');
 
 /** 驗證 */
 const rules: FormRules = {
@@ -46,9 +47,9 @@ const handleLogin = async () => {
   if (isValid) {
     // 記住帳號
     if (rememberAccount.value) {
-      localStorage.setItem('loginInfo', JSON.stringify(formTemplate.value.email));
+      loginInfoCookie.value = JSON.stringify(formTemplate.value.email);
     } else {
-      localStorage.removeItem('loginInfo');
+      loginInfoCookie.value = null;
     };
 
     const { token, result = null } = await api.Users.Login(formTemplate.value);
@@ -81,11 +82,10 @@ const handleLogin = async () => {
 };
 /** 載入記住的帳號資訊 */
 onMounted(() => {
-  const savedInfo = localStorage.getItem('loginInfo');
-  if (savedInfo) {
-    formTemplate.value.email = JSON.parse(savedInfo);
+  if (loginInfoCookie.value) {
+    formTemplate.value.email = JSON.parse(loginInfoCookie.value);
     rememberAccount.value = true;
-  };
+  }
 });
 // #endregion 登入
 </script>

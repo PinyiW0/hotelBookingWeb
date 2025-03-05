@@ -20,7 +20,6 @@ const orderInfo = ref<any>(null);
 const getOrderInfo = async () => {
   const { result = null } = await api.Orders.GetInfo(orderId);
   orderInfo.value = result;
-  console.log(orderInfo.value);
 };
 
 /** 計算入住晚數 */

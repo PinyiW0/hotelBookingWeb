@@ -19,7 +19,8 @@ async function _fetchData<T>(
   options: FetchOptions = {}
 ): Promise<T> {
   const { public: { apiBaseUrl } } = useRuntimeConfig() as { public: { apiBaseUrl: string } };
-  const token = localStorage.getItem('token');
+  const tokenCookie = useCookie('token');
+  const token = tokenCookie.value;
 
   try {
     const { method = 'GET', headers = {}, timeout = 30000, showError = true, query = {}, body, ...rest } = options;
@@ -39,8 +40,10 @@ async function _fetchData<T>(
     // 處理 401 / 403 錯誤（未授權）
     if (error.response?.status === 401 || error.response?.status === 403) {
       // 清除本地存儲的登入資訊
-      localStorage.removeItem('token');
-      localStorage.removeItem('user');
+      const tokenCookie = useCookie('token');
+      const userCookie = useCookie('user');
+      tokenCookie.value = null;
+      userCookie.value = null;
 
       // 導向登入頁
       const router = useRouter();
