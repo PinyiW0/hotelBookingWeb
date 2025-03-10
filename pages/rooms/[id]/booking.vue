@@ -336,7 +336,7 @@ onMounted(() => {
             <div class="flex flex-col gap-3">
               <div class="flex items-center justify-between">
                 <div class="flex items-center gap-2">
-                  <p class="text-4">NT$ {{ roomInfo?.price.toLocaleString() || 0 }}</p>
+                  <p class="text-4">NT$ {{ roomInfo?.price ? roomInfo.price.toLocaleString() : '0' }}</p>
                   <div class="i-material-symbols:close-small-outline-rounded w-6 h-6" />
                   <p class="text-4">{{ stayDays }} 晚</p>
                 </div>

@@ -1,11 +1,28 @@
 <script setup lang="ts">
+import { useUserInfoStore } from '@/stores/userInfo';
 /** @const open menu */
 const openMenu = ref<boolean>(false);
-const menuList: any[] = [
+const userStore = useUserInfoStore();
+
+interface MenuItem {
+  label: string;
+  path: string;
+  btnStyle?: string;
+  icon?: string;
+}
+
+const baseMenuItem: MenuItem[] = [
   { label: '客房旅宿', path: '/rooms' },
-  { label: '會員登入', path: '/login' },
-  { label: '立即訂房', path: '/room', btnStyle: 'primary' },
-]
+  { label: '立即訂房', path: '/rooms', btnStyle: 'primary' },
+];
+
+const authMenuItem = computed<MenuItem>(() => {
+  return userStore.user ? { label: userStore.user.name, path: '/member', icon: 'i-mdi:person-circle-outline' } : { label: '會員登入', path: '/login' }
+});
+
+const menuList = computed(() => {
+  return [baseMenuItem[0], authMenuItem.value, baseMenuItem[1]];
+});
 </script>
 
 <template>
@@ -37,13 +54,14 @@ const menuList: any[] = [
     <transition name="fade">
       <ul v-if="openMenu"
         class="z-20 px-5 absolute top-1/2 left-1/2 -translate-x-1/2 w-full h-100dvh flex flex-col items-center justify-center gap-4">
-        <li v-for="(item, idx) in menuList" :key="idx"
-          class="py-4 w-full list-none flex items-center justify-center">
+        <li v-for="(item, idx) in menuList" :key="idx" class="py-4 w-full list-none flex items-center justify-center">
           <template v-if="item.btnStyle">
-            <DefaultBtn @click="openMenu = false" :to="item.path" :text="item.label" :btnStyle="item.btnStyle" class="!w-full font-bold" />
+            <DefaultBtn @click="openMenu = false" :to="item.path" :text="item.label" :btnStyle="item.btnStyle"
+              class="!w-full font-bold" />
           </template>
           <template v-else>
-            <NuxtLink @click="openMenu = false" :to="item.path" class="text-base text-white text-center font-bold tracking-wider decoration-none duration-300 hover:opacity-60">
+            <NuxtLink @click="openMenu = false" :to="item.path"
+              class="text-base text-white text-center font-bold tracking-wider decoration-none duration-300 hover:opacity-60">
               {{ item.label }}
             </NuxtLink>
           </template>
@@ -55,15 +73,24 @@ const menuList: any[] = [
     <div class="hidden lg:block">
       <ul class="flex items-center gap-4">
         <li v-for="(item, idx) in menuList" :key="idx" class="p-4 list-none">
-          <template v-if="item.btnStyle">
+          <!-- 會員登入文字＋頭貼 -->
+          <template v-if="item.icon">
+            <NuxtLink :to="item.path" class="flex items-center gap-1 decoration-none">
+              <div :class="item.icon" class="text-white w-6 h-6" />
+              <p class="text-base text-white font-bold">{{ item.label }}</p>
+            </NuxtLink>
+          </template>
+          <!-- 預設按鈕樣式 -->
+          <template v-else-if="item.btnStyle">
             <DefaultBtn :to="item.path" :text="item.label" :btnStyle="item.btnStyle" class="font-bold" />
           </template>
+          <!-- 一般連結 -->
           <template v-else>
-            <NuxtLink :to="item.path" class="text-base text-white font-bold tracking-wider decoration-none duration-300 hover:opacity-60">
+            <NuxtLink :to="item.path"
+              class="text-base text-white font-bold tracking-wider decoration-none duration-300 hover:opacity-60">
               {{ item.label }}
             </NuxtLink>
           </template>
-
         </li>
       </ul>
     </div>

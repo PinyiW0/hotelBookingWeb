@@ -10,6 +10,10 @@ onMounted(() => {
   userStore.getUserInfo();
 });
 
+definePageMeta({
+  headerBgColor: 'bg-gray-120',
+});
+
 /** 會員資料 */
 const userName = computed(() => userStore.user?.name || '尊榮貴賓');
 const userId = computed(() => userStore.user?.id || route.params.id);

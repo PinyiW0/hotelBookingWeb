@@ -5,7 +5,7 @@ import type { LoginQuery, SignInQuery, SignInData, ForgotPswQuery, UserInfo, Use
 export default {
   /** 登入 */
   Login(body: LoginQuery): Promise<any> {
-    return fetchData('/user/Login', { method: 'POST', body });
+    return fetchData('/user/login', { method: 'POST', body });
   },
   /** 註冊 */
   SignIn(body: SignInQuery): Promise<{ status: boolean, result: SignInData }> {

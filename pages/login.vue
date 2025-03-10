@@ -46,41 +46,69 @@ const rules: FormRules = {
 const handleLogin = async () => {
   const isValid = await loginForm.value?.validate();
   if (isValid) {
-    // 記住帳號
-    if (rememberAccount.value) {
-      loginInfoCookie.value = JSON.stringify(formTemplate.value.email);
-    } else {
-      loginInfoCookie.value = null;
-    };
+    try {
+      // 記住帳號
+      if (rememberAccount.value) {
+        loginInfoCookie.value = JSON.stringify(formTemplate.value.email);
+      } else {
+        loginInfoCookie.value = null;
+      }
 
-    const { token, result = null } = await api.Users.Login(formTemplate.value);
-    if (result && token) {
-      const userStore = useUserInfoStore();
-      userStore.setUserInfo(result, token);
-    };
-    await $swal.fire({
-      icon: 'success',
-      iconColor: '#52DD7E',
-      title: '登入成功！',
-      showConfirmButton: false,
-      timer: 2000,
-      timerProgressBar: true
-    });
-    // 清空表單
-    if (!rememberAccount.value) {
-      loginForm.value?.resetFields();
-    };
-    router.push('/');
+      // 呼叫 API 登入
+      const response = await api.Users.Login(formTemplate.value);
+      console.log('登入 API 回傳結果：', response);
+
+      // 假設 API 回傳的結構為 { token, result }
+      const { token, result = null, message } = response;
+
+      if (result && token) {
+        // 成功：設定使用者資訊並顯示成功提示
+        const userStore = useUserInfoStore();
+        userStore.setUserInfo(result, token);
+        await $swal.fire({
+          icon: 'success',
+          iconColor: '#52DD7E',
+          title: '登入成功！',
+          showConfirmButton: false,
+          timer: 2000,
+          timerProgressBar: true
+        });
+        // 清空表單（如果不記住帳號）
+        if (!rememberAccount.value) {
+          loginForm.value?.resetFields();
+        }
+        router.push('/');
+      } else {
+        // API 沒有回傳有效的 result 與 token，顯示錯誤提示
+        await $swal.fire({
+          icon: 'error',
+          iconColor: '#DA3E51',
+          title: '登入失敗！',
+          text: '請檢查您的電子信箱與密碼是否正確',
+          showConfirmButton: true
+        });
+      }
+    } catch (error: any) {
+      await $swal.fire({
+        icon: 'error',
+        iconColor: '#DA3E51',
+        title: '登入失敗！',
+        text: '很抱歉，此帳號不存在',
+        showConfirmButton: true
+      });
+    }
   } else {
-    $swal.fire({
+    await $swal.fire({
       icon: 'error',
       iconColor: '#DA3E51',
       title: '登入失敗！',
       text: '請稍後再試，或是聯絡客服',
       showConfirmButton: true
     });
-  };
+  }
 };
+
+
 /** 載入記住的帳號資訊 */
 onMounted(() => {
   if (loginInfoCookie.value) {

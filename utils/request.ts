@@ -37,12 +37,11 @@ async function _fetchData<T>(
 
     return res._data as T;
   } catch (error: any) {
-    // 處理 401 / 403 錯誤（未授權）
+    // 處理 401 / 403 錯誤：若是未授權錯誤則清除登入資訊並導向登入頁
     if (error.response?.status === 401 || error.response?.status === 403) {
       // 清除本地存儲的登入資訊
-      const tokenCookie = useCookie('token');
-      const userCookie = useCookie('user');
       tokenCookie.value = null;
+      const userCookie = useCookie('user');
       userCookie.value = null;
 
       // 導向登入頁
