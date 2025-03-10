@@ -15,6 +15,7 @@ useSeoMeta({
   description: '登入頁',
 });
 definePageMeta({
+  headerBgColor: 'bg-gray-120',
   layout: 'login',
 });
 

@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { useRoute, useRouter } from 'vue-router';
 import type { RoomsInfo } from '@/api/Rooms/types';
-import { formatPrice } from '~/utils/priceFormat';
 
 const api = useApi();
 const route = useRoute();
@@ -109,9 +108,9 @@ const disabledEndDate = (time: Date) => $dayjs(time) < $dayjs(checkInDate.value)
 
 //計算訂房費用
 const totalPrice = computed(() => {
-  if (!checkInDate.value || !checkOutDate.value) return formatPrice(0);
+  if (!checkInDate.value || !checkOutDate.value) return 0;
   const days = $dayjs(checkOutDate.value).diff($dayjs(checkInDate.value), 'day');
-  const price = formatPrice((roomInfo.value?.price || 0) * days);
+  const price = ((roomInfo.value?.price || 0) * days).toLocaleString();
   return price;
 });
 
@@ -251,7 +250,8 @@ onMounted(() => {
             <!-- 錯誤訊息 -->
             <div class="text-4 text-error text-right duration-300">{{ errorMessage }}</div>
             <p class="mt-7 text-4 2xl:text-6 text-primary font-bold tracking-wider leading-8">
-              <span class="text-gray">NT${{ formatPrice(roomInfo?.price || 0) }}/晚,根據您的訂房天數預計為</span>
+              <span class="text-gray">NT${{ roomInfo?.price ? roomInfo.price.toLocaleString() : '0'
+                }}/晚,根據您的訂房天數預計為</span>
               NT${{ totalPrice }}
             </p>
             <DefaultBtn @click="handleBooking" text="立即預訂" class="mt-7 font-bold" />
@@ -261,7 +261,7 @@ onMounted(() => {
         <div class="fixed left-0 bottom-0 lg:hidden w-full">
           <div class="p-3 w-full flex items-center justify-between gap-5 bg-white border-t-(px solid gray-40)">
             <p class="flex-1 text-4 xl:text-6 text-primary font-bold tracking-wider whitespace-nowrap">
-              NT${{ formatPrice(roomInfo?.price || 0) }}/晚
+              NT${{ roomInfo?.price ? roomInfo.price.toLocaleString() : '0' }}/晚
             </p>
             <DefaultBtn @click="openCalender = true" text="查看可訂日期" class="flex-1 font-bold" />
           </div>

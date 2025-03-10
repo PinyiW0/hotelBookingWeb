@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { useRoute, useRouter } from 'vue-router';
 import type { RoomsInfo } from '@/api/Rooms/types';
-import { formatPrice } from '~/utils/priceFormat';
 import type { FormRules } from 'element-plus';
 import { useUserInfoStore } from '@/stores/userInfo';
 import CityCountyData from 'assets/json/cityCountyData.json';
@@ -337,21 +336,21 @@ onMounted(() => {
             <div class="flex flex-col gap-3">
               <div class="flex items-center justify-between">
                 <div class="flex items-center gap-2">
-                  <p class="text-4">NT$ {{ formatPrice(roomInfo?.price || 0) }}</p>
+                  <p class="text-4">NT$ {{ roomInfo?.price.toLocaleString() || 0 }}</p>
                   <div class="i-material-symbols:close-small-outline-rounded w-6 h-6" />
                   <p class="text-4">{{ stayDays }} 晚</p>
                 </div>
-                <p>NT$ {{ formatPrice(totalRoomPrice) }}</p>
+                <p>NT$ {{ totalRoomPrice.toLocaleString() }}</p>
               </div>
               <div class="flex items-center justify-between">
                 <p class="text-4">住宿折扣</p>
-                <p class="text-4 text-primary">-NT$ {{ formatPrice(discount) }}</p>
+                <p class="text-4 text-primary">-NT$ {{ discount.toLocaleString() }}</p>
               </div>
             </div>
 
             <div class="pt-6 flex items-center justify-between border-t-(px solid #ECECEC)">
               <p class="text-4 font-bold">總價</p>
-              <p class="text-4 font-bold">NT$ {{ formatPrice(totalPrice) }}</p>
+              <p class="text-4 font-bold">NT$ {{ totalPrice.toLocaleString() }}</p>
             </div>
           </div>
           <DefaultBtn @click="handleBooking" :disabled="isLoading" text="確認訂房" btnStyle="primary" class="font-bold" />

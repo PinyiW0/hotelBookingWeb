@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { formatPrice } from '~/utils/priceFormat';
 const api = useApi();
 
 defineOptions({
@@ -118,7 +117,7 @@ onBeforeUnmount(() => {
                 class="py-4 flex justify-between cursor-pointer decoration-none group">
                 <p
                   class="text-4 xl:text-6 text-primary font-bold tracking-widest duration-300 group-hover:text-primary-120">
-                  NT$ {{ formatPrice(item.price) }}</p>
+                  NT$ {{ item.price.toLocaleString() }}</p>
                 <i
                   class="i-fluent:arrow-right-24-filled w-6 h-6 text-primary duration-300 group-hover:(text-primary-120 scale-120 translate-x-2)" />
               </NuxtLink>
