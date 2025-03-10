@@ -106,7 +106,8 @@ const bannerList: any[] = [
       </div>
     </ClientOnly>
     <!-- news area -->
-    <div class="pt-180 md:pt-190 lg:pt-140 xl:pt-160 2xl:pt-190 3xl:pt-240 px-3 w-full bg-primary-10">
+    <div
+      class="pt-180 md:(pt-190 px-20) lg:(pt-140 px-40) xl:(pt-160 px-0) 2xl:pt-190 3xl:pt-240 px-3 w-full bg-primary-10">
       <div class="mx-auto py-20 max-w-1296px flex flex-col gap-10 xl:(flex-row gap-20)">
         <!-- title -->
         <PageTitle title="最新消息" />
@@ -114,8 +115,7 @@ const bannerList: any[] = [
         <ul class="w-full flex flex-col items-center gap-10">
           <li v-for="item in newsList" :key="item._id"
             class="flex flex-col items-center justify-center gap-8 xl:flex-row hover:cursor-pointer group">
-            <div
-              class="w-351px h-294px md:(w-660px h-380px) xl:(w-474px h-294px) rounded-2 overflow-hidden flex-shrink-0">
+            <div class="w-full h-294px md:h-380px xl:(w-474px h-294px) rounded-2 overflow-hidden flex-shrink-0">
               <img :src="item.image" :alt="item.title"
                 class="w-full h-full object-cover duration-400 group-hover:(scale-110 filter-grayscale)">
             </div>

@@ -54,16 +54,20 @@ swiper-container::part(pagination) {
   justify-content: center;
   gap: 4px;
   position: absolute;
-  bottom: 50%;
+  bottom: 64%;
   left: 2%;
   z-index: 20;
 
+  @media (min-width: 500px) {
+    bottom: 57%;
+  }
+
   @media (min-width: 640px) {
-    bottom: 35%;
+    bottom: 50%;
   }
 
   @media (min-width: 768px) {
-    bottom: 33%;
+    bottom: 45%;
   }
 
   @media (min-width: 1024px) {
