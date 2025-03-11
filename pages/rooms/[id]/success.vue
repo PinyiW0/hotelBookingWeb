@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { useRoute, useRouter } from 'vue-router';
-import { formatPrice } from '~/utils/priceFormat';
 
 const api = useApi();
 const { $dayjs } = useNuxtApp();
@@ -118,7 +117,7 @@ onMounted(() => {
             <p class="tetx-3.5 xl:text-4 font-bold">{{ $dayjs(orderInfo?.checkOutDate).format('MM 月 DD 日 dddd') }}，12:00
               前退房</p>
           </severTitle>
-          <p class="mt-4 xl:mt-6 text-4 text-gray-80 font-bold">NT$ {{ formatPrice(totalRoomPrice) }}</p>
+          <p class="mt-4 xl:mt-6 text-4 text-gray-80 font-bold">NT$ {{ totalRoomPrice.toLocaleString() }}</p>
         </div>
         <div class="mt-4 flex flex-col gap-4 xl:(gap-6 mt-10)">
           <severTitle title="房內設備" titleSize="text-4" />
