@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 import type { PropType } from 'vue';
 
-interface OptionField {
+export interface TabOption {
   title: string;
   val: string;
   disabled?: boolean;
@@ -9,7 +9,7 @@ interface OptionField {
 
 const modelValue = defineModel();
 defineProps({
-  list: { type: Array as PropType<OptionField[]>, default: [] },
+  list: { type: Array as PropType<TabOption[]>, default: [] },
   tabWidth: {
     type: String,
     default: 'px-6'

@@ -24,16 +24,35 @@ const tabList = ref<any[]>([
   { title: '我的訂單', val: 'myOrder' },
 ]);
 
-// 設定當前 tab
-const activeTab = ref(route.path.includes('/order') ? 'myOrder' : 'personalData');
+/** 根據路由決定當前 tab */
+const activeTab = ref(route.query.tab || route.path.includes('/order') ? 'myOrder' : 'personalData');
 
-// 更換 Tab
+/** 更換 tab 並更新 query */
 const handleChangeTab = (val: string) => {
   if (!userId.value) return;
-  router.push(val === 'personalData' ? `/member/${userId.value}` : `/member/${userId.value}/order`)
+  const newPath = val === 'personalData' ? `/member/${userId.value}` : `/member/${userId.value}/order`;
+  router.push({ path: newPath, query: { tab: val } });
 };
+
+/** 監聽 tab 變化 */
+watch(() => route.query.tab, (newTab) => {
+  const tabValue = Array.isArray(newTab) ? newTab[0] : newTab;
+  if (tabValue && tabList.value.some(tab => tab.val === tabValue)) {
+    activeTab.value = tabValue;
+  }
+});
+
+/** 監聽路由，`activeTab` 與 `URL` 同步切換 */
 watch(() => route.path, (newPath) => {
   activeTab.value = newPath.includes('/order') ? 'myOrder' : 'personalData';
+});
+
+onMounted(() => {
+  if (route.query.tab) {
+    activeTab.value = route.query.tab as string;
+  } else {
+    router.replace({ query: { tab: activeTab.value } });
+  }
 });
 </script>
 
