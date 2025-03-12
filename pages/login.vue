@@ -48,20 +48,16 @@ const handleLogin = async () => {
     try {
       // 記住帳號
       if (rememberAccount.value) {
-        loginInfoCookie.value = JSON.stringify({ email: formTemplate.value.email });
+        loginInfoCookie.value = formTemplate.value.email;
       } else {
         loginInfoCookie.value = null;
-      }
+      };
 
       // 呼叫 API 登入
       const response = await api.Users.Login(formTemplate.value);
-      console.log('登入 API 回傳結果：', response);
-
-      // 假設 API 回傳的結構為 { token, result }
-      const { token, result = null, message } = response;
+      const { token, result = null } = response;
 
       if (result && token) {
-        // 成功：設定使用者資訊並顯示成功提示
         const userStore = useUserInfoStore();
         userStore.setUserInfo(result, token);
         await $swal.fire({
@@ -75,10 +71,9 @@ const handleLogin = async () => {
         // 清空表單（如果不記住帳號）
         if (!rememberAccount.value) {
           loginForm.value?.resetFields();
-        }
+        };
         navigateTo('/');
       } else {
-        // API 沒有回傳有效的 result 與 token，顯示錯誤提示
         await $swal.fire({
           icon: 'error',
           iconColor: '#DA3E51',
@@ -107,11 +102,10 @@ const handleLogin = async () => {
   }
 };
 
-
 /** 載入記住的帳號資訊 */
 onMounted(() => {
   if (loginInfoCookie.value) {
-    formTemplate.value.email = JSON.parse(loginInfoCookie.value);
+    formTemplate.value.email = loginInfoCookie.value;
     rememberAccount.value = true;
   }
 });
