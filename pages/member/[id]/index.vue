@@ -1,9 +1,12 @@
 <script setup lang="ts">
 const api = useApi();
-const { selectedCity, selectedCounty, getAreaList, resetCity } = useAddress();
+const { selectedCity, selectedCounty, getAreaList, getZipCode, resetCity } = useAddress();
 const { $swal } = useNuxtApp() as any;
 const { $dayjs } = useNuxtApp();
+import { useUserInfoStore } from '@/stores/userInfo';
+const userStore = useUserInfoStore();
 import type { FormRules } from 'element-plus';
+import type { UserQuery } from '@/api/Users/types';
 import CityCountyData from 'assets/json/cityCountyData.json';
 
 defineOptions({
@@ -12,6 +15,31 @@ defineOptions({
 definePageMeta({
   headerBgColor: 'bg-gray-120',
 });
+
+/** 更新個人資料 */
+const updateUserData = async (data: UserQuery) => {
+  const param: UserQuery = {
+    userId: data.userId,
+    name: data.name,
+    phone: data.phone,
+    birthday: data.birthday,
+    address: data.address,
+    oldPassword: data.oldPassword,
+    newPassword: data.newPassword,
+  };
+  const { result: updatedUser } = await api.Users.UpdateInfo(param);
+  console.log(updatedUser);
+
+  userStore.user = { ...updatedUser, id: updatedUser._id };
+  await $swal.fire({
+    icon: 'success',
+    iconColor: '#52DD7E',
+    title: '修改成功！',
+    showConfirmButton: false,
+    timer: 2000,
+    timerProgressBar: true
+  });
+};
 
 // #region 修改密碼相關
 /** updatePasswordform */
@@ -25,6 +53,8 @@ const form = ref<updatePassword>({
   newPassword: '',
   confirmPassword: '',
 });
+/** 生日日期 disabled */
+const disabledDate = (time: any) => !$dayjs(time).isBefore($dayjs().startOf('day'));
 
 /** 密碼驗證 */
 const pswRules = reactive<FormRules>({
@@ -52,32 +82,82 @@ const isEditPassword = ref(false);
 const resetPassword = () => {
   isEditPassword.value = true;
 };
-/** 修改密碼提交 */
-const submit = () => {
-  alert('密碼修改成功！');
-  isEditPassword.value = false;
-  navigateTo('/member');
+/** 提交修改密碼 */
+const formRef = ref();
+const submit = async () => {
+  const isValid = await formRef.value?.validate();
+  if (isValid) {
+    await updateUserData({
+      userId: userStore.user?.id || '',
+      oldPassword: form.value.oldPassword,
+      newPassword: form.value.newPassword,
+    });
+    isEditPassword.value = false;
+    nextTick(() => {
+      navigateTo(`/member/${userStore?.user?.id}`);
+    });
+  } else {
+    await $swal.fire({
+      icon: 'error',
+      iconColor: '#DA3E51',
+      title: '修改失敗！',
+      text: '請聯絡客服人員',
+      showConfirmButton: true
+    });
+  };
 };
 // #endregion 修改密碼相關
 
 // #region 基本資料相關
 /** 取得基本資料 */
+const user = computed(() => userStore.user)!;
 const isEditUserInfo = ref(false);
 const userInfo = reactive({
-  name: 'Jessica Wang',
-  phone: '+886 912 345 678',
-  birthday: '1990 年 8 月 15 日',
-  city: selectedCity,
-  county: selectedCounty,
-  addr: '六角路123號',
+  name: user.value?.name,
+  phone: user.value?.phone,
+  birthday: user.value?.birthday,
+  city: user.value?.address?.city ?? selectedCity,
+  county: user.value?.address?.county ?? selectedCounty,
+  addr: user.value?.address?.detail ?? '',
   // 此為用來做驗證的欄位
-  address: ''
+  address: user.value
+    ? `${user.value.address.city} ${user.value.address.county} ${user.value.address.detail}`
+    : ''
 });
 
 /** 儲存基本資料 */
-const saveUserInfo = () => {
-  isEditUserInfo.value = false;
-  alert('資料修改成功！');
+const userInfoFormRef = ref();
+const saveUserInfo = async () => {
+  const isValid = await userInfoFormRef.value?.validate();
+  if (isValid) {
+    const zipcode = +getZipCode(userInfo.city, userInfo.county);
+    await updateUserData({
+      userId: user.value?.id || '',
+      name: userInfo.name,
+      phone: userInfo.phone,
+      birthday: userInfo.birthday,
+      address: {
+        zipcode,
+        city: userInfo.city,
+        county: userInfo.county,
+        detail: userInfo.addr,
+      },
+    });
+    console.log('更新成功，準備關閉編輯視窗');
+    nextTick(() => {
+      isEditUserInfo.value = false;
+      console.log('編輯視窗已關閉');
+    });
+  } else {
+    console.error('儲存基本資料時發生錯誤:');
+    await $swal.fire({
+      icon: 'error',
+      iconColor: '#DA3E51',
+      title: '修改失敗！',
+      text: '請聯絡客服人員',
+      showConfirmButton: true
+    });
+  };
 };
 
 /** 使用者資料驗證 */
@@ -86,7 +166,7 @@ const userInfoRules = reactive<FormRules>({
   phone: [{ required: true, message: '請輸入手機號碼', trigger: ['blur', 'change'] },],
   birthday: [{ required: true, message: '請輸入生日', trigger: ['blur', 'change'] },],
   address: [{ required: true, message: '請輸入地址', trigger: ['blur', 'change'] },],
-})
+});
 
 /** 地址驗證欄位處理 */
 watch(() => [userInfo.city, userInfo.county, userInfo.addr],
@@ -106,14 +186,13 @@ watch(() => [userInfo.city, userInfo.county, userInfo.addr],
       <!-- 電子信箱 -->
       <div class="flex flex-col gap-2">
         <p class="text-3.5 text-gray-80">電子信箱</p>
-        <p class="text-3.4 font-bold">Jessica@exsample.com</p>
+        <p class="text-3.4 font-bold">{{ user?.email }}</p>
       </div>
       <!-- 密碼 -->
       <div v-if="!isEditPassword" class="flex items-center justify-between gap-2">
         <div class="flex flex-col gap-2">
           <p class="text-3.5 text-gray-80">密碼</p>
           <p class="text-3.4 font-bold password-hidden">密碼內容</p>
-          <!-- <p class="text-3.4 font-bold">XXX</p> -->
         </div>
         <DefaultBtn @click="resetPassword" text="重設" btnStyle="onlyText" class="font-bold" />
       </div>
@@ -129,8 +208,9 @@ watch(() => [userInfo.city, userInfo.county, userInfo.addr],
             <el-input v-model="form.confirmPassword" type="password" placeholder="請再輸入一次密碼" show-password />
           </el-form-item>
         </el-form>
-        <DefaultBtn @click="submit" to="/register" text="儲存設定"
+        <DefaultBtn @click="submit" text="儲存設定"
           :disabled="!form.oldPassword || !form.newPassword || !form.confirmPassword" class="font-bold" />
+        <DefaultBtn @click="isEditPassword = false" text="取消" btnStyle="secondary" class="w-full font-bold" />
       </div>
     </div>
     <!-- 基本資料 -->
@@ -161,10 +241,11 @@ watch(() => [userInfo.city, userInfo.county, userInfo.addr],
         <!-- 生日 -->
         <el-form-item label="生日" prop="birthday">
           <template v-if="isEditUserInfo">
-            <el-input v-model="userInfo.birthday" placeholder="請輸入生日" />
+            <el-date-picker v-model="userInfo.birthday" :disabled-date="disabledDate" type="date" placeholder="請輸入生日"
+              size="large" class="!w-full !h-52px" />
           </template>
           <template v-else>
-            <p class="text-3.4 font-bold">{{ userInfo.birthday }}</p>
+            <p class="text-3.4 font-bold">{{ $dayjs(userInfo.birthday).format('YYYY 年 MM 月 DD 日') }}</p>
           </template>
         </el-form-item>
 
@@ -172,7 +253,8 @@ watch(() => [userInfo.city, userInfo.county, userInfo.addr],
         <el-form-item label="地址" prop="address" class="pb-6">
           <template v-if="isEditUserInfo">
             <div class="w-full flex items-center gap-2">
-              <el-select @change="resetCity" v-model="userInfo.city" placeholder="請選擇縣市" class="!h-52px" size="large">
+              <el-select @change="(city) => { resetCity(city); userInfo.city = city; userInfo.county = ''; }"
+                v-model="userInfo.city" placeholder="請選擇縣市" class="!h-52px" size="large">
                 <el-option v-for="city in CityCountyData" :key="city.CityName" :label="city.CityName"
                   :value="city.CityName" />
               </el-select>
@@ -191,8 +273,10 @@ watch(() => [userInfo.city, userInfo.county, userInfo.addr],
       </el-form>
       <DefaultBtn v-if="!isEditUserInfo" @click="isEditUserInfo = true" text="編輯" btnStyle="secondary"
         class="font-bold" />
-      <DefaultBtn @click="saveUserInfo" v-if="!!isEditUserInfo" to="/member" text="儲存設定"
+      <DefaultBtn v-if="!!isEditUserInfo" @click="saveUserInfo" text="儲存設定"
         :disabled="!userInfo.name || !userInfo.phone || !userInfo.birthday || !userInfo.addr" class="font-bold" />
+      <DefaultBtn v-if="!!isEditUserInfo" @click="isEditUserInfo = false" text="取消" btnStyle="secondary"
+        class="w-full font-bold" />
     </div>
   </div>
 </template>

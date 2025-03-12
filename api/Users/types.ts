@@ -13,8 +13,10 @@ export interface SignInQuery {
   address: addrObj;
 }
 export interface addrObj {
-  zipcode: number;
-  detail: string;
+  zipcode?: number;
+  city?: string;
+  county?: string;
+  detail?: string;
 }
 
 /** 使用者註冊 回傳參數 */
@@ -57,10 +59,10 @@ export interface UserInfo {
 /** 更新使用者資訊 傳送參數*/
 export interface UserQuery {
   userId: string;
-  name: string;
-  phone: string;
-  birthday: string;
-  address: addrObj;
-  oldPassword: string;
-  newPassword: string;
+  name?: string;
+  phone?: string;
+  birthday?: string;
+  address?: addrObj;
+  oldPassword?: string;
+  newPassword?: string;
 }
