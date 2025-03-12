@@ -1,7 +1,5 @@
 <script setup lang="ts">
 import { useUserInfoStore } from '@/stores/userInfo';
-import { useRouter } from "vue-router";
-const router = useRouter();
 
 /** @const open menu */
 const openMenu = ref<boolean>(false);
@@ -33,7 +31,7 @@ const isMobDropdown = ref(false);
 let dropdownTimeout: ReturnType<typeof setTimeout> | null = null;
 // Web 滑入滑出
 const openDropdown = () => {
-  if (dropdownTimeout) clearTimeout(dropdownTimeout); // 清除關閉計時器
+  if (dropdownTimeout) clearTimeout(dropdownTimeout);
   isDropdown.value = true;
 };
 const closeDropdown = () => {
@@ -41,17 +39,13 @@ const closeDropdown = () => {
     isDropdown.value = false;
   }, 200);
 };
-// Mob 點擊展開收回
-const toggleMobDropdown = (event: Event) => {
-  const target = event.target as HTMLElement;
-  if (!target.closest(".mobile-dropdown")) {
-    isMobDropdown.value = false;
-  }
-};
+
 /** 登出 */
 const logout = () => {
   userStore.clearUserInfo();
-  router.push('/')
+  openMenu.value = false;
+  isMobDropdown.value = false;
+  navigateTo('/');
 };
 
 onMounted(() => {
@@ -93,6 +87,35 @@ onMounted(() => {
             <DefaultBtn @click="openMenu = false" :to="item.path" :text="item.label" :btnStyle="item.btnStyle"
               class="!w-full font-bold" />
           </template>
+
+          <template v-else-if="item.icon">
+            <div class="w-full">
+              <div @click="isMobDropdown = !isMobDropdown" :class="{ 'mb-5': isMobDropdown }">
+                <div class="flex items-center justify-center gap-2 group">
+                  <div :class="item.icon"
+                    class="text-white w-6 h-6 duration-300 cursor-pointer group-hover:opacity-70" />
+                  <p
+                    class="text-base text-white font-bold tracking-wider duration-300 cursor-pointer group-hover:opacity-70">
+                    {{ item.label }}
+                  </p>
+                </div>
+              </div>
+              <!-- 會員 Dropdown -->
+              <transition name="drop">
+                <div v-if="isMobDropdown" class="w-full bg-primary-10 rounded shadow-lg">
+                  <NuxtLink v-if="userStore.user" @click="openMenu = false" :to="`/member/${userStore.user.id}`"
+                    class="block px-6 py-4 text-center text-base text-gray-80 font-bold bg-primary-10 rounded-t-5 cursor-pointer duration-300 hover:(text-primary bg-primary-10) decoration-none">
+                    我的帳戶
+                  </NuxtLink>
+                  <button @click.stop="logout"
+                    class="w-full block px-6 py-4 text-center text-base text-gray-80 bg-primary-10 rounded-b-5 font-bold border-0 cursor-pointer duration-300 hover:(text-primary bg-primary-10)">
+                    登出
+                  </button>
+                </div>
+              </transition>
+            </div>
+          </template>
+
           <template v-else>
             <NuxtLink @click="openMenu = false" :to="item.path"
               class="text-base text-white text-center font-bold tracking-wider decoration-none duration-300 hover:opacity-60">
@@ -103,21 +126,17 @@ onMounted(() => {
       </ul>
     </transition>
 
-    <!-- mob Dropdown -->
-    <transition name="slide-down">
-      <div v-if="isMobDropdown">123</div>
-    </transition>
-
     <!-- web menu list -->
     <div class="hidden lg:block">
       <ul class="flex items-center gap-4">
         <li v-for="(item, idx) in menuList" :key="idx" class="relative p-4 list-none">
           <!-- 會員登入文字＋頭貼 -->
           <template v-if="item.icon">
-            <NuxtLink :to="item.path" @mouseenter="openDropdown" @mouseleave="closeDropdown"
-              class="flex items-center gap-1 decoration-none group">
-              <div :class="item.icon" class="text-white w-6 h-6 group-hover:opacity-70" />
-              <p class="text-base text-white font-bold group-hover:opacity-70">{{ item.label }}</p>
+            <div @mouseenter="openDropdown" @mouseleave="closeDropdown" class="relative group">
+              <NuxtLink :to="item.path" class="flex items-center gap-1 decoration-none">
+                <div :class="item.icon" class="text-white w-6 h-6 group-hover:opacity-70" />
+                <p class="text-base text-white font-bold group-hover:opacity-70">{{ item.label }}</p>
+              </NuxtLink>
               <!-- web Dropdown -->
               <transition name="fade">
                 <div v-if="isDropdown"
@@ -132,7 +151,7 @@ onMounted(() => {
                   </button>
                 </div>
               </transition>
-            </NuxtLink>
+            </div>
           </template>
           <!-- 預設按鈕樣式 -->
           <template v-else-if="item.btnStyle">
@@ -150,3 +169,18 @@ onMounted(() => {
     </div>
   </header>
 </template>
+<style scoped>
+.drop-enter-active,
+.drop-leave-active {
+  transition: max-height 0.3s, padding 0.3s ease, opacity 0.1s ease;
+  overflow: hidden;
+}
+
+.drop-enter-from,
+.drop-leave-to {
+  max-height: 0;
+  padding-top: 0;
+  padding-bottom: 0;
+  opacity: 0;
+}
+</style>

@@ -49,7 +49,7 @@ const handleLogin = async () => {
     try {
       // 記住帳號
       if (rememberAccount.value) {
-        loginInfoCookie.value = JSON.stringify(formTemplate.value.email);
+        loginInfoCookie.value = JSON.stringify({ email: formTemplate.value.email });
       } else {
         loginInfoCookie.value = null;
       }
