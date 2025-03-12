@@ -1,8 +1,7 @@
 <script setup lang="ts">
 import { useUserInfoStore } from '@/stores/userInfo';
-import { useRoute, useRouter } from 'vue-router';
+import { useRoute } from 'vue-router';
 
-const router = useRouter();
 const route = useRoute();
 const userStore = useUserInfoStore();
 
@@ -31,7 +30,7 @@ const activeTab = ref(route.query.tab || route.path.includes('/order') ? 'myOrde
 const handleChangeTab = (val: string) => {
   if (!userId.value) return;
   const newPath = val === 'personalData' ? `/member/${userId.value}` : `/member/${userId.value}/order`;
-  router.push({ path: newPath, query: { tab: val } });
+  navigateTo({ path: newPath, query: { tab: val } });
 };
 
 /** 監聽 tab 變化 */
@@ -51,7 +50,7 @@ onMounted(() => {
   if (route.query.tab) {
     activeTab.value = route.query.tab as string;
   } else {
-    router.replace({ query: { tab: activeTab.value } });
+    navigateTo({ query: { tab: activeTab.value } });
   }
 });
 </script>

@@ -1,10 +1,9 @@
 <script setup lang="ts">
-import { useRoute, useRouter } from 'vue-router';
+import { useRoute } from 'vue-router';
 import type { RoomsInfo } from '@/api/Rooms/types';
 
 const api = useApi();
 const route = useRoute();
-const router = useRouter();
 const { $dayjs } = useNuxtApp();
 
 defineOptions({
@@ -72,7 +71,7 @@ const knowList: any[] = [
 
 /** 儲存並導向訂房頁 */
 const handleBooking = () => {
-  router.push({
+  navigateTo({
     path: `/rooms/${route.params.id}/booking`,
     query: {
       checkIn: checkInDate.value,
@@ -251,7 +250,7 @@ onMounted(() => {
             <div class="text-4 text-error text-right duration-300">{{ errorMessage }}</div>
             <p class="mt-7 text-4 2xl:text-6 text-primary font-bold tracking-wider leading-8">
               <span class="text-gray">NT${{ roomInfo?.price ? roomInfo.price.toLocaleString() : '0'
-                }}/晚,根據您的訂房天數預計為</span>
+              }}/晚,根據您的訂房天數預計為</span>
               NT${{ totalPrice }}
             </p>
             <DefaultBtn @click="handleBooking" text="立即預訂" class="mt-7 font-bold" />

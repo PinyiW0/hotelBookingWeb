@@ -1,8 +1,7 @@
 <script setup lang="ts">
 const api = useApi();
 const { $swal } = useNuxtApp() as any;
-import { useRouter } from 'vue-router';
-const router = useRouter();
+
 import { useUserInfoStore } from '@/stores/userInfo';
 import type { FormRules } from 'element-plus';
 import { ElForm } from 'element-plus';
@@ -77,7 +76,7 @@ const handleLogin = async () => {
         if (!rememberAccount.value) {
           loginForm.value?.resetFields();
         }
-        router.push('/');
+        navigateTo('/');
       } else {
         // API 沒有回傳有效的 result 與 token，顯示錯誤提示
         await $swal.fire({

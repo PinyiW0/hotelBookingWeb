@@ -3,7 +3,6 @@ const api = useApi();
 const { selectedCity, selectedCounty, getAreaList, resetCity } = useAddress();
 const { $swal } = useNuxtApp() as any;
 const { $dayjs } = useNuxtApp();
-const router = useRouter();
 import type { FormRules } from 'element-plus';
 import CityCountyData from 'assets/json/cityCountyData.json';
 
@@ -57,7 +56,7 @@ const resetPassword = () => {
 const submit = () => {
   alert('密碼修改成功！');
   isEditPassword.value = false;
-  router.push('/member');
+  navigateTo('/member');
 };
 // #endregion 修改密碼相關
 

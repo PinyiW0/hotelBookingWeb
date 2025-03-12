@@ -45,8 +45,7 @@ async function _fetchData<T>(
       userCookie.value = null;
 
       // 導向登入頁
-      const router = useRouter();
-      router.push('/login');
+      navigateTo('/login');
     };
 
     const apiError: ApiError = {

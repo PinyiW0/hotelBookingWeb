@@ -1,10 +1,9 @@
 <script setup lang="ts">
-import { useRoute, useRouter } from 'vue-router';
+import { useRoute } from 'vue-router';
 
 const api = useApi();
 const { $dayjs } = useNuxtApp();
 const route = useRoute();
-const router = useRouter();
 
 defineOptions({
   name: 'RoomsIdSuccess'
@@ -41,7 +40,7 @@ const amenityInfo = computed(() => {
 
 /** 前往我的訂單頁 */
 const checkOrder = () => {
-  router.push({
+  navigateTo({
     path: `/member/${route.params.id}/order`,
     query: { orderId: orderId }
   });

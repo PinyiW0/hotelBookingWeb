@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { useRouter } from 'vue-router';
 const { selectedCity, selectedCounty, getAreaList, resetCity, getZipCode, formatAddr } = useAddress();
 import type { FormRules, FormInstance } from 'element-plus';
 import CityCountyData from 'assets/json/cityCountyData.json';
@@ -7,7 +6,6 @@ import CityCountyData from 'assets/json/cityCountyData.json';
 const api = useApi();
 const { $swal } = useNuxtApp() as any;
 const { $dayjs } = useNuxtApp();
-const router = useRouter();
 
 defineOptions({
   name: 'Register'
@@ -166,7 +164,7 @@ const submit = () => {
         steps.value[activeStep.value - 1].completed = true;
         accountFormRef.value?.resetFields();
         profileFormRef.value?.resetFields();
-        router.push('/login');
+        navigateTo('/login');
       } else {
         $swal.fire({
           icon: 'error',

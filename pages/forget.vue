@@ -1,8 +1,6 @@
 <script setup lang="ts">
 const api = useApi();
 const { $swal } = useNuxtApp() as any;
-import { useRouter } from 'vue-router';
-const router = useRouter();
 import type { ForgotPswQuery } from '@/api/Users/types';
 
 defineOptions({
@@ -51,7 +49,7 @@ const sendMail = async () => {
       timer: 2000,
       timerProgressBar: true
     });
-    router.push('/login');
+    navigateTo('/login');
   } else {
     $swal.fire({
       icon: 'error',

@@ -165,7 +165,7 @@ const handleBooking = async () => {
   const { result = null } = await api.Orders.AddOrder(orderParam);
   await new Promise(resolve => setTimeout(resolve, 2000));
   if (result?._id) {
-    await router.push({
+    await navigateTo({
       path: `/rooms/${route.params.id}/success`,
       query: { orderId: result._id }
     });
