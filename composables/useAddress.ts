@@ -28,12 +28,24 @@ export const useAddress = (defaultCity = '', defaultCounty = '') => {
     return [city, county, detail].filter(Boolean).join('');
   };
 
+  // 透過 ZipCode 去找尋對應的縣市區域資料
+  const getCityCountyFromZip = (zip: string): { city: string, county: string } | null => {
+    const cityData = CityCountyData.find(city =>
+      city.AreaList.some(area => area.ZipCode === zip)
+    );
+    if (!cityData) return null;
+    const areaData = cityData.AreaList.find(area => area.ZipCode === zip);
+    return { city: cityData.CityName, county: areaData?.AreaName || '' };
+  };
+
+
   return {
     selectedCity,
     selectedCounty,
     getAreaList,
     resetCity,
     getZipCode,
-    formatAddr
+    formatAddr,
+    getCityCountyFromZip
   }
 }
