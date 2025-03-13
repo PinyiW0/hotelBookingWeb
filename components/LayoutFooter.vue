@@ -45,7 +45,7 @@ const contactList: any[] = [
     <!-- brand info -->
      <div class="max-w-1296px w-full flex flex-col items-start gap-4 lg:(flex-row justify-between)">
       <p class="text-sm lg:text-base text-white">806023 台灣高雄市新興區六角路123號</p>
-      <p class="text-sm lg:text-base text-white">© 享樂酒店 2023 All Rights Reserved.</p>
+      <p class="text-sm lg:text-base text-white">© 享樂酒店 2025 All Rights Reserved.</p>
      </div>
 
   </div>

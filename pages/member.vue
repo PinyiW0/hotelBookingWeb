@@ -53,6 +53,7 @@ onMounted(() => {
     navigateTo({ query: { tab: activeTab.value } });
   }
 });
+
 </script>
 
 <template>
@@ -64,7 +65,8 @@ onMounted(() => {
         <div class="w-18 h-18 xl:(w-36 h-36)">
           <img :key="$route.fullPath" src="/images/Image/memeberIcon.png" alt="會員照片" class="w-full h-full object-cover">
         </div>
-        <h2 class="text-8 xl:text-12 text-white font-bold tracking-wider">Hello，{{ userName }}</h2>
+        <h2 class="text-8 xl:text-12 text-white font-bold tracking-wider">Hello，{{ userStore.user?.name || '尊榮貴賓' }}
+        </h2>
       </div>
     </div>
     <div class="px-3 py-10 w-full flex flex-col gap-10 xl:(pt-20 pb-30 max-w-1296px mx-auto gap-20)">

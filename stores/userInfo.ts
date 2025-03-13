@@ -49,7 +49,6 @@ export const useUserInfoStore = defineStore('user', () => {
   };
   // 取得使用者資訊
   const getUserInfo = (): UserInfo | null => {
-    const userCookie = useCookie('user');
     if (userCookie.value) {
       try {
         user.value = JSON.parse(decodeURIComponent(userCookie.value));
