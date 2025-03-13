@@ -1,6 +1,6 @@
 <script setup lang="ts">
 const api = useApi();
-const { selectedCity, selectedCounty, getAreaList, getZipCode, resetCity } = useAddress();
+const { selectedCity, selectedCounty, getAreaList, getZipCode, resetCity, getCityCountyFromZip } = useAddress();
 const { $swal } = useNuxtApp() as any;
 const { $dayjs } = useNuxtApp();
 import { useUserInfoStore } from '@/stores/userInfo';
@@ -16,21 +16,32 @@ definePageMeta({
   headerBgColor: 'bg-gray-120',
 });
 
-/** 更新個人資料 */
-const updateUserData = async (data: UserQuery) => {
-  const param: UserQuery = {
-    userId: data.userId,
-    name: data.name,
-    phone: data.phone,
-    birthday: data.birthday,
-    address: data.address,
-    oldPassword: data.oldPassword,
-    newPassword: data.newPassword,
-  };
-  const { result: updatedUser } = await api.Users.UpdateInfo(param);
-  console.log(updatedUser);
+/* ── 取得最新會員資料 ── */
+const getUserData = async () => {
+  const { result = null } = await api.Users.GetInfo();
+  if (result && result.address) {
+    if (!result.address.city || !result.address.county) {
+      const zipStr = String(result.address.zipcode);
+      const cityCounty = getCityCountyFromZip(zipStr);
+      if (cityCounty) {
+        result.address.city = cityCounty.city;
+        result.address.county = cityCounty.county;
+      }
+    }
+    userStore.user = { ...result, id: result._id };
+  }
+};
 
+onMounted(() => {
+  getUserData();
+});
+
+/* ── 更新會員資料 ── */
+const updateUserData = async (data: UserQuery) => {
+  const param: UserQuery = { ...data };
+  const { result: updatedUser } = await api.Users.UpdateInfo(param);
   userStore.user = { ...updatedUser, id: updatedUser._id };
+
   await $swal.fire({
     icon: 'success',
     iconColor: '#52DD7E',
@@ -42,7 +53,7 @@ const updateUserData = async (data: UserQuery) => {
 };
 
 // #region 修改密碼相關
-/** updatePasswordform */
+/* ── 修改密碼區域 ── */
 interface updatePassword {
   oldPassword: string;
   newPassword: string;
@@ -84,7 +95,7 @@ const resetPassword = () => {
 };
 /** 提交修改密碼 */
 const formRef = ref();
-const submit = async () => {
+const submitPassword = async () => {
   const isValid = await formRef.value?.validate();
   if (isValid) {
     await updateUserData({
@@ -92,9 +103,10 @@ const submit = async () => {
       oldPassword: form.value.oldPassword,
       newPassword: form.value.newPassword,
     });
+
     isEditPassword.value = false;
     nextTick(() => {
-      navigateTo(`/member/${userStore?.user?.id}`);
+      navigateTo({ path: `/member/${userStore?.user?.id}`, query: { tab: 'personalData' } });
     });
   } else {
     await $swal.fire({
@@ -109,47 +121,58 @@ const submit = async () => {
 // #endregion 修改密碼相關
 
 // #region 基本資料相關
-/** 取得基本資料 */
+/* ── 基本資料區域 ── */
 const user = computed(() => userStore.user)!;
+
 const isEditUserInfo = ref(false);
-const userInfo = reactive({
-  name: user.value?.name,
-  phone: user.value?.phone,
-  birthday: user.value?.birthday,
-  city: user.value?.address?.city ?? selectedCity,
-  county: user.value?.address?.county ?? selectedCounty,
-  addr: user.value?.address?.detail ?? '',
-  // 此為用來做驗證的欄位
-  address: user.value
-    ? `${user.value.address.city} ${user.value.address.county} ${user.value.address.detail}`
-    : ''
+const editUserInfo = reactive({
+  name: '',
+  phone: '',
+  birthday: '',
+  city: selectedCity,
+  county: selectedCounty,
+  addr: '',
+  address: ''
 });
+
+// 啟動編輯模式時，同步 store 最新資料到編輯資料
+const startEditUserInfo = () => {
+  if (userStore.user) {
+    editUserInfo.name = userStore.user.name;
+    editUserInfo.phone = userStore.user.phone;
+    editUserInfo.birthday = userStore.user.birthday;
+    editUserInfo.city = userStore.user.address?.city || selectedCity.value;
+    editUserInfo.county = userStore.user.address?.county || selectedCounty.value;
+    editUserInfo.addr = userStore.user.address?.detail || '';
+    editUserInfo.address = `${editUserInfo.city} ${editUserInfo.county} ${editUserInfo.addr}`.trim();
+  }
+  isEditUserInfo.value = true;
+};
 
 /** 儲存基本資料 */
 const userInfoFormRef = ref();
 const saveUserInfo = async () => {
   const isValid = await userInfoFormRef.value?.validate();
   if (isValid) {
-    const zipcode = +getZipCode(userInfo.city, userInfo.county);
+    const zipcode = +getZipCode(editUserInfo.city, editUserInfo.county);
     await updateUserData({
-      userId: user.value?.id || '',
-      name: userInfo.name,
-      phone: userInfo.phone,
-      birthday: userInfo.birthday,
+      userId: userStore.user?.id || '',
+      name: editUserInfo.name,
+      phone: editUserInfo.phone,
+      birthday: editUserInfo.birthday,
       address: {
         zipcode,
-        city: userInfo.city,
-        county: userInfo.county,
-        detail: userInfo.addr,
+        detail: editUserInfo.addr,
       },
     });
-    console.log('更新成功，準備關閉編輯視窗');
+    if (userStore.user?.address) {
+      userStore.user.address.city = editUserInfo.city;
+      userStore.user.address.county = editUserInfo.county;
+    };
     nextTick(() => {
       isEditUserInfo.value = false;
-      console.log('編輯視窗已關閉');
     });
   } else {
-    console.error('儲存基本資料時發生錯誤:');
     await $swal.fire({
       icon: 'error',
       iconColor: '#DA3E51',
@@ -169,11 +192,16 @@ const userInfoRules = reactive<FormRules>({
 });
 
 /** 地址驗證欄位處理 */
-watch(() => [userInfo.city, userInfo.county, userInfo.addr],
+watch(() => [editUserInfo.city, editUserInfo.county, editUserInfo.addr],
   ([newCity, newCounty, newAddr]) => {
-    userInfo.address = `${newCity} ${newCounty} ${newAddr}`.trim();
+    editUserInfo.address = `${newCity} ${newCounty} ${newAddr}`.trim();
   }
 );
+// 重置表單驗證狀態及欄位數值
+const cancelEditUserInfo = () => {
+  userInfoFormRef.value?.resetFields();
+  isEditUserInfo.value = false;
+};
 // #endregion 基本資料相關
 </script>
 
@@ -192,7 +220,7 @@ watch(() => [userInfo.city, userInfo.county, userInfo.addr],
       <div v-if="!isEditPassword" class="flex items-center justify-between gap-2">
         <div class="flex flex-col gap-2">
           <p class="text-3.5 text-gray-80">密碼</p>
-          <p class="text-3.4 font-bold password-hidden">密碼內容</p>
+          <p class="text-base font-bold password-hidden">{{ '●'.repeat(8) }}</p>
         </div>
         <DefaultBtn @click="resetPassword" text="重設" btnStyle="onlyText" class="font-bold" />
       </div>
@@ -208,7 +236,7 @@ watch(() => [userInfo.city, userInfo.county, userInfo.addr],
             <el-input v-model="form.confirmPassword" type="password" placeholder="請再輸入一次密碼" show-password />
           </el-form-item>
         </el-form>
-        <DefaultBtn @click="submit" text="儲存設定"
+        <DefaultBtn @click="submitPassword" text="儲存設定"
           :disabled="!form.oldPassword || !form.newPassword || !form.confirmPassword" class="font-bold" />
         <DefaultBtn @click="isEditPassword = false" text="取消" btnStyle="secondary" class="w-full font-bold" />
       </div>
@@ -216,36 +244,36 @@ watch(() => [userInfo.city, userInfo.county, userInfo.addr],
     <!-- 基本資料 -->
     <div class="p-6 w-full flex flex-col gap-6 bg-white rounded-5">
       <h3 class="text-5 font-bold">基本資料</h3>
-      <el-form ref="userInfoFormRef" :model="userInfo" :rules="userInfoRules" label-position="top"
+      <el-form ref="userInfoFormRef" :model="editUserInfo" :rules="userInfoRules" label-position="top"
         class="flex flex-col gap-4">
         <!-- 姓名 -->
         <el-form-item label="姓名" prop="name">
           <template v-if="isEditUserInfo">
-            <el-input v-model="userInfo.name" placeholder="請輸入姓名" />
+            <el-input v-model="editUserInfo.name" placeholder="請輸入姓名" />
           </template>
           <template v-else>
-            <p class="text-3.4 font-bold">{{ userInfo.name }}</p>
+            <p class="text-3.4 font-bold">{{ user?.name }}</p>
           </template>
         </el-form-item>
 
         <!-- 手機號碼 -->
         <el-form-item label="手機號碼" prop="phone">
           <template v-if="isEditUserInfo">
-            <el-input v-model="userInfo.phone" placeholder="請輸入手機號碼" />
+            <el-input v-model="editUserInfo.phone" placeholder="請輸入手機號碼" />
           </template>
           <template v-else>
-            <p class="text-3.4 font-bold">{{ userInfo.phone }}</p>
+            <p class="text-3.4 font-bold">{{ user?.phone }}</p>
           </template>
         </el-form-item>
 
         <!-- 生日 -->
         <el-form-item label="生日" prop="birthday">
           <template v-if="isEditUserInfo">
-            <el-date-picker v-model="userInfo.birthday" :disabled-date="disabledDate" type="date" placeholder="請輸入生日"
-              size="large" class="!w-full !h-52px" />
+            <el-date-picker v-model="editUserInfo.birthday" :disabled-date="disabledDate" type="date"
+              placeholder="請輸入生日" size="large" class="!w-full !h-52px" />
           </template>
           <template v-else>
-            <p class="text-3.4 font-bold">{{ $dayjs(userInfo.birthday).format('YYYY 年 MM 月 DD 日') }}</p>
+            <p class="text-3.4 font-bold">{{ $dayjs(user?.birthday).format('YYYY 年 MM 月 DD 日') }}</p>
           </template>
         </el-form-item>
 
@@ -253,29 +281,31 @@ watch(() => [userInfo.city, userInfo.county, userInfo.addr],
         <el-form-item label="地址" prop="address" class="pb-6">
           <template v-if="isEditUserInfo">
             <div class="w-full flex items-center gap-2">
-              <el-select @change="(city) => { resetCity(city); userInfo.city = city; userInfo.county = ''; }"
-                v-model="userInfo.city" placeholder="請選擇縣市" class="!h-52px" size="large">
+              <el-select @change="(city) => { resetCity(city); editUserInfo.city = city; editUserInfo.county = ''; }"
+                v-model="editUserInfo.city" placeholder="請選擇縣市" class="!h-52px" size="large">
                 <el-option v-for="city in CityCountyData" :key="city.CityName" :label="city.CityName"
                   :value="city.CityName" />
               </el-select>
-              <el-select v-model="userInfo.county" :disabled="!getAreaList.length" placeholder="請選擇區域" class="!h-52px"
-                size="large">
+              <el-select v-model="editUserInfo.county" :disabled="!getAreaList.length" placeholder="請選擇區域"
+                class="!h-52px" size="large">
                 <el-option v-for="area in getAreaList" :key="area.ZipCode" :label="area.AreaName"
                   :value="area.AreaName" />
               </el-select>
             </div>
-            <el-input v-model="userInfo.addr" placeholder="請輸入詳細地址" class="mt-4" />
+            <el-input v-model="editUserInfo.addr" placeholder="請輸入詳細地址" class="mt-4" />
           </template>
           <template v-else>
-            <p class="text-3.4 font-bold">{{ userInfo.city }}{{ userInfo.county }}{{ userInfo.addr }}</p>
+            <p class="text-3.4 font-bold">
+              {{ user?.address?.city || '' }} {{ user?.address?.county || '' }} {{ user?.address?.detail || '' }}
+            </p>
           </template>
         </el-form-item>
       </el-form>
-      <DefaultBtn v-if="!isEditUserInfo" @click="isEditUserInfo = true" text="編輯" btnStyle="secondary"
-        class="font-bold" />
+      <DefaultBtn v-if="!isEditUserInfo" @click="startEditUserInfo" text="編輯" btnStyle="secondary" class="font-bold" />
       <DefaultBtn v-if="!!isEditUserInfo" @click="saveUserInfo" text="儲存設定"
-        :disabled="!userInfo.name || !userInfo.phone || !userInfo.birthday || !userInfo.addr" class="font-bold" />
-      <DefaultBtn v-if="!!isEditUserInfo" @click="isEditUserInfo = false" text="取消" btnStyle="secondary"
+        :disabled="!editUserInfo.name || !editUserInfo.phone || !editUserInfo.birthday || !editUserInfo.addr"
+        class="font-bold" />
+      <DefaultBtn v-if="!!isEditUserInfo" @click="cancelEditUserInfo" text="取消" btnStyle="secondary"
         class="w-full font-bold" />
     </div>
   </div>
