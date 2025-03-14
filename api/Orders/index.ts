@@ -17,6 +17,6 @@ export default {
   },
   /** 取消訂單 */
   Delete(id: string): Promise<any> {
-    return fetchData(`/orders/${id}`, { method: 'POST' });
+    return fetchData(`/orders/${id}`, { method: 'DELETE' });
   },
 }
