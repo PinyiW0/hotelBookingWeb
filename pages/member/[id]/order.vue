@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { useRoute } from 'vue-router';
 const api = useApi();
 const { $dayjs } = useNuxtApp();
 const { $swal } = useNuxtApp() as any;
@@ -12,20 +11,20 @@ defineOptions({
 definePageMeta({
   headerBgColor: 'bg-gray-120',
 });
+
+/** 取得資料 */
 const orderInfo = ref<any>(null);
 const getOrderInfo = async () => {
   const { result = null } = await api.Orders.GetList();
   orderInfo.value = result;
-  console.log(result);
-
 };
 
 // #region 即將到來的行程
+const dialogVisible = ref(false);
 /** 即將到來的行程 */
 const upComingOrder = computed(() => {
   if (!orderInfo.value || !orderInfo.value.length) return null;
-  const now = $dayjs();
-  const upcoming = orderInfo.value.filter((order: any) => $dayjs(order.checkInDate).isAfter(now));
+  const upcoming = orderInfo.value.filter((order: any) => order.status === 0 && $dayjs(order.checkInDate).isAfter($dayjs()));
   upcoming.sort((a: any, b: any) => $dayjs(a.checkInDate).diff($dayjs(b.checkInDate)));
 
   return upcoming[0] || null
@@ -47,19 +46,17 @@ const totalPrice = computed(() => {
   }
   return 0;
 });
-/** 房內設備 */
-const facilityInfo: any = computed(() => {
-  return getFacilityInfo(upComingOrder.value);
-});
-
-/** 房內備品 */
-const amenityInfo: any = computed(() => {
-  return getAmenityInfo(upComingOrder.value);
+/** 房內設備＋備品 */
+const roomItems: any = computed(() => {
+  return [
+    { title: '房內設備', items: getFacilityInfo(upComingOrder.value) || [] },
+    { title: '備品提供', items: getAmenityInfo(upComingOrder.value) || [] }
+  ];
 });
 
 /** 取消即將到來的預訂 */
 const cancelRecentOrder = async (id: string) => {
-  api.Orders.Delete(id)
+  await api.Orders.Delete(id)
     .then(() => {
       $swal.fire({
         icon: 'success',
@@ -78,14 +75,36 @@ const cancelRecentOrder = async (id: string) => {
       });
     })
     .finally(() => {
-      // 無論成功或失敗，都關閉視窗
       dialogVisible.value = false;
     });
 };
-
 // #endregion 即將到來的行程
 
-const dialogVisible = ref(false);
+// #region 歷史訂單
+const historyOrders: any = computed(() => {
+  if (!orderInfo.value || !orderInfo.value.length) return [];
+  const history = orderInfo.value.filter((order: any) => order.status !== 0 || !$dayjs(order.checkInDate).isAfter($dayjs()));
+  history.sort((a: any, b: any) => $dayjs(b.checkInDate).diff($dayjs(a.checkInDate)));
+  return history || null
+});
+/** 控制顯示的歷史訂單筆數 */
+const displayCount = ref(3);
+const displayedHistoryOrders = computed(() => {
+  return historyOrders.value.slice(0, displayCount.value);
+});
+
+/** 點擊「查看更多」後增加顯示筆數 */
+const showMore = () => {
+  displayCount.value += 3;
+  nextTick(() => {
+    const element = document.querySelector('.history-orders-container');
+    if (element) {
+      element.scrollIntoView({ behavior: 'smooth', block: 'end' });
+    }
+  });
+};
+// #endregion 歷史訂單
+
 onMounted(() => {
   getOrderInfo();
 });
@@ -98,40 +117,38 @@ onMounted(() => {
       <div class="p-6 w-full xl:w-4/7 h-fit flex flex-col gap-2 bg-white rounded-5">
         <div v-if="upComingOrder">
           <p class="mt-4 text-3.5 xl:text-4 text-gray-80">預訂參考編號： {{ upComingOrder._id }}</p>
-          <h2 class="text-4 xl:text-6 font-bold leading-8">即將來的行程</h2>
+          <h2 class="mt-1 text-4 xl:text-6 font-bold leading-8">即將來的行程</h2>
           <div class="mt-4 w-full max-h-250px sm:max-h-120 xl:(mt-6 max-h-60) rounded-2 overflow-hidden">
             <img :key="$route.fullPath" :src="upComingOrder.roomId.imageUrl" :alt="upComingOrder.roomId.name"
               class="w-full h-full object-center">
           </div>
           <div class="mt-4 pb-6 flex flex-col gap-2 border-b-(px solid gray-40) xl:(pb-10 mt-6)">
-            <p class="text-4 xl:text-5 text-gray-80 font-bold">{{ upComingOrder.roomId.name }}，{{ stayNight }} 晚 |
-              住宿人數：{{
-                upComingOrder.peopleNum }} 位</p>
+            <p class="text-4 xl:text-5 text-gray-80 font-bold">
+              {{ upComingOrder.roomId.name }}，{{ stayNight }} 晚 | 住宿人數：{{ upComingOrder.peopleNum }} 位
+            </p>
             <severTitle title="入住：" titleSize="text-3.5 xl:text-4" class="mt-4 text-gray-80">
-              <p class="text-3.5 xl:text-4 font-bold">{{ $dayjs(upComingOrder.checkInDate).format('MM月 DD 日dddd')
-              }}，15:00
-                可入住</p>
+              <p class="text-3.5 xl:text-4 font-bold">
+                {{ $dayjs(upComingOrder.checkInDate).format('MM 月 DD 日dddd') }}，15:00 可入住
+              </p>
             </severTitle>
             <severTitle title="退房：" titleSize="text-3.5 xl:text-4" decoBg="bg-gray-60" class="text-gray-80">
-              <p class="text-3.5 xl:text-4 font-bold">{{ $dayjs(upComingOrder.checkOutDate).format('MM月 DD 日dddd')
-              }}，12:00 前退房</p>
+              <p class="text-3.5 xl:text-4 font-bold">
+                {{ $dayjs(upComingOrder.checkOutDate).format('MM 月 DD 日dddd') }}，12:00 前退房
+              </p>
             </severTitle>
-            <p class="mt-4 xl:mt-6 text-4 text-gray-80 font-bold">NT$ {{ totalPrice.toLocaleString() }}</p>
+            <p class="mt-4 xl:mt-6 text-4 text-gray-80 font-bold">
+              NT$ {{ totalPrice.toLocaleString() }}
+            </p>
           </div>
-          <div class="mt-4 flex flex-col gap-4 xl:(gap-6 mt-10)">
-            <severTitle title="房內設備" titleSize="text-4" />
+          <!-- 房間設備 -->
+          <div v-for="item in roomItems" :key="item.title" class="mt-4 flex flex-col gap-4 xl:(gap-6 mt-10)">
+            <severTitle :title="item.title" titleSize="text-4" />
             <div
               class="mt-2 p-6 w-full grid grid-cols-2 sm:grid-cols-3  gap-x-10 gap-y-2 bg-white rounded-2 border-(px solid gray-40)">
-              <RoomTagCard v-for="i in facilityInfo" :title="i.title" />
+              <RoomTagCard v-for="i in item.items" :key="item.title" :title="i.title" />
             </div>
           </div>
-          <div class="mt-4 flex flex-col gap-4 xl:(gap-6 mt-10)">
-            <severTitle title="備品提供" titleSize="text-4" />
-            <div
-              class="mt-2 p-6 w-full grid grid-cols-2 sm:grid-cols-3 gap-x-10 gap-y-2 bg-white rounded-2 border-(px solid gray-40)">
-              <RoomTagCard v-for="i in amenityInfo" :title="i.title" />
-            </div>
-          </div>
+
           <div class="pt-10 w-full flex items-center gap-4">
             <DefaultBtn text="取消預訂" @click="dialogVisible = true" btnStyle="secondary" class="w-full font-bold" />
             <DefaultBtn text="查看詳情" :to="`/rooms/${upComingOrder.roomId._id}`" class=" font-bold" />
@@ -142,29 +159,47 @@ onMounted(() => {
           <DefaultBtn text="前往訂房" @click="navigateTo('/rooms')" class="w-full font-bold" />
         </div>
       </div>
+
       <!-- 歷史訂單 -->
       <div class="p-6 w-full xl:w-3/7 h-fit flex flex-col gap-6 xl:gap-10 bg-white rounded-5">
         <h2 class="mt-4 text-4 xl:text-6 font-bold leading-8">歷史訂單</h2>
         <!-- history card -->
-        <div class="w-full flex flex-col gap-6 xl:(flex-row)">
-          <div class="w-30 h-20 rounded-2 overflow-hidden">
-            <img src="/images/Image/member-room.png" alt="房間照片" class="w-full h-full object-cover">
-          </div>
-          <div class="pb-10 flex flex-col gap-2 border-b-(px solid gray-40)">
-            <p class="mt-2 text-3.5 xl:(text-4 mt-0) text-gray-80">預訂參考編號： HH2302183151222</p>
-            <h2 class="mt-2 text-3.5 xl:text-5 font-bold leading-8">尊爵雙人房</h2>
-            <p class="text-4 xl:text-5 text-gray-80">住宿天數： 1 晚</p>
-            <p class="text-4 xl:text-5 text-gray-80">住宿人數：2 位</p>
-            <severTitle title="入住：" titleSize="text-3.5 xl:text-4" class="mt-4 text-gray-80">
-              <p class="tetx-3.5 xl:text-4">6 月 10 日星期二，15:00 可入住</p>
-            </severTitle>
-            <severTitle title="退房：" titleSize="text-3.5 xl:text-4" decoBg="bg-gray-60" class="text-gray-80">
-              <p class="tetx-3.5 xl:text-4">6 月 11 日星期三，12:00 前退房</p>
-            </severTitle>
-            <p class="mt-4 xl:mt-6 text-4 text-gray-80 font-bold">NT$ 10,000</p>
+        <div v-if="displayedHistoryOrders.length" class="history-orders-container">
+          <div v-for="item in displayedHistoryOrders" :key="item._id" class="w-full flex flex-col gap-6 xl:(flex-row)">
+            <div class="w-30 h-20 rounded-2 overflow-hidden">
+              <img :src="item.roomId.imageUrl" :alt="item.roomId.name" class="w-full h-full object-cover">
+            </div>
+            <div class="pt-5 pb-10 flex flex-col gap-2 border-b-(px solid gray-40)">
+              <p class="mt-2 text-3.5 xl:(text-4 mt-0) text-gray-80">預訂參考編號： {{ item._id }}</p>
+              <div class="mt-2 flex items-center justify-between">
+                <h2 class="text-3.5 xl:text-5 font-bold leading-8"> {{ item.roomId.name }}</h2>
+                <p :class="item.status === -1 ? 'text-error' : 'text-success-120'" class="text-3.5 xl:text-4 font-bold">
+                  狀態：{{ item.status === -1 ? '已取消' : '已完成' }}
+                </p>
+              </div>
+              <p class="text-4 xl:text-5 text-gray-80">住宿天數： {{ stayDays(item.checkInDate, item.checkOutDate) }} 晚</p>
+              <p class="text-4 xl:text-5 text-gray-80">住宿人數：{{ item.peopleNum }} 位</p>
+              <severTitle title="入住：" titleSize="text-3.5 xl:text-4" class="mt-4 text-gray-80">
+                <p class="tetx-3.5 xl:text-4">
+                  {{ $dayjs(item.checkInDate).format('MM 月 DD 日dddd') }}，15:00 可入住
+                </p>
+              </severTitle>
+              <severTitle title="退房：" titleSize="text-3.5 xl:text-4" decoBg="bg-gray-60" class="text-gray-80">
+                <p class="tetx-3.5 xl:text-4">
+                  {{ $dayjs(item.checkOutDate).format('MM 月 DD 日dddd') }}，12:00 前退房
+                </p>
+              </severTitle>
+              <p class="mt-4 xl:mt-6 text-4 text-gray-80 font-bold">
+                NT$ {{ calTotalPrice(item.checkInDate, item.checkOutDate, item.roomId.price).toLocaleString() }}
+              </p>
+            </div>
           </div>
         </div>
-        <DefaultBtn text="查看更多" btnStyle="secondary" class="w-full font-bold" />
+        <div v-else>
+          <p>暫無歷史訂單</p>
+        </div>
+        <DefaultBtn v-if="displayCount < historyOrders.length" @click="showMore" text="查看更多" btnStyle="secondary"
+          class="w-full font-bold" />
       </div>
     </div>
   </div>
