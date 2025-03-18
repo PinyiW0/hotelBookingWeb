@@ -9,6 +9,7 @@ defineOptions({
   name: 'RoomsIdSuccess'
 });
 definePageMeta({
+  requiresAuth: true,
   headerBgColor: 'bg-gray-120',
 });
 

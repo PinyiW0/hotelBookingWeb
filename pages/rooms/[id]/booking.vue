@@ -19,6 +19,7 @@ defineOptions({
 });
 /** 調整 header 背景色 */
 definePageMeta({
+  requiresAuth: true,
   headerBgColor: 'bg-gray-120',
 });
 
@@ -39,7 +40,7 @@ const goBack = () => router.back();
 // #region 訂房資訊(日期、人數、價格)
 /** 日期 */
 const isEditing = ref(false);
-const bookingDateRange = ref<any>(null);
+const bookingDateRange = ref<any>([]);
 /** 住宿日期 */
 if (route.query.checkIn && route.query.checkOut) {
   bookingDateRange.value = [
@@ -353,7 +354,8 @@ onMounted(() => {
               <p class="text-4 font-bold">NT$ {{ totalPrice.toLocaleString() }}</p>
             </div>
           </div>
-          <DefaultBtn @click="handleBooking" :disabled="isLoading" text="確認訂房" btnStyle="primary" class="font-bold" />
+          <DefaultBtn @click="handleBooking" :disabled="isLoading || !bookingDateRange || bookingDateRange.length < 2"
+            text="確認訂房" btnStyle="primary" class="font-bold" />
         </div>
       </div>
     </div>

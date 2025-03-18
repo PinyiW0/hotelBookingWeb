@@ -10,6 +10,7 @@ onMounted(() => {
 });
 
 definePageMeta({
+  requiresAuth: true,
   headerBgColor: 'bg-gray-120',
 });
 
