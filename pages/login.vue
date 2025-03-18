@@ -86,18 +86,10 @@ const handleLogin = async () => {
         icon: 'error',
         iconColor: '#DA3E51',
         title: '登入失敗！',
-        text: '很抱歉，此帳號不存在',
+        text: '請先輸入正確的帳號密碼',
         showConfirmButton: true
       });
     }
-  } else {
-    await $swal.fire({
-      icon: 'error',
-      iconColor: '#DA3E51',
-      title: '登入失敗！',
-      text: '請稍後再試，或是聯絡客服',
-      showConfirmButton: true
-    });
   }
 };
 
@@ -129,16 +121,19 @@ onMounted(() => {
         <h2 class="text-8 text-white font-bold tracking-wide">立即開始旅程</h2>
       </div>
       <!-- form -->
-      <el-form ref="loginForm" :model="formTemplate" :rules="rules" class="flex flex-col gap-4">
+      <el-form ref="loginForm" @keyup.enter="handleLogin" :model="formTemplate" :rules="rules"
+        class="flex flex-col gap-4">
         <el-form-item label="電子信箱" label-position="top" prop="email">
           <el-input v-model="formTemplate.email" placeholder="請輸入電子信箱" />
         </el-form-item>
         <el-form-item label="密碼" label-position="top" prop="password">
           <el-input v-model="formTemplate.password" type="password" placeholder="請輸入密碼" show-password />
         </el-form-item>
+        <el-form-item>
+          <DefaultBtn @click="handleLogin" :disabled="!formTemplate.email || !formTemplate.password" text="會員登入"
+            class="mt-5 font-bold" />
+        </el-form-item>
       </el-form>
-      <!-- submit -->
-      <DefaultBtn @click="handleLogin" text="會員登入" class="font-bold" />
       <div class="flex items-center justify-between">
         <el-checkbox v-model="rememberAccount" label="記住帳號" size="large" class="custom-checkbox" />
         <NuxtLink to="/forget" class="text-primary text-3.5 fw-bold cursor-pointer duration-300 hover:opacity-60">忘記密碼?

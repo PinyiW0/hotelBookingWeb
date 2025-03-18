@@ -27,8 +27,10 @@ definePageMeta({
 const id = route.params.id as string;
 const roomInfo = ref<RoomsInfo | null>(null);
 const getRoomInfo = async () => {
+  isLoading.value = true;
   const { result = null } = await api.Rooms.Get(id);
   roomInfo.value = result;
+  isLoading.value = false;
 };
 useSeoMeta({
   title: () => roomInfo.value?.name ? `${roomInfo.value.name} - 酒店預約房型頁` : '酒店預約房型頁',

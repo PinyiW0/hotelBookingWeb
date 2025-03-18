@@ -14,9 +14,12 @@ definePageMeta({
 
 /** 取得資料 */
 const orderInfo = ref<any>(null);
+const isLoading = ref(false);
 const getOrderInfo = async () => {
+  isLoading.value = true;
   const { result = null } = await api.Orders.GetList();
   orderInfo.value = result;
+  isLoading.value = false;
 };
 
 // #region 即將到來的行程
@@ -111,6 +114,7 @@ onMounted(() => {
 </script>
 
 <template>
+  <SuccessLoading :isShow="isLoading" />
   <div :class="dialogVisible ? 'filter blur-4 transition duration-300' : ''">
     <div class="max-w-1296px mx-auto flex flex-col gap-6 xl:(flex-row gap-10)">
       <!-- 即將來的行程 -->

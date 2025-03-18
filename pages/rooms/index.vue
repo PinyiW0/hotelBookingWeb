@@ -4,9 +4,6 @@ const api = useApi();
 defineOptions({
   name: 'RoomIndex'
 });
-definePageMeta({
-  requiresAuth: true,
-});
 useSeoMeta({
   title: '客房旅宿頁',
   description: '客房旅宿頁',

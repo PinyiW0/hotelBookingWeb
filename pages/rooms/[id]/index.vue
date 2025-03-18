@@ -10,6 +10,7 @@ defineOptions({
   name: 'RoomsIndex'
 });
 const roomInfo = ref<RoomsInfo | null>(null);
+const isLoading = ref(false);
 
 useSeoMeta({
   title: () => roomInfo.value?.name ? `${roomInfo.value.name} - 酒店房型詳細頁` : '酒店房型詳細頁',
@@ -36,11 +37,12 @@ const galleryDataForGrid = computed(() => {
     list.slice(i * 2, i * 2 + 2).map((src, index) => ({ src, alt: `房間圖片${i * 2 + index + 1}` }))
   );
 });
-
 const getList = async () => {
-  const { result = null } = await api.Rooms.Get(id);
+  isLoading.value = true;
+  const { result = null } = await api.Rooms.Get(id)
   roomInfo.value = result;
   mainImg.value = result?.imageUrl || '';
+  isLoading.value = false;
 };
 
 // 取得房型基本資訊
@@ -142,6 +144,9 @@ onMounted(() => {
 
 <template>
   <section class="relative w-full bg-primary-10">
+    <SuccessLoading :isShow="isLoading">
+      <p class="text-6 font-bold tracking-wider">努力加載畫面中</p>
+    </SuccessLoading>
     <!-- 照片區 -->
     <div class="hidden lg:block">
       <div class="px-4 max-w-1760px mx-auto pt-0 pb-10 lg:py-20 grid grid-cols-2 gap-2">
@@ -250,7 +255,7 @@ onMounted(() => {
             <div class="text-4 text-error text-right duration-300">{{ errorMessage }}</div>
             <p class="mt-7 text-4 2xl:text-6 text-primary font-bold tracking-wider leading-8">
               <span class="text-gray">NT${{ roomInfo?.price ? roomInfo.price.toLocaleString() : '0'
-                }}/晚,根據您的訂房天數預計為</span>
+              }}/晚,根據您的訂房天數預計為</span>
               NT${{ totalPrice }}
             </p>
             <DefaultBtn @click="handleBooking" :disabled="!checkInDate || !checkOutDate" text="立即預訂"
@@ -306,7 +311,8 @@ onMounted(() => {
                   <div class="mt-5 flex items-center gap-4">
                     <h2 class="text-5 font-bold">{{ stayDays }} 晚</h2>
                     <p class="text-4 text-gray-80">
-                      入住日期：{{ $dayjs(checkInDate).format('YYYY/MM/DD') }} ~ {{ $dayjs(checkOutDate).format('YYYY/MM/DD')
+                      入住日期：{{ $dayjs(checkInDate).format('YYYY/MM/DD') }} ~ {{
+                        $dayjs(checkOutDate).format('YYYY/MM/DD')
                       }}
                     </p>
                   </div>

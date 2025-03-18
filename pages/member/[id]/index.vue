@@ -17,7 +17,9 @@ definePageMeta({
 });
 
 /* ── 取得最新會員資料 ── */
+const isLoading = ref<boolean>(false);
 const getUserData = async () => {
+  isLoading.value = true;
   const { result = null } = await api.Users.GetInfo();
   if (result && result.address) {
     if (!result.address.city || !result.address.county) {
@@ -29,6 +31,7 @@ const getUserData = async () => {
       }
     }
     userStore.user = { ...result, id: result._id };
+    isLoading.value = false;
   }
 };
 
@@ -206,6 +209,7 @@ const cancelEditUserInfo = () => {
 </script>
 
 <template>
+  <SuccessLoading :isShow="isLoading" />
   <!-- 個人資料 -->
   <div class="flex flex-col gap-6 xl:(flex-row gap-10)">
     <!-- 修改密碼 -->
