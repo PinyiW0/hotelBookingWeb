@@ -54,19 +54,6 @@ export default defineConfig({
   },
   presets: [
     presetUno(),
-    presetWebFonts({
-      provider: 'google',
-      fonts: {
-        noto: [
-          {
-            name: 'Noto Serif TC',
-            weights: [200, 300, 400, 500, 700, 900],
-            italic: false,
-          },
-        ],
-      },
-      timeouts: { warning: 5000 }
-    }),
     presetIcons({
       collections: {
         bi: () => import('@iconify-json/bi/icons.json').then(i => i.default),
