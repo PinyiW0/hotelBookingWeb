@@ -181,7 +181,7 @@ const submit = () => {
 </script>
 
 <template>
-  <div class="relative grid grid-cols-1 xl:grid-cols-2 h-screen">
+  <div class="relative grid grid-cols-1 xl:grid-cols-2">
     <!-- deco line -->
     <img src="/images/deco/login-line-web.svg" aria-hidden="true"
       class="hidden xl:block absolute top-10 sm:top-12 right-0 w-1/2">
@@ -193,16 +193,19 @@ const submit = () => {
     <div class="px-5 sm:px-20 3xl:(px-68 pt-40) pb-41 w-full">
       <div class="flex flex-col gap-4">
         <!-- title -->
-        <div class="flex flex-col gap-2">
+        <div class="z-1 flex flex-col gap-2">
           <p class="text-sm text-primary font-bold">享樂酒店，誠摯歡迎</p>
           <h2 class="text-8 text-white font-bold tracking-wide">立即註冊</h2>
         </div>
         <!-- 步驟選擇器 -->
-        <el-steps :space="200" :active="activeStep" finish-status="success" align-center
-          class="my-4 flex justify-center">
-          <el-step v-for="step in steps" :key="step.value" :title="step.label"
-            :status="step.completed ? 'success' : step.value === activeStep ? 'process' : 'wait'" />
-        </el-steps>
+        <ClientOnly>
+          <el-steps :space="200" :active="activeStep" finish-status="success" align-center
+            class="my-4 flex justify-center">
+            <el-step v-for="step in steps" :key="step.value" :title="step.label"
+              :status="step.completed ? 'success' : step.value === activeStep ? 'process' : 'wait'">
+            </el-step>
+          </el-steps>
+        </ClientOnly>
       </div>
 
       <!-- step1 -->

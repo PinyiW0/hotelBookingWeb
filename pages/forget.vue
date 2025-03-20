@@ -1,7 +1,8 @@
 <script setup lang="ts">
 const api = useApi();
 const { $swal } = useNuxtApp() as any;
-import type { ForgotPswQuery } from '@/api/Users/types';
+import type { FormRules } from 'element-plus';
+import { ElForm } from 'element-plus';
 
 defineOptions({
   name: 'Forget'
@@ -15,36 +16,33 @@ definePageMeta({
 });
 
 /** 驗證 */
-const email = ref<string>('');
-const isEmailValid = computed(() => {
-  const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-  return emailPattern.test(email.value.trim());
-});
+const rules: FormRules = {
+  email: [
+    { required: true, message: '電子信箱為必填', trigger: ['blur', 'change'] },
+    { type: 'email', message: '電子信箱格式錯誤', trigger: ['blur', 'change'] },
+  ],
+  newPassword: [{ required: true, message: '密碼為必填', trigger: ['blur', 'change'] }],
+  code: [{ required: true, message: '驗證碼為必填', trigger: ['blur', 'change'] }]
+};
 
-/** 寄送電子信箱邏輯 */
-const sendMail = async () => {
-  if (!isEmailValid.value) {
-    $swal.fire({
-      icon: 'error',
-      iconColor: '#DA3E51',
-      title: '登入失敗！',
-      text: '電子信箱格式不正確',
-      showConfirmButton: true
-    });
-    return;
-  };
-  const params: ForgotPswQuery = {
-    email: email.value,
-    code: "0Zvjde",
-    newPassword: "Dirt5528295"
-  };
-  const { status, message } = await api.Users.ForgotPsw(params);
+/** 驗證與重設用的狀態 */
+const isLoading = useState('loading');
+const resetForm = reactive({
+  email: '',
+  code: '',
+  newPassword: '',
+});
+const checkForm = ref<InstanceType<typeof ElForm> | null>(null);
+const resetPsw = async () => {
+  const isValid = await checkForm.value?.validate();
+  if (!isValid) return;
+  const { status = false } = await api.Verify.CheckMail(resetForm);
   if (status) {
-    $swal.fire({
+    await $swal.fire({
       icon: 'success',
       iconColor: '#52DD7E',
-      title: '已寄出驗證信！',
-      text: '請前往您的電子信箱查看密碼重設指示',
+      title: '重設密碼成功',
+      text: '請使用新密碼登入',
       showConfirmButton: false,
       timer: 2000,
       timerProgressBar: true
@@ -53,16 +51,17 @@ const sendMail = async () => {
   } else {
     $swal.fire({
       icon: 'error',
-      title: '發生錯誤',
-      text: message,
-      showConfirmButton: false,
+      iconColor: '#DA3E51',
+      title: '重設失敗！',
+      text: '請稍後再試，或是聯絡客服',
+      showConfirmButton: true
     });
-  }
+  };
 };
 </script>
 
 <template>
-  <div class="relative grid grid-cols-1 xl:grid-cols-2 h-screen">
+  <div class="relative grid grid-cols-1 xl:grid-cols-2">
     <!-- deco line -->
     <img src="/images/deco/login-line-web.svg" aria-hidden="true"
       class="hidden xl:block absolute top-10 sm:top-0 right-0 w-1/2">
@@ -74,20 +73,29 @@ const sendMail = async () => {
     <!-- login -->
     <div class=" px-5 sm:px-20 3xl:(px-68 pt-40) pt-23 pb-41 w-full flex flex-col gap-10">
       <!-- title -->
-      <div class="flex flex-col gap-2">
+      <div class="z-2 flex flex-col gap-2">
         <p class="text-sm text-primary font-bold">享樂酒店，誠摯歡迎</p>
-        <h2 class="text-8 text-white font-bold tracking-wide">忘記密碼嗎？</h2>
+        <h2 class="text-8 text-white font-bold tracking-wide">重設密碼</h2>
       </div>
       <!-- form -->
-      <div class="flex flex-col gap-3">
-        <el-input v-model="email" placeholder="請輸入電子信箱" />
-        <p v-if="email.trim() && !isEmailValid" class="text-error">電子信箱格式不正確</p>
+      <div class="flex flex-col gap-8">
+        <el-form ref="checkForm" :model="resetForm" :rules="rules" class="flex flex-col gap-8">
+          <el-form-item label="電子信箱" label-position="top" prop="email">
+            <el-input v-model="resetForm.email" placeholder="請輸入電子信箱" />
+          </el-form-item>
+          <el-form-item label="新密碼" label-position="top" prop="newPassword">
+            <el-input v-model="resetForm.newPassword" type="password" placeholder="請輸入密碼" show-password />
+          </el-form-item>
+          <el-form-item label="驗證碼" label-position="top" prop="code">
+            <el-input v-model="resetForm.code" placeholder="請輸入驗證碼" />
+          </el-form-item>
+          <el-form-item>
+            <DefaultBtn @click="resetPsw" text="重設密碼" class="mt-8 font-bold" />
+          </el-form-item>
+        </el-form>
       </div>
-      <!-- submit -->
-      <DefaultBtn @click="sendMail" text="寄送密碼遺失認證信" :disabled="!isEmailValid" class="font-bold" />
       <!-- go to login -->
-      <NuxtLink to="/login" class="text-primary text-end text-3.5 fw-bold cursor-pointer hover:opacity-60">已經是會員,前往登入頁
-      </NuxtLink>
+      <DefaultBtn to="/login" text="已經是會員,前往登入頁" btnStyle="onlyText" class="ml-auto font-bold" />
     </div>
   </div>
 </template>
@@ -95,11 +103,5 @@ const sendMail = async () => {
 <style scoped>
 :deep(.el-form-item__label) {
   color: white;
-}
-
-:deep(.el-checkbox) {
-  color: white;
-  font-size: 16px;
-  font-weight: bold;
 }
 </style>

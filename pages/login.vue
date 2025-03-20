@@ -100,11 +100,38 @@ onMounted(() => {
     rememberAccount.value = true;
   }
 });
+/** 忘記密碼 */
+const dialogVisible = ref<boolean>(false);
+const mailForm = reactive({ email: "" });
+const emailForm = ref<InstanceType<typeof ElForm> | null>(null);
+const handlePsw = async () => {
+  const isValid = await emailForm.value?.validate();
+  if (!isValid) return;
+
+  const { status = false, result = null } = await api.Verify.CheckMail({ email: mailForm.email });
+  if (status && result.isEmailExists) {
+    await $swal.fire({
+      icon: "success",
+      iconColor: "#52DD7E",
+      title: "驗證碼寄送成功",
+      showConfirmButton: true,
+    });
+    navigateTo('/forget');
+  } else {
+    $swal.fire({
+      icon: "error",
+      iconColor: "#DA3E51",
+      title: "信箱不存在",
+      text: "請確認您的電子信箱是否正確",
+      showConfirmButton: true,
+    });
+  }
+}
 // #endregion 登入
 </script>
 
 <template>
-  <div class="relative grid grid-cols-1 xl:grid-cols-2 h-screen">
+  <div class="relative grid grid-cols-1 xl:grid-cols-2">
     <!-- deco line -->
     <img src="/images/deco/login-line-web.svg" aria-hidden="true"
       class="hidden xl:block absolute top-10 sm:top-0 right-0 w-1/2">
@@ -136,8 +163,7 @@ onMounted(() => {
       </el-form>
       <div class="flex items-center justify-between">
         <el-checkbox v-model="rememberAccount" label="記住帳號" size="large" class="custom-checkbox" />
-        <NuxtLink to="/forget" class="text-primary text-3.5 fw-bold cursor-pointer duration-300 hover:opacity-60">忘記密碼?
-        </NuxtLink>
+        <DefaultBtn @click="dialogVisible = true" text="忘記密碼?" btnStyle="onlyText" />
       </div>
       <!-- go to signup -->
       <div class="flex items-center gap-2">
@@ -145,6 +171,22 @@ onMounted(() => {
         <DefaultBtn to="/register" text="前往註冊" btnStyle="onlyText" class="font-bold" />
       </div>
     </div>
+
+    <!-- 驗證 mail Modal -->
+    <el-dialog v-model="dialogVisible" title="請輸入您的電子信箱" width="500" align-center class="!rounded-5 !p-10">
+      <el-form ref="emailForm" :model="mailForm"
+        :rules="{ email: [{ type: 'email', message: '請輸入有效的電子信箱', trigger: ['blur', 'change'] }] }">
+        <el-form-item prop="email">
+          <el-input v-model="mailForm.email" placeholder="請輸入電子信箱" />
+        </el-form-item>
+      </el-form>
+      <template #footer>
+        <div class="ml-auto w-1/3 flex items-center justify-end gap-4">
+          <DefaultBtn @click="dialogVisible = true" text="取消" btnStyle="secondary" class="!px-4 !py-2" />
+          <DefaultBtn @click="handlePsw" text="確認" :disabled="!mailForm.email" class="!px-4 !py-2" />
+        </div>
+      </template>
+    </el-dialog>
   </div>
 </template>
 
