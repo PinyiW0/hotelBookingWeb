@@ -67,7 +67,7 @@ const handleLogin = async () => {
           timer: 2000,
           timerProgressBar: true
         });
-        // 清空表單（如果不記住帳號）
+        // 不記住帳號就清空表單
         if (!rememberAccount.value) {
           loginForm.value?.resetFields();
         };

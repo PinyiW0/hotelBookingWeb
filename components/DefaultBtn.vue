@@ -61,7 +61,7 @@ const emit = defineEmits(['click']);
     <p>{{ text }}</p>
     <img v-if="imgIcon" :src="`/images/icon/${imgIcon}.svg`" :alt="text" :class="iconWidth">
   </NuxtLink>
-  <button v-else @click="$emit('click')" :aria-label="text" :disabled="props.disabled" :class="btnCls" type="submit"
+  <button v-else @click="$emit('click')" :aria-label="text" :disabled="props.disabled" :class="btnCls" type="button"
     class="w-fit flex items-center justify-center gap-1 decoration-none cursor-pointer duration-400">
     <p class="font-bold whitespace-nowrap">{{ text }}</p>
     <img v-if="imgIcon" :src="`/images/icon/${imgIcon}.svg`" :alt="text" :class="iconWidth">
