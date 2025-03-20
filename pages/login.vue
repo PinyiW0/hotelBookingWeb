@@ -182,7 +182,7 @@ const handlePsw = async () => {
       </el-form>
       <template #footer>
         <div class="ml-auto w-1/3 flex items-center justify-end gap-4">
-          <DefaultBtn @click="dialogVisible = true" text="取消" btnStyle="secondary" class="!px-4 !py-2" />
+          <DefaultBtn @click="dialogVisible = false" text="取消" btnStyle="secondary" class="!px-4 !py-2" />
           <DefaultBtn @click="handlePsw" text="確認" :disabled="!mailForm.email" class="!px-4 !py-2" />
         </div>
       </template>
