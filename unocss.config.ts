@@ -65,6 +65,7 @@ export default defineConfig({
           },
         ],
       },
+      timeouts: { warning: 5000 }
     }),
     presetIcons({
       collections: {
