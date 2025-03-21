@@ -1,11 +1,13 @@
 <script setup lang="ts">
-const { selectedCity, selectedCounty, getAreaList, resetCity, getZipCode, formatAddr } = useAddress();
-import type { FormRules, FormInstance } from 'element-plus';
-import CityCountyData from 'assets/json/cityCountyData.json';
-
 const api = useApi();
-const { $swal } = useNuxtApp() as any;
-const { $dayjs } = useNuxtApp();
+const { $swal, $dayjs } = useNuxtApp() as any;
+
+const { selectedCity, selectedCounty, getAreaList, resetCity, getZipCode, formatAddr } = useAddress();
+
+import CityCountyData from 'assets/json/cityCountyData.json';
+import type { FormRules, FormInstance } from 'element-plus';
+import type { LoginInForm, Step } from '@/api/Users/types';
+
 
 defineOptions({
   name: 'Register'
@@ -18,17 +20,19 @@ definePageMeta({
   layout: 'login',
 });
 
-/** accountForm */
-interface LoginInForm {
-  email: string;
-  password: string;
-  confirmPassword: string;
-};
+// #region === 設定 === 
+const isLoading = ref<boolean>(false);
+const agreeRules = ref(false);
+const activeStep = ref(1);
+
+/** 帳號相關表格 */
 const accountForm = ref<LoginInForm>({
   email: '',
   password: '',
   confirmPassword: '',
 });
+
+/** 個人資料表格 */
 const profileForm = ref({
   name: '',
   phone: '',
@@ -42,7 +46,19 @@ const profileForm = ref({
   address: ''
 });
 
-/** 驗證 */
+/** 步驟 */
+const steps = ref<Step[]>([
+  { value: 1, label: '輸入信箱及密碼', completed: false },
+  { value: 2, label: '填寫基本資料', completed: false },
+]);
+
+/** 表單 ref */
+const accountFormRef = ref<FormInstance | null>(null);
+const profileFormRef = ref<FormInstance | null>(null);
+
+// #endregion === 設定 === 
+
+// #region === 驗證 ===
 /** 驗證確認密碼 */
 const checkConfirmPwd = (rule: any, value: string, callback: any) => {
   if (value !== accountForm.value.password) {
@@ -51,13 +67,19 @@ const checkConfirmPwd = (rule: any, value: string, callback: any) => {
   callback();
 };
 
+/** 生日日期 disabled */
+const disabledDate = (time: Date) => $dayjs(time).isAfter($dayjs().subtract(18, 'year').endOf('day'));
+
 /** Step.1 帳號資訊驗證 */
 const accountFormRules = reactive<FormRules>({
   email: [
     { required: true, message: '電子信箱為必填', trigger: ['blur', 'change'] },
     { type: 'email', message: '電子信箱格式錯誤', trigger: ['blur', 'change'] },
   ],
-  password: [{ required: true, message: ' 密碼為必填', trigger: ['blur', 'change'] }],
+  password: [
+    { required: true, message: ' 密碼為必填', trigger: ['blur', 'change'] },
+    { min: 8, message: '密碼至少需要 8 碼', trigger: ['blur', 'change'] }
+  ],
   confirmPassword: [
     { required: true, message: '必填，請再次輸入密碼', trigger: ['blur', 'change'] },
     { required: true, validator: checkConfirmPwd, trigger: ['blur', 'change'] },
@@ -82,27 +104,9 @@ watch(() => [profileForm.value.city, profileForm.value.county, profileForm.value
     profileForm.value.address = formatAddr(newCity, newCounty, newAddr);
   }
 );
+// #endregion === 驗證 === */
 
-/** 生日日期 disabled */
-const disabledDate = (time: any) => !$dayjs(time).isBefore($dayjs().startOf('day'));
-
-// #region 步驟相關
-/** 步驟 */
-interface Step {
-  value: number;
-  label: string;
-  completed: boolean;
-};
-const steps = ref<Step[]>([
-  { value: 1, label: '輸入信箱及密碼', completed: false },
-  { value: 2, label: '填寫基本資料', completed: false },
-])
-const activeStep = ref(1);
-
-/** 表單 ref */
-const accountFormRef = ref<FormInstance | null>(null);
-const profileFormRef = ref<FormInstance | null>(null);
-
+// #region === 步驟相關 ===
 /** 下一步 */
 const nextStep = () => {
   accountFormRef.value?.validate(async (isValid: boolean) => {
@@ -117,9 +121,6 @@ const isCompleted = computed(() => {
   return email.trim() !== '' && password.trim() !== '' && confirmPassword.trim() !== '';
 });
 
-/** 完成註冊 */
-const agreeRules = ref(false);
-
 /** 註冊 */
 const submit = () => {
   if (!agreeRules.value) {
@@ -133,8 +134,9 @@ const submit = () => {
     return;
   };
 
-  profileFormRef.value?.validate(async (isValid: boolean) => {
+  profileFormRef.value?.validate((isValid: boolean) => {
     if (isValid) {
+      isLoading.value = true;
       const { email, password } = accountForm.value;
       const { name, phone, birthday, city, county, addr } = profileForm.value;
       // 合併帳號與會員資料
@@ -150,31 +152,33 @@ const submit = () => {
         }
       } as any;
 
-      const { status } = await api.Users.SignIn(registrationData);
-      if (status) {
-        await $swal.fire({
-          icon: 'success',
-          iconColor: '#52DD7E',
-          title: '註冊成功！',
-          showConfirmButton: false,
-          timer: 2000,
-          timerProgressBar: true
-        });
+      api.Users.SignIn(registrationData)
+        .then(() => {
+          $swal.fire({
+            icon: 'success',
+            iconColor: '#52DD7E',
+            title: '註冊成功！',
+            showConfirmButton: false,
+            timer: 2000,
+            timerProgressBar: true
+          });
 
-        steps.value[activeStep.value - 1].completed = true;
-        accountFormRef.value?.resetFields();
-        profileFormRef.value?.resetFields();
-        navigateTo('/login');
-      } else {
-        $swal.fire({
-          icon: 'error',
-          iconColor: '#DA3E51',
-          title: '註冊失敗！',
-          text: '請稍後再試，或是聯絡客服',
-          showConfirmButton: true
-        });
-      };
-    }
+          steps.value[activeStep.value - 1].completed = true;
+          accountFormRef.value?.resetFields();
+          profileFormRef.value?.resetFields();
+          navigateTo('/login');
+        })
+        .catch(() => {
+          $swal.fire({
+            icon: 'error',
+            iconColor: '#DA3E51',
+            title: '註冊失敗！',
+            text: '請稍後再試，或是聯絡客服',
+            showConfirmButton: true
+          });
+        })
+        .finally(() => { isLoading.value = false });
+    };
   });
 };
 // #endregion 步驟相關
@@ -223,7 +227,7 @@ const submit = () => {
           </el-form-item>
         </el-form>
         <!-- nextStep -->
-        <DefaultBtn @click="nextStep" :disabled="!isCompleted" text="下一步" class="font-bold" />
+        <DefaultBtn @click="nextStep" :disabled="!isCompleted || isLoading" text="下一步" class="font-bold" />
         <!-- go to login -->
         <div class="flex items-center gap-2">
           <p class="text-sm text-white">已經有會員了嗎？</p>
@@ -240,9 +244,10 @@ const submit = () => {
           <el-form-item label="手機號碼" label-position="top" prop="phone">
             <el-input v-model="profileForm.phone" placeholder="請輸入手機號碼" />
           </el-form-item>
-          <el-form-item label="生日" label-position="top" prop="birthday">
-            <el-date-picker v-model="profileForm.birthday" :disabled-date="disabledDate" type="date"
-              placeholder="請選擇出生年月日" size="large" class="!w-full !h-52px" />
+          <el-form-item label="生日 ( 需要年滿 18 歲 )" label-position="top" prop="birthday">
+            <el-date-picker v-model="profileForm.birthday" :disabled-date="disabledDate"
+              :default-value="$dayjs().subtract(18, 'year').toDate()" type="date" placeholder="請選擇出生年月日" size="large"
+              class="!w-full !h-52px" />
           </el-form-item>
           <el-form-item label="地址" label-position="top" prop="address">
             <div class="w-full flex items-center gap-2">
@@ -260,9 +265,9 @@ const submit = () => {
             <el-input v-model="profileForm.addr" placeholder="請輸入詳細地址" class="mt-4" />
           </el-form-item>
         </el-form>
-        <el-checkbox v-model="agreeRules" label="我已閱讀並同意本網站個資使用規範" size="large" class="custom-checkbox" />
+        <el-checkbox v-model="agreeRules" label="我已閱讀並同意本網站個資使用規範" size="large" />
         <!-- nextStep -->
-        <DefaultBtn @click="submit" text="完成註冊" class="font-bold" />
+        <DefaultBtn @click="submit" :loading="isLoading" text="完成註冊" class="font-bold" />
         <!-- go to login -->
         <div class="flex items-center gap-2">
           <p class="text-sm text-white">已經有會員了嗎？</p>

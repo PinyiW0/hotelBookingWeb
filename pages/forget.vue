@@ -1,8 +1,10 @@
 <script setup lang="ts">
+import { ElForm } from 'element-plus';
+
 const api = useApi();
 const { $swal } = useNuxtApp() as any;
+
 import type { FormRules } from 'element-plus';
-import { ElForm } from 'element-plus';
 
 defineOptions({
   name: 'Forget'

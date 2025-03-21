@@ -1,5 +1,13 @@
 <script setup lang="ts">
 const loading = useState<boolean>('loading', () => false);
+  onMounted(() => {
+  loading.value = true;
+  nextTick(() => {
+    setTimeout(() => {
+      loading.value = false;
+    }, 1000);
+  });
+});
 </script>
 
 <template>

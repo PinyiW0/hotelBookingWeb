@@ -1,10 +1,15 @@
 <script setup lang="ts">
+import { ElForm } from 'element-plus';
+
 const api = useApi();
 const { $swal } = useNuxtApp() as any;
 
 import { useUserInfoStore } from '@/stores/userInfo';
+const userStore = useUserInfoStore();
+
 import type { FormRules } from 'element-plus';
-import { ElForm } from 'element-plus';
+import type { LoginQuery } from '@/api/Users/types';
+
 
 defineOptions({
   name: 'Login'
@@ -18,14 +23,12 @@ definePageMeta({
   layout: 'login',
 });
 
-// #region 登入
+// #region === 登入流程處理 ===
+/* 按鈕loading */
+const isLoading = ref<boolean>(false);
 /** form */
-interface LoginInForm {
-  email: string;
-  password: string;
-};
 const loginForm = ref<InstanceType<typeof ElForm> | null>(null);
-const formTemplate = ref<LoginInForm>({
+const loginData = ref<LoginQuery>({
   email: '',
   password: '',
 });
@@ -42,92 +45,116 @@ const rules: FormRules = {
 };
 
 /** 登入 */
-const handleLogin = async () => {
-  const isValid = await loginForm.value?.validate();
-  if (isValid) {
-    try {
-      // 記住帳號
+const handleLogin = () => {
+  loginForm.value?.validate((isValid: boolean) => {
+    if (isValid) {
+      isLoading.value = true;
+
       if (rememberAccount.value) {
-        loginInfoCookie.value = formTemplate.value.email;
+        loginInfoCookie.value = loginData.value.email;
       } else {
         loginInfoCookie.value = null;
-      };
-
-      const response = await api.Users.Login(formTemplate.value);
-      const { token, result = null } = response;
-
-      if (result && token) {
-        const userStore = useUserInfoStore();
-        userStore.setUserInfo(result, token);
-        await $swal.fire({
-          icon: 'success',
-          iconColor: '#52DD7E',
-          title: '登入成功！',
-          showConfirmButton: false,
-          timer: 2000,
-          timerProgressBar: true
-        });
-        // 不記住帳號就清空表單
-        if (!rememberAccount.value) {
-          loginForm.value?.resetFields();
-        };
-        navigateTo('/');
-      } else {
-        await $swal.fire({
-          icon: 'error',
-          iconColor: '#DA3E51',
-          title: '登入失敗！',
-          text: '請檢查您的電子信箱與密碼是否正確',
-          showConfirmButton: true
-        });
       }
-    } catch (error: any) {
-      await $swal.fire({
-        icon: 'error',
-        iconColor: '#DA3E51',
-        title: '登入失敗！',
-        text: '請先輸入正確的帳號密碼',
-        showConfirmButton: true
-      });
+
+      api.Users.Login(loginData.value)
+        .then((response) => {
+          const { token, result = null } = response;
+
+          if (result && token) {
+            userStore.setUserInfo(result, token);
+
+            return $swal.fire({
+              icon: 'success',
+              iconColor: '#52DD7E',
+              title: '登入成功！',
+              showConfirmButton: false,
+              timer: 2000,
+              timerProgressBar: true
+            }).then(() => {
+              if (!rememberAccount.value) {
+                loginForm.value?.resetFields();
+              }
+
+              navigateTo('/');
+            });
+          } else {
+            return $swal.fire({
+              icon: 'error',
+              iconColor: '#DA3E51',
+              title: '登入失敗！',
+              text: '請檢查您的電子信箱與密碼是否正確',
+              showConfirmButton: true
+            });
+          }
+        })
+        .catch(() => {
+          $swal.fire({
+            icon: 'error',
+            iconColor: '#DA3E51',
+            title: '登入失敗！',
+            text: '請先輸入正確的帳號密碼',
+            showConfirmButton: true
+          });
+        })
+        .finally(() => { isLoading.value = false });
     }
-  }
+  });
 };
+// #endregion === 登入流程處理 ===
+
+// #region === 忘記密碼流程 ===
+const dialogVisible = ref<boolean>(false);
+const mailForm = reactive({ email: "" });
+const emailForm = ref<InstanceType<typeof ElForm> | null>(null);
+/** 忘記密碼 */
+const handlePsw = () => {
+  emailForm.value?.validate((isValid: boolean) => {
+    if (isValid) {
+      isLoading.value = true;
+
+      api.Verify.CheckMail({ email: mailForm.email })
+        .then(({ status = false, result = null }) => {
+          if (status && result?.isEmailExists) {
+            return $swal.fire({
+              icon: 'success',
+              iconColor: '#52DD7E',
+              title: '驗證碼寄送成功',
+              showConfirmButton: true,
+            }).then(() => {
+              navigateTo('/forget');
+            });
+          } else {
+            return $swal.fire({
+              icon: 'error',
+              iconColor: '#DA3E51',
+              title: '信箱不存在',
+              text: '請確認您的電子信箱是否正確',
+              showConfirmButton: true,
+            });
+          }
+        })
+        .catch(() => {
+          $swal.fire({
+            icon: 'error',
+            iconColor: '#DA3E51',
+            title: '驗證失敗',
+            text: '請稍後再試',
+            showConfirmButton: true,
+          });
+        })
+        .finally(() => { isLoading.value = false });
+    }
+  });
+};
+// #endregion === 忘記密碼流程 ===
 
 /** 載入記住的帳號資訊 */
 onMounted(() => {
   if (loginInfoCookie.value) {
-    formTemplate.value.email = loginInfoCookie.value;
+    loginData.value.email = loginInfoCookie.value;
     rememberAccount.value = true;
-  }
+  };
 });
-/** 忘記密碼 */
-const dialogVisible = ref<boolean>(false);
-const mailForm = reactive({ email: "" });
-const emailForm = ref<InstanceType<typeof ElForm> | null>(null);
-const handlePsw = async () => {
-  const isValid = await emailForm.value?.validate();
-  if (!isValid) return;
-
-  const { status = false, result = null } = await api.Verify.CheckMail({ email: mailForm.email });
-  if (status && result.isEmailExists) {
-    await $swal.fire({
-      icon: "success",
-      iconColor: "#52DD7E",
-      title: "驗證碼寄送成功",
-      showConfirmButton: true,
-    });
-    navigateTo('/forget');
-  } else {
-    $swal.fire({
-      icon: "error",
-      iconColor: "#DA3E51",
-      title: "信箱不存在",
-      text: "請確認您的電子信箱是否正確",
-      showConfirmButton: true,
-    });
-  }
-}
-// #endregion 登入
 </script>
 
 <template>
@@ -143,22 +170,21 @@ const handlePsw = async () => {
     <!-- login -->
     <div class=" px-5 sm:px-20 3xl:(px-68 pt-40) pt-23 pb-41 w-full flex flex-col gap-10">
       <!-- title -->
-      <div class="flex flex-col gap-2">
+      <div class="z-1 flex flex-col gap-2">
         <p class="text-sm text-primary font-bold">享樂酒店，誠摯歡迎</p>
         <h2 class="text-8 text-white font-bold tracking-wide">立即開始旅程</h2>
       </div>
       <!-- form -->
-      <el-form ref="loginForm" @keyup.enter="handleLogin" :model="formTemplate" :rules="rules"
-        class="flex flex-col gap-4">
+      <el-form ref="loginForm" @keyup.enter="handleLogin" :model="loginData" :rules="rules" class="flex flex-col gap-4">
         <el-form-item label="電子信箱" label-position="top" prop="email">
-          <el-input v-model="formTemplate.email" placeholder="請輸入電子信箱" />
+          <el-input v-model="loginData.email" placeholder="請輸入電子信箱" />
         </el-form-item>
         <el-form-item label="密碼" label-position="top" prop="password">
-          <el-input v-model="formTemplate.password" type="password" placeholder="請輸入密碼" show-password />
+          <el-input v-model="loginData.password" type="password" placeholder="請輸入密碼" show-password />
         </el-form-item>
         <el-form-item>
-          <DefaultBtn @click="handleLogin" :disabled="!formTemplate.email || !formTemplate.password" text="會員登入"
-            class="mt-5 font-bold" />
+          <DefaultBtn @click="handleLogin" :loading="isLoading"
+            :disabled="!loginData.email || !loginData.password || isLoading" text="會員登入" class="mt-5 font-bold" />
         </el-form-item>
       </el-form>
       <div class="flex items-center justify-between">
@@ -183,7 +209,8 @@ const handlePsw = async () => {
       <template #footer>
         <div class="ml-auto w-1/3 flex items-center justify-end gap-4">
           <DefaultBtn @click="dialogVisible = false" text="取消" btnStyle="secondary" class="!px-4 !py-2" />
-          <DefaultBtn @click="handlePsw" text="確認" :disabled="!mailForm.email" class="!px-4 !py-2" />
+          <DefaultBtn @click="handlePsw" text="確認" :loading="isLoading" :disabled="!mailForm.email || isLoading"
+            class="!px-4 !py-2" />
         </div>
       </template>
     </el-dialog>

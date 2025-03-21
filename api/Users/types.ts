@@ -66,3 +66,24 @@ export interface UserQuery {
   oldPassword?: string;
   newPassword?: string;
 }
+
+/** 註冊 Step.1 Form */
+export interface LoginInForm {
+  email: string;
+  password: string;
+  confirmPassword: string;
+};
+
+/** 註冊 Step.1 */
+export interface Step {
+  value: number;
+  label: string;
+  completed: boolean;
+};
+
+/** 修改密碼區域 */
+export interface UpdatePassword {
+  oldPassword: string;
+  newPassword: string;
+  confirmPassword: string;
+};
