@@ -1,9 +1,14 @@
 <script lang="ts" setup>
+import { Loading } from '@element-plus/icons-vue'
 const props = defineProps({
   to: {
     type: String,
   },
   disabled: {
+    type: Boolean,
+    default: false
+  },
+  loading: {
     type: Boolean,
     default: false
   },
@@ -40,7 +45,7 @@ const btnCls = computed(() => {
       type = 'px-8 py-4 w-full text-base text-white bg-primary rounded-2 border-0 hover:bg-primary-120'
       break;
   }
-  if (props.disabled) {
+  if (props.disabled || props.loading) {
     type += ' !text-gray-60 pointer-events-none !bg-gray-40 !border-gray-40';
   }
   return type;
@@ -61,9 +66,13 @@ const emit = defineEmits(['click']);
     <p>{{ text }}</p>
     <img v-if="imgIcon" :src="`/images/icon/${imgIcon}.svg`" :alt="text" :class="iconWidth">
   </NuxtLink>
-  <button v-else @click="$emit('click')" :aria-label="text" :disabled="props.disabled" :class="btnCls" type="button"
-    class="w-fit flex items-center justify-center gap-1 decoration-none cursor-pointer duration-400">
+  <button v-else @click="$emit('click')" :aria-label="text" :disabled="disabled || loading" :class="btnCls"
+    type="button" class="w-fit flex items-center justify-center gap-1 decoration-none cursor-pointer duration-400">
     <p class="font-bold whitespace-nowrap">{{ text }}</p>
     <img v-if="imgIcon" :src="`/images/icon/${imgIcon}.svg`" :alt="text" :class="iconWidth">
+    <el-icon v-if="props.loading"
+      class="w-6 h-6 border-2 border-white border-r-transparent rounded-full animate-spin mr-2">
+      <Loading class="w-6 h-6" />
+    </el-icon>
   </button>
 </template>
