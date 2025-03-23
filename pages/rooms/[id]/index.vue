@@ -9,6 +9,8 @@ const { $dayjs } = useNuxtApp();
 defineOptions({
   name: 'RoomsIndex'
 });
+
+// 房間基本資料
 const roomInfo = ref<RoomsInfo | null>(null);
 const isLoading = ref(false);
 
@@ -16,15 +18,22 @@ useSeoMeta({
   title: () => roomInfo.value?.name ? `${roomInfo.value.name} - 酒店房型詳細頁` : '酒店房型詳細頁',
   description: () => roomInfo.value?.description || '享受高級的住宿體驗，提供給您舒適寬敞的空間和精緻的裝潢。',
 });
-/** 調整 header 背景色 */
+
 definePageMeta({
   headerBgColor: 'bg-gray-120',
 });
 
-
-/** 房間資訊 */
+// #region === 房間資訊 ===
+/** 房間資訊相關 */
 const id = route.params.id as string;
 const mainImg = ref<string>('');
+const dialogVisible = ref<boolean>(false);
+const currentIndex = ref(0);
+const carouselRef = ref<any | null>(null);
+
+/** 手機版預訂相關 */
+const openCalender = ref<boolean>(false);
+const openPeopleSelect = ref<boolean>(false);
 
 // 右側多圖處理 - mob
 const galleryDataForSwiper = computed(() =>
@@ -37,15 +46,8 @@ const galleryDataForGrid = computed(() => {
     list.slice(i * 2, i * 2 + 2).map((src, index) => ({ src, alt: `房間圖片${i * 2 + index + 1}` }))
   );
 });
-const getList = async () => {
-  isLoading.value = true;
-  const { result = null } = await api.Rooms.Get(id)
-  roomInfo.value = result;
-  mainImg.value = result?.imageUrl || '';
-  isLoading.value = false;
-};
 
-// 取得房型基本資訊
+/** 取得房型基本資訊 */
 const roomInfoList = computed(() => {
   return [
     { iconName: 'i-fluent:slide-size-24-filled', txt: roomInfo.value?.areaInfo ?? '尚未提供' },
@@ -54,10 +56,9 @@ const roomInfoList = computed(() => {
   ];
 });
 
-/**房內設備 */
+/** 房內設備 */
 const facilityInfo = computed(() => roomInfo.value?.facilityInfo.filter((item: any) => item.isProvide) ?? []);
-
-/** 訂房須知 */
+/** 訂房須知列表 */
 const knowList: any[] = [
   { txt: '入住時間為下午3點，退房時間為上午12點。' },
   { txt: '如需延遲退房，請提前與櫃檯人員聯繫，視當日房況可能會產生額外費用。' },
@@ -70,6 +71,63 @@ const knowList: any[] = [
   { txt: '我們提供24小時櫃檯服務，若有任何需求或疑問，歡迎隨時詢問。' },
   { txt: '為了確保所有客人的安全，請勿在走廊或公共區域大聲喧嘩，並遵守酒店的其他規定。' },
 ];
+/** 預定人數和錯誤訊息 */
+const people = ref<number>(1);
+const showError = ref<boolean>(false);
+const errorMessage = computed(() => {
+  if (people.value >= 4) return '人數不得大於4';
+  return '';
+});
+/** 日期選擇 */
+const checkInDate = ref<string>('');
+const checkOutDate = ref<string>('');
+
+/** 訂房費用與入住天數計算 */
+/** 計算訂房費用 */
+const totalPrice = computed(() => {
+  if (!checkInDate.value || !checkOutDate.value) return 0;
+  const days = $dayjs(checkOutDate.value).diff($dayjs(checkInDate.value), 'day');
+  const price = ((roomInfo.value?.price || 0) * days).toLocaleString();
+  return price;
+});
+
+/** 計算入住天數 */
+const stayDays = computed(() => {
+  if (!checkInDate.value || !checkOutDate.value) return 0;
+  return $dayjs(checkOutDate.value).diff($dayjs(checkInDate.value), 'day');
+});
+// #endregion === 房間資訊 ===
+
+// #region === 方法 ===
+/** 取得房型資訊 */
+const getList = async () => {
+  isLoading.value = true;
+  const { result = null } = await api.Rooms.Get(id)
+  roomInfo.value = result;
+  mainImg.value = result?.imageUrl || '';
+  isLoading.value = false;
+};
+/** Dialog - 輪播圖控制 */
+const handleChange = (newIndex: number) => { currentIndex.value = newIndex };
+const handlePrev = () => { carouselRef.value?.prev() };
+const handleNext = () => { carouselRef.value?.next() };
+
+/** 控制預訂人數 */
+const handlePeople = (num: number) => {
+  const newVal = people.value + num;
+  showError.value = newVal > 4;
+  if (!showError.value) people.value = newVal;
+};
+
+/** 日期選擇禁用規則 */
+const disabledStartDate = (time: Date) => $dayjs(time) < $dayjs().subtract(1, "day");
+const disabledEndDate = (time: Date) => $dayjs(time) < $dayjs(checkInDate.value).add(1, "day");
+/** 確認選擇日期，進入人數選擇視窗 */
+const handleConfirmDate = () => {
+  if (!checkInDate.value || !checkOutDate.value) return;
+  openCalender.value = false;
+  openPeopleSelect.value = true;
+};
 
 /** 儲存並導向訂房頁 */
 const handleBooking = () => {
@@ -82,60 +140,12 @@ const handleBooking = () => {
     }
   });
 };
+// #endregion === 方法 ===
 
-// #region 預訂人數
-const people = ref<number>(1);
-const showError = ref<boolean>(false);
-const errorMessage = computed(() => {
-  if (people.value >= 4) return '人數不得大於4';
-  return '';
-});
-
-const handlePeople = (num: number) => {
-  const newVal = people.value + num;
-  showError.value = newVal > 4;
-  if (!showError.value) people.value = newVal;
-};
-// #endregion 預訂人數
-
-// #region 日期選擇
-const checkInDate = ref('');
-const checkOutDate = ref('');
-/* checkin disabled 規則 */
-const disabledStartDate = (time: Date) => $dayjs(time) < $dayjs().subtract(1, "day");
-/* checkout disabled 規則 */
-const disabledEndDate = (time: Date) => $dayjs(time) < $dayjs(checkInDate.value).add(1, "day");
-// #endregion 日期選擇
-
-//計算訂房費用
-const totalPrice = computed(() => {
-  if (!checkInDate.value || !checkOutDate.value) return 0;
-  const days = $dayjs(checkOutDate.value).diff($dayjs(checkInDate.value), 'day');
-  const price = ((roomInfo.value?.price || 0) * days).toLocaleString();
-  return price;
-});
-
-// 預定的手機版資料
-const openCalender = ref<boolean>(false);
-const openPeopleSelect = ref<boolean>(false);
-
-// 視窗打開時，禁止滾動
+/** 視窗打開時，禁止滾動 */
 watch([openCalender, openPeopleSelect], ([calender, people]) => {
   document.body.style.overflow = (calender || people) ? "hidden" : "auto";
 });
-
-// 計算入住天數
-const stayDays = computed(() => {
-  if (!checkInDate.value || !checkOutDate.value) return 0;
-  return $dayjs(checkOutDate.value).diff($dayjs(checkInDate.value), 'day');
-});
-
-// 確認選擇日期，進入人數選擇視窗
-const handleConfirmDate = () => {
-  if (!checkInDate.value || !checkOutDate.value) return;
-  openCalender.value = false;
-  openPeopleSelect.value = true;
-};
 
 onMounted(() => {
   getList();
@@ -147,7 +157,7 @@ onMounted(() => {
     <SuccessLoading :isShow="isLoading">
       <p class="text-6 font-bold tracking-wider">努力加載畫面中</p>
     </SuccessLoading>
-    <!-- 照片區 -->
+    <!-- 照片區 - Web -->
     <div class="hidden lg:block">
       <div class="px-4 max-w-1760px mx-auto pt-0 pb-10 lg:py-20 grid grid-cols-2 gap-2">
         <!-- 左側主圖 -->
@@ -166,18 +176,47 @@ onMounted(() => {
         </div>
       </div>
     </div>
+    <!-- 照片區 - Mob -->
     <ClientOnly>
       <div class="lg:hidden relative w-full h-full overflow-x-hidden overflow-y-visible">
-        <!-- swiper -->
         <el-carousel v-show="!openCalender && !openPeopleSelect" :indicator-position="undefined"
           class="w-full !h-60 !sm:h-85 !md:h-115">
           <el-carousel-item v-for="(img, idx) in galleryDataForSwiper" :key="idx">
-            <!-- 輪播圖 -->
             <img :src="img.src" :alt="img.alt" class="w-full h-full object-cover">
           </el-carousel-item>
         </el-carousel>
-        <DefaultBtn text="看更多" btnStyle="secondary" class="absolute right-0 bottom-0 z-5 m-5 font-bold" />
+        <DefaultBtn @click="dialogVisible = true" text="看更多" btnStyle="secondary"
+          class="absolute right-0 bottom-0 z-5 m-5 font-bold" />
       </div>
+
+      <!-- 房間資訊 Dialog -->
+      <Transition name="fade">
+        <div v-if="dialogVisible" @click="dialogVisible = false"
+          class="fixed inset-0 bg-black/85 flex justify-center items-center z-50">
+          <div @click.stop="dialogVisible = false"
+            class="i-mdi:close-circle-outline fixed top-25 right-7 z-55 text-(1.5em #FFF) duration-300 hover:(cursor-pointer opacity-70)" />
+
+          <div @click.stop class="px-5 w-full flex items-center justify-center">
+            <el-carousel @change="handleChange" ref="carouselRef" :autoplay="false"
+              class="w-full !h-60 !sm:h-85 !md:h-115">
+              <el-carousel-item v-for="(img, idx) in galleryDataForSwiper" :key="idx">
+                <img :src="img.src" :alt="img.alt" class="w-full h-full object-cover">
+              </el-carousel-item>
+            </el-carousel>
+          </div>
+          <!-- Dialog 控制 -->
+          <div class="absolute bottom-5 left-1/2 -translate-x-1/2 flex items-center gap-5">
+            <div @click.stop="handlePrev()"
+              class="i-mdi:keyboard-arrow-left text-white w-6 h-6 duration-300 hover:(cursor-pointer opacity-70)"></div>
+            <p class="text-4.5 text-white font-bold transform">
+              {{ currentIndex + 1 }} / {{ galleryDataForSwiper.length }}
+            </p>
+            <div @click.stop="handleNext()"
+              class="i-mdi:keyboard-arrow-right text-white w-6 h-6 duration-300 hover:(cursor-pointer opacity-70)">
+            </div>
+          </div>
+        </div>
+      </Transition>
     </ClientOnly>
 
     <!-- 詳細資訊 -->
@@ -262,6 +301,7 @@ onMounted(() => {
               class="mt-7 font-bold" />
           </div>
         </div>
+
         <!-- 預約房型卡 Mob -->
         <div class="fixed left-0 bottom-0 lg:hidden w-full">
           <div class="p-3 w-full flex items-center justify-between gap-5 bg-white border-t-(px solid gray-40)">
