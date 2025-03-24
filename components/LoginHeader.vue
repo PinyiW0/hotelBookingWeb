@@ -7,7 +7,7 @@
     <!-- logo -->
     <h1>
       <a href="/">
-        <img src="/images/LOGO.svg" alt="享樂酒店 Enjoyment Luxury Hotel" class="h-10 lg:h-18 cursor-pointer">
+        <img src="/images/LOGO.svg" alt="享樂酒店 Enjoyment Luxury Hotel" width="100%" class="h-10 lg:h-18 cursor-pointer">
       </a>
     </h1>
   </header>

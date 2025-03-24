@@ -52,7 +52,7 @@ const getFoodList = async () => {
 /** 確認資料載入後關閉載入畫面 */
 const loadData = async () => {
   isLoading.value = true;
-  await Promise.all([getNewsList(), getRoomsList(), getFoodList()]).finally(() => isLoading.value = false);
+  await Promise.allSettled([getNewsList(), getRoomsList(), getFoodList()]).finally(() => isLoading.value = false);
 };
 // #endregion === Method ===
 
@@ -76,7 +76,8 @@ onMounted(() => {
             <!-- 黑色透明遮罩 -->
             <div class="absolute top-0 left-0 w-full h-full bg-black/60" />
             <!-- 輪播圖 -->
-            <img :src="`/images/Image/Room-${idx}.png`" :alt="`room-${idx + 1}`" class="w-full h-full object-cover">
+            <img :src="`/images/Image/Room-${idx}.png`" :alt="`room-${idx + 1}`" width="100%" height="100%"
+              class="object-cover">
           </el-carousel-item>
         </el-carousel>
         <div
@@ -130,7 +131,7 @@ onMounted(() => {
     <div class="relative py-20 xl:pt-50 xl:pb-50 w-full bg-gray-120">
       <!-- BG -->
       <div class="absolute w-full h-594px xl:h-672px xl:top-20 overflow-hidden">
-        <img src="/images/About-BG.png" aria-hidden class="w-full h-full object-cover object-center">
+        <img src="/images/About-BG.png" aria-hidden width="100%" height="100%" class="object-cover object-center">
       </div>
       <div class="relative mt-10 pl-10 pr-5 max-w-1296px ml-auto xl:px-0 ">
         <ClientOnly>
@@ -151,7 +152,8 @@ onMounted(() => {
     </div>
     <!-- 房型 swiper -->
     <div class="relative py-20 md:pt-35 w-full h-full bg-gray-120">
-      <img src="/images/deco/room-line.png" aria-hidden class="absolute top--6 right-0 md:top-7 lg:hidden">
+      <img src="/images/deco/room-line.png" aria-hidden width="100%" height="100%"
+        class="absolute top--6 right-0 md:top-7 lg:hidden">
       <RoomCarousel :slideList="roomsList" class="px-3 lg:px-0" />
     </div>
     <!-- 佳餚美饌 -->
@@ -174,7 +176,7 @@ onMounted(() => {
           <div class="flex flex-col gap-4">
             <p class="text-base text-white font-600">台灣高雄市新興區六角路123號</p>
             <div class="w-full max-h-90 rounded-2 overflow-hidden">
-              <img src="/images/Map.png" alt="台灣高雄市新興區六角路123號" class="object-left">
+              <img src="/images/Map.png" alt="台灣高雄市新興區六角路123號" width="100%" height="100%" class="object-left">
             </div>
           </div>
           <!-- trafficInfo -->
@@ -190,7 +192,7 @@ onMounted(() => {
         </div>
       </div>
       <div class="mt-10 md:mt-15 xl:mt-20 w-full overflow-x-hidden">
-        <img src="/images/deco/Line.png" aria-hidden class="w-full min-h-30 object-cover">
+        <img src="/images/deco/Line.png" aria-hidden width="100%" class="w-full min-h-30 object-cover">
       </div>
     </div>
   </section>
