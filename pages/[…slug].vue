@@ -5,6 +5,11 @@ useSeoMeta({
   ogTitle: "查無頁面",
   ogDescription: "404 Pages not found.",
 });
+useHead({
+  meta: [
+    { name: 'robots', content: 'noindex' }
+  ]
+})
 definePageMeta({
   layout: 'custom-error'
 });

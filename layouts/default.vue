@@ -1,5 +1,8 @@
 <script setup lang="ts">
 const route = useRoute();
+if (!route.path.startsWith('/member')) {
+  useCanonical()
+};
 const headerBgColor = computed(() => {
   return route.meta.headerBgColor || 'bg-transparent';
 });

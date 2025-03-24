@@ -5,8 +5,12 @@ defineOptions({
   name: 'Index'
 });
 useSeoMeta({
-  title: '首頁',
-  description: '首頁',
+  title: '首頁 - 高雄五星級豪華飯店｜尊爵雙人房、頂級餐飲、便捷交通',
+  description: '享樂酒店位於高雄市中心，，提供多樣房型選擇、免費 Wi-Fi、美味餐點與高級設施，是您旅遊高雄的首選飯店。',
+  ogTitle: '享樂酒店 - 高雄五星級豪華住宿推薦',
+  ogDescription: '頂級住宿體驗，盡在享樂酒店。高雄熱門飯店推薦，立即預訂享樂酒店，體驗頂級住宿與在地美食，飯店設有豪華客房與專人接送服務。',
+  ogImage: 'https://two025hotelbookingweb.onrender.com/images/Room-0.png',
+  ogUrl: 'https://two025hotelbookingweb.onrender.com/',
 });
 
 // #region === 資料 ===
@@ -76,7 +80,7 @@ onMounted(() => {
             <!-- 黑色透明遮罩 -->
             <div class="absolute top-0 left-0 w-full h-full bg-black/60" />
             <!-- 輪播圖 -->
-            <img :src="`/images/Image/Room-${idx}.png`" :alt="`room-${idx + 1}`" width="100%" height="100%"
+            <img :src="`/images/Image/Room-${idx}.png`" :alt="`享樂酒店豪華房型展示圖 ${idx + 1}`" width="100%" height="100%"
               class="object-cover">
           </el-carousel-item>
         </el-carousel>

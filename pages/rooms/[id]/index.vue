@@ -17,6 +17,9 @@ const isLoading = ref(false);
 useSeoMeta({
   title: () => roomInfo.value?.name ? `${roomInfo.value.name} - 酒店房型詳細頁` : '酒店房型詳細頁',
   description: () => roomInfo.value?.description || '享受高級的住宿體驗，提供給您舒適寬敞的空間和精緻的裝潢。',
+  ogTitle: () => roomInfo.value?.name,
+  ogDescription: () => roomInfo.value?.description,
+  ogImage: () => roomInfo.value?.imageUrl
 });
 
 definePageMeta({
@@ -293,7 +296,7 @@ onMounted(() => {
             <div class="text-4 text-error text-right duration-300">{{ errorMessage }}</div>
             <p class="mt-7 text-4 2xl:text-6 text-primary font-bold tracking-wider leading-8">
               <span class="text-gray">NT${{ roomInfo?.price ? roomInfo.price.toLocaleString() : '0'
-              }}/晚,根據您的訂房天數預計為</span>
+                }}/晚,根據您的訂房天數預計為</span>
               NT${{ totalPrice }}
             </p>
             <DefaultBtn @click="handleBooking" :disabled="!checkInDate || !checkOutDate" text="立即預訂"
