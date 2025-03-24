@@ -19,15 +19,13 @@ watch(
 <template>
   <teleport to="body">
     <transition name="fade">
-      <div>
-        <div v-if="isShow" class="fixed inset-0 z-80 flex items-center justify-center bg-black/40 backdrop-blur-5">
-          <div class="px-3 mt-20 lg:(mt-0 w-70%) w-full h-80%">
-            <div class="py-36 h-100% flex flex-col items-center justify-center gap-15 bg-white rounded-5">
-              <div class="loader" />
-              <div class="flex flex-col items-center gap-4">
-                <img src="/images/LOGO-pri.svg" alt="享樂酒店logo" width="144px">
-                <slot />
-              </div>
+      <div v-if="isShow" class="fixed inset-0 z-80 flex items-center justify-center bg-black/40 backdrop-blur-5">
+        <div class="px-3 mt-20 lg:(mt-0 w-70%) w-full h-80%">
+          <div class="py-36 h-100% flex flex-col items-center justify-center gap-15 bg-white rounded-5">
+            <div class="loader" />
+            <div class="flex flex-col items-center gap-4">
+              <img src="/images/LOGO-pri.svg" alt="享樂酒店logo" width="144px">
+              <slot />
             </div>
           </div>
         </div>
