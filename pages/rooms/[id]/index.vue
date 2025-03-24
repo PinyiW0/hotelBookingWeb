@@ -102,10 +102,9 @@ const stayDays = computed(() => {
 /** 取得房型資訊 */
 const getList = async () => {
   isLoading.value = true;
-  const { result = null } = await api.Rooms.Get(id)
+  const { result = null } = await api.Rooms.Get(id).finally(() => (isLoading.value = false));
   roomInfo.value = result;
   mainImg.value = result?.imageUrl || '';
-  isLoading.value = false;
 };
 /** Dialog - 輪播圖控制 */
 const handleChange = (newIndex: number) => { currentIndex.value = newIndex };

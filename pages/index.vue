@@ -1,5 +1,6 @@
 <script setup lang="ts">
 const api = useApi();
+
 defineOptions({
   name: 'Index'
 });
@@ -8,13 +9,11 @@ useSeoMeta({
   description: '首頁',
 });
 
-// #region 獲取資料
-/** 最新消息 */
+// #region === 資料 ===
+const isLoading = ref(false);
 const newsList = ref<any[]>([]);
-const getNewsList = async () => {
-  const { result = null } = await api.News.Load();
-  newsList.value = result;
-};
+const roomsList = ref<any[]>([]);
+const foodList = ref<any[]>([]);
 
 /** 關於我們 */
 const aboutContent: any[] = [
@@ -23,48 +22,47 @@ const aboutContent: any[] = [
   { label: '在這裡，您可以遙望窗外，欣賞高雄的城市景色，感受這座城市的繁華與活力；您也可以舒適地坐在我們的餐廳，品嚐精緻的佳餚，體驗無與倫比的味覺盛宴。 ' },
   { label: '享樂酒店，不僅是您在高雄的住宿之選，更是您感受高雄魅力的最佳舞台。我們期待著您的蒞臨，讓我們共同編織一段難忘的高雄故事。' },
 ];
-
-/** 房型 */
-const roomsList = ref<any[]>([]);
-const getRoomsList = async () => {
-  const { result = null } = await api.Rooms.Load();
-  roomsList.value = result;
-};
-
-/** 美味佳餚 */
-const foodList = ref<any[]>([]);
-const getFoodList = async () => {
-  const { result = null } = await api.Culinary.Load();
-  foodList.value = result;
-};
-
-/** 確認資料載入後關閉載入畫面 */
-const isLoading = ref(true);
-const loadData = async () => {
-  await Promise.all([getNewsList(), getRoomsList(), getFoodList()]);
-  isLoading.value = false;
-};
-
-loadData();
-
 /** 交通方式 */
 const trafficInfo: any[] = [
   { title: '自行開車', content: '如果您選擇自行開車，可以透過國道一號下高雄交流道，往市區方向行駛，並依路標指示即可抵達「享樂酒店」。飯店內設有停車場，讓您停車方便。', icon: 'i-mdi:car' },
   { title: '高鐵/火車', content: '如果您是搭乘高鐵或火車，可於左營站下車，外頭有計程車站，搭乘計程車約 20 分鐘即可抵達。或者您也可以轉乘捷運紅線至中央公園站下車，步行約 10 分鐘便可抵達。', icon: 'i-material-symbols:train' },
   { title: '禮賓車服務', content: '享樂酒店提供禮賓專車接送服務，但因目的地遠近會有不同的收費，請撥打電話將由專人為您服務洽詢專線： ( 07 ) 123-4567', icon: 'i-mdi:car-hatchback' },
 ];
-// #endregion 獲取資料
-const bannerList: any[] = [
-  { label: 'room1' },
-  { label: 'room2' },
-  { label: 'room3' },
-  { label: 'room4' },
-];
+// #endregion === 資料 ===
+
+// #region === Method ===
+/** 最新消息 */
+const getNewsList = async () => {
+  const { result = null } = await api.News.Load();
+  newsList.value = result;
+};
+
+/** 房型 */
+const getRoomsList = async () => {
+  const { result = null } = await api.Rooms.Load();
+  roomsList.value = result;
+};
+
+/** 美味佳餚 */
+const getFoodList = async () => {
+  const { result = null } = await api.Culinary.Load();
+  foodList.value = result;
+};
+
+/** 確認資料載入後關閉載入畫面 */
+const loadData = async () => {
+  isLoading.value = true;
+  await Promise.all([getNewsList(), getRoomsList(), getFoodList()]).finally(() => isLoading.value = false);
+};
+// #endregion === Method ===
+
+onMounted(() => {
+  loadData();
+});
 </script>
 
 <template>
   <section class="flex flex-col justify-center">
-    <!-- loading -->
     <SuccessLoading :isShow="isLoading">
       <p class="text-6 font-bold tracking-wider">努力加載畫面中</p>
     </SuccessLoading>
@@ -74,11 +72,11 @@ const bannerList: any[] = [
         <!-- swiper -->
         <el-carousel arrow="never" :indicator-position="undefined"
           class="w-full !h-210 !md:h-200 !lg:h-180 !xl:h-200 !2xl:h-220 !3xl:h-270">
-          <el-carousel-item v-for="(slide, idx) in bannerList" :key="idx">
+          <el-carousel-item v-for="(slide, idx) in 4" :key="idx">
             <!-- 黑色透明遮罩 -->
-            <div class="absolute top-0 left-0 w-full h-full bg-black/60"></div>
+            <div class="absolute top-0 left-0 w-full h-full bg-black/60" />
             <!-- 輪播圖 -->
-            <img :src="`/images/Image/Room-${idx}.png`" :alt="slide.label" class="w-full h-full object-cover">
+            <img :src="`/images/Image/Room-${idx}.png`" :alt="`room-${idx + 1}`" class="w-full h-full object-cover">
           </el-carousel-item>
         </el-carousel>
         <div

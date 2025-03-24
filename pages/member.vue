@@ -15,7 +15,6 @@ definePageMeta({
 });
 
 /** 會員資料 */
-const userName = computed(() => userStore.user?.name || '尊榮貴賓');
 const userId = computed(() => userStore.user?.id || route.params.id);
 
 /** Tab */
@@ -54,7 +53,6 @@ onMounted(() => {
     navigateTo({ query: { tab: activeTab.value } });
   }
 });
-
 </script>
 
 <template>

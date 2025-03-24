@@ -1,30 +1,28 @@
 <script setup lang="ts">
 import { useRoute, useRouter } from 'vue-router';
-import type { RoomsInfo } from '@/api/Rooms/types';
-import type { FormRules } from 'element-plus';
-import { useUserInfoStore } from '@/stores/userInfo';
 import CityCountyData from 'assets/json/cityCountyData.json';
+import { useUserInfoStore } from '@/stores/userInfo';
 
 const api = useApi();
+const { $swal, $dayjs } = useNuxtApp() as any;
 const route = useRoute();
 const router = useRouter();
 const userStore = useUserInfoStore();
-const { $swal } = useNuxtApp() as any;
-const { getZipCode } = useAddress();
-const { selectedCity, selectedCounty, getAreaList, resetCity } = useAddress();
-const { $dayjs } = useNuxtApp();
+const { selectedCity, selectedCounty, getAreaList, resetCity, getZipCode } = useAddress();
+
+import type { RoomsInfo, LoginInForm } from '@/api/Rooms/types';
+import type { FormRules } from 'element-plus';
 
 defineOptions({
   name: 'RoomsIdBooking'
 });
-/** 調整 header 背景色 */
+
 definePageMeta({
   requiresAuth: true,
   headerBgColor: 'bg-gray-120',
 });
 
-/** 取得房型詳細資料 */
-const id = route.params.id as string;
+/** 取得房型詳細資料來處理 SEO */
 const roomInfo = ref<RoomsInfo | null>(null);
 const getRoomInfo = async () => {
   isLoading.value = true;
@@ -32,17 +30,41 @@ const getRoomInfo = async () => {
   roomInfo.value = result;
   isLoading.value = false;
 };
+
 useSeoMeta({
   title: () => roomInfo.value?.name ? `${roomInfo.value.name} - 酒店預約房型頁` : '酒店預約房型頁',
   description: () => `立即預約 ${roomInfo.value?.name}, ${roomInfo.value?.description}` || '享受高級的住宿體驗，提供給您舒適寬敞的空間和精緻的裝潢。',
 });
-/** 返回上一頁 */
-const goBack = () => router.back();
 
-// #region 訂房資訊(日期、人數、價格)
-/** 日期 */
+/** State */
+const id = route.params.id as string;
 const isEditing = ref(false);
+const isLoading = ref(false);
+const isEditingPeople = ref(false);
 const bookingDateRange = ref<any>([]);
+const people = ref<number>(route.query.people ? Number(route.query.people) : 1);
+const discount = ref(0);
+
+const form = ref<LoginInForm>({
+  name: '',
+  phone: '',
+  email: '',
+  city: selectedCity.value,
+  county: selectedCounty.value,
+  addr: '',
+});
+
+/** 驗證 */
+const rules = reactive<FormRules>({
+  name: [{ required: true, message: '姓名為必填', trigger: ['blur', 'change'] }],
+  phone: [{ required: true, message: '手機號碼為必填', trigger: ['blur', 'change'] }],
+  email: [
+    { required: true, message: ' 電子信箱為必填', trigger: ['blur', 'change'] },
+    { type: 'email', message: ' 電子信箱格式錯誤', trigger: ['blur', 'change'] },
+  ],
+});
+
+// #region === 計算訂房資訊(日期、人數、價格) ===
 /** 住宿日期 */
 if (route.query.checkIn && route.query.checkOut) {
   bookingDateRange.value = [
@@ -65,9 +87,6 @@ const disabledStartDate = () => {
   return $dayjs() < $dayjs().subtract(1, 'day');
 };
 
-/** 住宿人數 */
-const people = ref<number>(route.query.people ? Number(route.query.people) : 1);
-const isEditingPeople = ref(false);
 /** 編輯人數 */
 const handlePeople = (change: number) => {
   const maxPeople = roomInfo.value?.maxPeople || 3;
@@ -87,41 +106,13 @@ const totalRoomPrice = computed(() => {
   return (roomInfo.value?.price ?? 0) * stayDays.value;
 });
 /** 計算總價 (單價 * 入住晚數 - 折扣) */
-const discount = ref(0);
 const totalPrice = computed(() => {
   const pricePerNight = roomInfo.value?.price || 0;
   return pricePerNight * stayDays.value - discount.value;
 });
-// #endregion 訂房資訊(日期、人數、價格)
+// #endregion === 計算訂房資訊(日期、人數、價格) ===
 
-// #region 訂房人資訊
-interface LoginInForm {
-  name: string;
-  phone: string;
-  email: string;
-  city: string;
-  cities?: string;
-  county: string;
-  addr: string;
-};
-const form = ref<LoginInForm>({
-  name: '',
-  phone: '',
-  email: '',
-  city: selectedCity.value,
-  county: selectedCounty.value,
-  addr: '',
-});
-/** 驗證 */
-const rules = reactive<FormRules>({
-  name: [{ required: true, message: '姓名為必填', trigger: ['blur', 'change'] }],
-  phone: [{ required: true, message: '手機號碼為必填', trigger: ['blur', 'change'] }],
-  email: [
-    { required: true, message: ' 電子信箱為必填', trigger: ['blur', 'change'] },
-    { type: 'email', message: ' 電子信箱格式錯誤', trigger: ['blur', 'change'] },
-  ],
-});
-
+// #region === 房間資訊 ===
 /** 房間資訊 */
 const roomInfoList = computed(() => [
   { iconName: 'i-fluent:slide-size-24-filled', txt: roomInfo.value?.areaInfo ?? '尚未提供' },
@@ -142,18 +133,16 @@ const infoSections = computed(() => [
   { title: '房內設備', items: facilityInfo.value },
   { title: '備品提供', items: amenityInfo.value }
 ]);
+// #endregion === 房間資訊 ===
 
-/** 預定房間 */
-const isLoading = ref(false);
-const checkInDate = $dayjs(bookingDateRange.value[0]).format('YYYY/MM/DD');
-const checkOutDate = $dayjs(bookingDateRange.value[1]).format('YYYY/MM/DD');
-// 訂房
+// #region === Method ===
+/** 訂房 */
 const handleBooking = async () => {
   isLoading.value = true;
   const orderParam = {
     roomId: id,
-    checkInDate,
-    checkOutDate,
+    checkInDate: $dayjs(bookingDateRange.value[0]).format('YYYY/MM/DD'),
+    checkOutDate: $dayjs(bookingDateRange.value[1]).format('YYYY/MM/DD'),
     peopleNum: people.value,
     userInfo: {
       address: {
@@ -167,6 +156,8 @@ const handleBooking = async () => {
   };
   const { result = null } = await api.Orders.AddOrder(orderParam);
   await new Promise(resolve => setTimeout(resolve, 2000));
+  console.log(result);
+
   if (result?._id) {
     await navigateTo({
       path: `/rooms/${route.params.id}/success`,
@@ -183,6 +174,7 @@ const handleBooking = async () => {
   }
   isLoading.value = false;;
 };
+
 /** 套用會員資料 */
 const applyMemberInfo = async () => {
   const userData = userStore.getUserInfo();
@@ -195,7 +187,10 @@ const applyMemberInfo = async () => {
     form.value.addr = userData.address.detail;
   }
 };
-// #endregion 訂房人資訊
+
+/** 返回上一頁 */
+const goBack = () => router.back();
+// #endregion === Method ===
 
 onMounted(() => {
   getRoomInfo();

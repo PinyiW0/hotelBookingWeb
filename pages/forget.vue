@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import { ElForm } from 'element-plus';
+import { useRoute } from 'vue-router';
 
+const route = useRoute();
 const api = useApi();
 const { $swal } = useNuxtApp() as any;
 
@@ -17,6 +19,15 @@ definePageMeta({
   layout: 'login',
 });
 
+/** State */
+const isLoading = useState('loading') as any;
+const resetForm = reactive({
+  email: '',
+  code: '',
+  newPassword: '',
+});
+const checkForm = ref<InstanceType<typeof ElForm> | null>(null);
+
 /** 驗證 */
 const rules: FormRules = {
   email: [
@@ -27,18 +38,12 @@ const rules: FormRules = {
   code: [{ required: true, message: '驗證碼為必填', trigger: ['blur', 'change'] }]
 };
 
-/** 驗證與重設用的狀態 */
-const isLoading = useState('loading');
-const resetForm = reactive({
-  email: '',
-  code: '',
-  newPassword: '',
-});
-const checkForm = ref<InstanceType<typeof ElForm> | null>(null);
+/** 重設密碼 */
 const resetPsw = async () => {
+  isLoading.value = true;
   const isValid = await checkForm.value?.validate();
   if (!isValid) return;
-  const { status = false } = await api.Verify.CheckMail(resetForm);
+  const { status = false } = await api.Verify.CheckMail(resetForm).finally(() => isLoading.value = false)
   if (status) {
     await $swal.fire({
       icon: 'success',
@@ -60,6 +65,11 @@ const resetPsw = async () => {
     });
   };
 };
+onMounted(() => {
+  if (route.query.email) {
+    resetForm.email = route.query.email as string;
+  }
+});
 </script>
 
 <template>
@@ -80,8 +90,8 @@ const resetPsw = async () => {
         <h2 class="text-8 text-white font-bold tracking-wide">重設密碼</h2>
       </div>
       <!-- form -->
-      <div class="flex flex-col gap-8">
-        <el-form ref="checkForm" :model="resetForm" :rules="rules" class="flex flex-col gap-8">
+      <div class="flex flex-col gap-4">
+        <el-form ref="checkForm" :model="resetForm" :rules="rules" class="flex flex-col gap-6">
           <el-form-item label="電子信箱" label-position="top" prop="email">
             <el-input v-model="resetForm.email" placeholder="請輸入電子信箱" />
           </el-form-item>
@@ -92,12 +102,11 @@ const resetPsw = async () => {
             <el-input v-model="resetForm.code" placeholder="請輸入驗證碼" />
           </el-form-item>
           <el-form-item>
-            <DefaultBtn @click="resetPsw" text="重設密碼" class="mt-8 font-bold" />
+            <DefaultBtn @click="resetPsw" :disabled="isLoading" :loading="isLoading" text="重設密碼"
+              class="mt-8 font-bold" />
           </el-form-item>
         </el-form>
       </div>
-      <!-- go to login -->
-      <DefaultBtn to="/login" text="已經是會員,前往登入頁" btnStyle="onlyText" class="ml-auto font-bold" />
     </div>
   </div>
 </template>

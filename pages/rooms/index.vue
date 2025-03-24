@@ -9,8 +9,13 @@ useSeoMeta({
   description: '客房旅宿頁',
 });
 
-/** 房間資訊 */
+/** State */
 const roomList = ref<any[]>([]);
+/** Swiper 響應式高度 */
+const carouselHeight = ref<string>('');
+const isDesktop = ref(false);
+
+/** 房間資訊 */
 const getList = async () => {
   const { result = null } = await api.Rooms.Load();
   roomList.value = result.map((room: any) => ({
@@ -22,14 +27,8 @@ const getList = async () => {
     ]
   }));
 };
-getList();
 
-// #region Swiper
-// 響應式高度，默認設置為空
-const carouselHeight = ref<string>('');
-const isDesktop = ref(false);
-
-// 更新高度和設備類型
+/** 更新高度和設備類型 */
 const updateResponsiveValues = () => {
   if (typeof window !== 'undefined') {
     const width = window.innerWidth;
@@ -42,15 +41,14 @@ const updateResponsiveValues = () => {
 };
 
 onMounted(() => {
-  updateResponsiveValues(); // 初始化
+  getList();
+  updateResponsiveValues();
   window.addEventListener('resize', updateResponsiveValues);
 });
 
-// 清理事件監聽器
 onBeforeUnmount(() => {
   window.removeEventListener('resize', updateResponsiveValues);
 });
-// #endregion Swiper
 </script>
 
 <template>

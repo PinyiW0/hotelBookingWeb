@@ -13,13 +13,9 @@ definePageMeta({
   headerBgColor: 'bg-gray-120',
 });
 
+/** === State === */
 const orderId = route.query.orderId as string;
 const orderInfo = ref<any>(null);
-
-const getOrderInfo = async () => {
-  const { result = null } = await api.Orders.GetInfo(orderId);
-  orderInfo.value = result;
-};
 
 /** 計算入住晚數 */
 const stayDays = computed(() => {
@@ -30,7 +26,6 @@ const stayDays = computed(() => {
 const totalRoomPrice = computed(() => {
   return (orderInfo.value?.roomId?.price ?? 0) * (stayDays.value || 1);
 });
-
 /**房內設備 */
 const facilityInfo = computed(() => {
   return orderInfo.value?.roomId?.facilityInfo?.filter((item: any) => item.isProvide)
@@ -39,13 +34,22 @@ const amenityInfo = computed(() => {
   return orderInfo.value?.roomId?.amenityInfo?.filter((item: any) => item.isProvide)
 });
 
+// #region === Method ===
+/** 取得訂單資訊 */
+const getOrderInfo = async () => {
+  const { result = null } = await api.Orders.GetInfo(orderId);
+  orderInfo.value = result;
+  console.log(orderInfo.value);
+
+};
 /** 前往我的訂單頁 */
-const checkOrder = () => {
+const goToOrderPage = () => {
   navigateTo({
     path: `/member/${route.params.id}/order`,
     query: { orderId: orderId }
   });
 };
+// #endregion === Method ===
 
 onMounted(() => {
   getOrderInfo();
@@ -77,7 +81,7 @@ onMounted(() => {
         <div class="py-10 xl:py-20 w-full flex flex-col gap-6 border-t-(px solid gray-40) border-b-(px solid gray-40)">
           <p class="text-4 xl:text-6 text-white tracking-wider font-bold">立即查看你的訂單紀錄</p>
           <div class="w-full xl:w-55">
-            <DefaultBtn @click="checkOrder" text="前往我的訂單" btnStyle="primary" class="font-bold" />
+            <DefaultBtn @click="goToOrderPage" text="前往我的訂單" btnStyle="primary" class="font-bold" />
           </div>
         </div>
         <!-- 訂房人資訊 -->

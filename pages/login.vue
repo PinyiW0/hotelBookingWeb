@@ -121,7 +121,7 @@ const handlePsw = () => {
               title: '驗證碼寄送成功',
               showConfirmButton: true,
             }).then(() => {
-              navigateTo('/forget');
+              navigateTo({ path: '/forget', query: { email: mailForm.email } });
             });
           } else {
             return $swal.fire({

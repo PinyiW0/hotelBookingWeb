@@ -12,19 +12,21 @@ definePageMeta({
   headerBgColor: 'bg-gray-120',
 });
 
-/** 取得資料 */
+/** State */
 const orderInfo = ref<any>(null);
 const isLoading = ref(false);
+const dialogVisible = ref(false);
+const displayCount = ref(3);
+
+/** 取得資料 */
 const getOrderInfo = async () => {
   isLoading.value = true;
-  const { result = null } = await api.Orders.GetList();
+  const { result = null } = await api.Orders.GetList().finally(() => isLoading.value = false);
   orderInfo.value = result;
-  isLoading.value = false;
 };
 
-// #region 即將到來的行程
-const dialogVisible = ref(false);
-/** 即將到來的行程 */
+// #region === 即將到來的行程 ===
+/** 取得即將到來的行程 */
 const upComingOrder = computed(() => {
   if (!orderInfo.value || !orderInfo.value.length) return null;
   const upcoming = orderInfo.value.filter((order: any) => order.status === 0 && $dayjs(order.checkInDate).isAfter($dayjs()));
@@ -59,6 +61,7 @@ const roomItems: any = computed(() => {
 
 /** 取消即將到來的預訂 */
 const cancelRecentOrder = async (id: string) => {
+  isLoading.value = true;
   await api.Orders.Delete(id)
     .then(() => {
       $swal.fire({
@@ -79,25 +82,27 @@ const cancelRecentOrder = async (id: string) => {
     })
     .finally(() => {
       dialogVisible.value = false;
+      isLoading.value = false;
     });
 };
-// #endregion 即將到來的行程
+// #endregion === 即將到來的行程 ===
 
-// #region 歷史訂單
+// #region === 歷史訂單 ===
 const historyOrders: any = computed(() => {
   if (!orderInfo.value || !orderInfo.value.length) return [];
   const history = orderInfo.value.filter((order: any) => order.status !== 0 || !$dayjs(order.checkInDate).isAfter($dayjs()));
   history.sort((a: any, b: any) => $dayjs(b.checkInDate).diff($dayjs(a.checkInDate)));
   return history || null
 });
+
 /** 控制顯示的歷史訂單筆數 */
-const displayCount = ref(3);
 const displayedHistoryOrders = computed(() => {
   return historyOrders.value.slice(0, displayCount.value);
 });
 
 /** 點擊「查看更多」後增加顯示筆數 */
 const showMore = () => {
+  isLoading.value = true;
   displayCount.value += 3;
   nextTick(() => {
     const element = document.querySelector('.history-orders-container');
@@ -105,8 +110,9 @@ const showMore = () => {
       element.scrollIntoView({ behavior: 'smooth', block: 'end' });
     }
   });
+  isLoading.value = false;
 };
-// #endregion 歷史訂單
+// #endregion === 歷史訂單 ===
 
 onMounted(() => {
   getOrderInfo();
@@ -202,8 +208,8 @@ onMounted(() => {
         <div v-else>
           <p>暫無歷史訂單</p>
         </div>
-        <DefaultBtn v-if="displayCount < historyOrders.length" @click="showMore" text="查看更多" btnStyle="secondary"
-          class="w-full font-bold" />
+        <DefaultBtn v-if="displayCount < historyOrders.length" @click="showMore" :disabled="isLoading"
+          :loading="isLoading" text="查看更多" btnStyle="secondary" class="w-full font-bold" />
       </div>
     </div>
   </div>
@@ -215,7 +221,8 @@ onMounted(() => {
       <template #footer>
         <div class="flex items-center gap-4">
           <DefaultBtn text="關閉視窗" @click="dialogVisible = false" btnStyle="secondary" class="w-full font-bold" />
-          <DefaultBtn text="確定取消" @click="cancelRecentOrder(upComingOrder._id)" class=" font-bold" />
+          <DefaultBtn text="確定取消" @click="cancelRecentOrder(upComingOrder._id)" :disabled="isLoading"
+            :loading="isLoading" class=" font-bold" />
         </div>
       </template>
     </el-dialog>
