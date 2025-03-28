@@ -160,6 +160,9 @@ onMounted(() => {
 <template>
   <div class="relative grid grid-cols-1 xl:grid-cols-2">
     <!-- deco line -->
+    <div class="z-5 absolute top-0 -right-90 w-full overflow-visible scale-x-[-1]">
+      <Wave />
+    </div>
     <img src="/images/deco/login-line-web.svg" aria-hidden="true"
       class="hidden xl:block absolute top-10 sm:top-0 right-0 w-1/2">
     <img src="/images/deco/login-line.svg" aria-hidden="true" class="xl:hidden absolute top-10 sm:top-0 w-full">

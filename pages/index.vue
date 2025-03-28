@@ -152,12 +152,16 @@ onMounted(() => {
             </div>
           </div>
         </div>
+        <div class="z-10 absolute -bottom-40 left-0 -translate-1/2 xxl:-bottom-0 w-full overflow-visible">
+          <Wave />
+        </div>
       </div>
     </div>
     <!-- 房型 swiper -->
     <div class="relative py-20 md:pt-35 w-full h-full bg-gray-120">
-      <img src="/images/deco/room-line.png" aria-hidden width="100%" height="100%"
-        class="absolute top--6 right-0 md:top-7 lg:hidden">
+      <div class="z-5 absolute top-70 -right-100 xl:top-110 xxl:(top-150) w-full overflow-visible scale-x-[-1]">
+        <Wave />
+      </div>
       <RoomCarousel :slideList="roomsList" class="px-3 lg:px-0" />
     </div>
     <!-- 佳餚美饌 -->
