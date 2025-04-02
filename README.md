@@ -1,5 +1,5 @@
 # 享樂酒店訂房平台
-> 提供便捷的訂房流程，獨立部署於 Render，整合 MongoDB 資料庫，提供便捷的訂房體驗，並優化 SEO
+> 一站式線上訂房系統，整合 MongoDB 資料庫，獨立部署於 Render，提供快速便捷的飯店預訂體驗，整合 sitemap 實作 SEO 優化，提升搜尋能見度與使用者體驗
 > 主要技術：Nuxt3, Vue3 Composition API, TypeScript, UnoCSS
 
 ![Node Version](https://img.shields.io/badge/node-20.10.0-blue)
@@ -18,7 +18,7 @@
 | CSS        | UnoCSS                        |
 | 資料庫      | MongoDB                       |
 | 部署平台    | Render                        |
-| 其他特性    | SEO 優化、路由守衛 |
+| 其他特性    | SEO 優化、路由守衛、API 封裝 |
 
 ---
 
