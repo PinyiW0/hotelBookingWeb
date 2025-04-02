@@ -46,7 +46,7 @@ export default defineNuxtConfig({
   imports: {
     "dirs": ['stores']
   },
-  modules: ['@pinia/nuxt', '@unocss/nuxt', '@element-plus/nuxt'],
+  modules: ['@pinia/nuxt', '@unocss/nuxt', '@element-plus/nuxt', '@nuxt/test-utils/module'],
   runtimeConfig: {
     "public": {
       "title": import.meta.env.NUXT_TITLE,
