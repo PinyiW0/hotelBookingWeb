@@ -1,13 +1,10 @@
 <script lang="ts" setup>
-import type { PropType } from 'vue';
-
 export interface TabOption {
   title: string;
   val: string;
   disabled?: boolean;
 };
 
-const modelValue = defineModel();
 defineProps({
   list: { type: Array as PropType<TabOption[]>, default: [] },
   tabWidth: {
@@ -15,7 +12,9 @@ defineProps({
     default: 'px-6'
   }
 });
+const modelValue = defineModel();
 const emits = defineEmits(['update:modelValue']);
+
 const handleChangeTab = (item: any) => {
   emits('update:modelValue', item.val)
 };
@@ -33,5 +32,3 @@ const handleChangeTab = (item: any) => {
     </button>
   </div>
 </template>
-
-<style lang="scss" scoped></style>

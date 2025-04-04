@@ -1,6 +1,6 @@
 /// <reference types="vitest" />
 import { mountSuspended } from '@nuxt/test-utils/runtime'
-import Tab from './Tab.vue'
+import Tab from '@/components/Tab.vue'
 import { describe, expect, it } from 'vitest'
 
 /**
