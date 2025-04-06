@@ -2,7 +2,7 @@
 defineProps({
   slideList: {
     type: Array,
-    requied: true
+    required: true
   } as any
 });
 </script>
@@ -12,7 +12,7 @@ defineProps({
     <img src="/images/deco/waveBG.png" aria-hidden class="absolute bottom-35 right-0 z-2 lg:hidden">
     <ClientOnly>
       <swiper-container slides-per-view="1" pagination-enabled="true" pagination-clickable="true"
-        pagination-hide-on-click="false" navigation="true" autoplay-delay="5000" effect="fade" class="roomSwiper">
+        pagination-hide-on-click="false" navigation="true" autoplay-delay="25000" effect="fade" class="roomSwiper">
 
         <swiper-slide v-for="slide in slideList" :key="slide.id" class="bg-gray-120 relative">
           <!-- deco -->
@@ -30,15 +30,10 @@ defineProps({
             <div class="lg:(mr-8 w-462px) 2xl:w-628px flex flex-col gap-2 lg:gap-4 z-10">
               <h3 class="text-7 text-white font-bold">{{ slide.name }}</h3>
               <p class="text-sm text-white">{{ slide.description }}</p>
-              <p class="mt-4 lg:mt-6 text-6 text-white font-bold tracking-widest">NT$ {{ slide.price }}</p>
+              <p class="mt-4 lg:mt-6 text-6 text-white font-bold tracking-widest">NT$ {{ slide.price.toLocaleString() }}
+              </p>
               <!-- btn -->
-              <HeroBtn :to="`/rooms/${slide._id}`" text="查看更多" class="mt-6" />
-              <div class="mt-6 p-4 flex items-center justify-end gap-8">
-                <div
-                  class="room-swiper-button-prev i-mdi:arrow-left text-primary w-6 h-6 duration-300 hover:(text-white cursor-pointer)" />
-                <div
-                  class="room-swiper-button-next i-mdi:arrow-right text-primary w-6 h-6 duration-300 hover:(text-white cursor-pointer)" />
-              </div>
+              <HeroBtn :to="`/rooms/${slide._id}`" text="查看更多" class="mt-6 mb-20" />
             </div>
           </div>
         </swiper-slide>
@@ -63,15 +58,15 @@ swiper-container::part(pagination) {
   }
 
   @media (min-width: 640px) {
-    bottom: 50%;
+    bottom: 48%;
   }
 
   @media (min-width: 768px) {
-    bottom: 45%;
+    bottom: 40%;
   }
 
   @media (min-width: 1024px) {
-    bottom: 5%;
+    bottom: 2%;
     left: -22%;
   }
 
@@ -80,7 +75,6 @@ swiper-container::part(pagination) {
     left: -25%;
   }
 }
-
 
 /* 點點樣式 */
 swiper-container::part(bullet) {
@@ -110,16 +104,54 @@ swiper-container::part(navigation) {
 }
 
 swiper-container::part(button-prev) {
-  opacity: 0 !important;
+  position: absolute !important;
+  top: 98% !important;
+  left: 80% !important;
+  z-index: 20 !important;
   width: 24px;
   height: 24px;
-  color: #BF9D7D;
+  color: transparent;
+  background-image: url(/public/images/arrow-left.svg);
+
+  @media (min-width: 640px) {
+    top: 98%;
+    left: 87% !important;
+  }
+
+  @media (min-width: 1024px) {
+    top: 98%;
+    left: 91% !important;
+  }
+
+  @media (min-width: 1600px) {
+    top: 98%;
+    left: 78% !important;
+  }
 }
 
 swiper-container::part(button-next) {
-  opacity: 0 !important;
+  position: absolute !important;
+  top: 98% !important;
+  left: 93% !important;
+  z-index: 20 !important;
   width: 24px;
   height: 24px;
-  color: #BF9D7D;
+  color: transparent;
+  background-image: url(/public/images/arrow-right.svg);
+
+  @media (min-width: 640px) {
+    top: 98%;
+    left: 94% !important;
+  }
+
+  @media (min-width: 1024px) {
+    top: 98%;
+    left: 95% !important;
+  }
+
+  @media (min-width: 1600px) {
+    top: 98%;
+    left: 81% !important;
+  }
 }
 </style>
