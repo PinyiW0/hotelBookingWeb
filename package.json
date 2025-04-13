@@ -13,16 +13,12 @@
     "@element-plus/nuxt": "^1.1.0",
     "@pinia/nuxt": "^0.7.0",
     "@unocss/reset": "^0.64.0",
-    "@vuepic/vue-datepicker": "^10.0.0",
     "dayjs": "^1.11.13",
     "element-plus": "^2.8.7",
     "nuxt": "^3.14.0",
     "pinia": "^2.2.6",
-    "supports-color": "^7.2.0",
     "sweetalert2": "^11.17.2",
-    "swiper": "^11.1.15",
-    "vue": "latest",
-    "vue-router": "latest"
+    "swiper": "^11.1.15"
   },
   "devDependencies": {
     "@iconify-json/bi": "^1.2.1",
