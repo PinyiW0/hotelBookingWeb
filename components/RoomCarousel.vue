@@ -45,7 +45,7 @@ defineProps({
 <style scoped>
 /* 分頁容器的樣式  */
 swiper-container::part(pagination) {
-  display: flex;
+  display: none;
   justify-content: center;
   gap: 4px;
   position: absolute;
